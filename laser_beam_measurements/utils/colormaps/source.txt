@@ -1,0 +1,2 @@
+At this project Colorsets from https://colorcet.com are used.
+Download link: https://colorcet.com/download/CETperceptual_csv_0_255.zip
