@@ -15,6 +15,8 @@ import inspect
 from .camera_factory_base import CameraFactoryBase, CameraCreateException
 from .camera_base import CameraBase
 
+__all__ = ["CameraFactory"]
+
 
 class CameraFactory(object):
 
@@ -63,11 +65,11 @@ class CameraFactory(object):
             return self._factories[name]
         return None
 
-    def create_camera(self, factory_name: str, camera_id: str | int) -> CameraBase | None:
+    def create_camera(self, factory_name: str, camera_id: str | int, *args, **kwargs) -> CameraBase | None:
         factory = self.get_factory(factory_name)
         if factory:
             try:
-                return factory.create(camera_id)
+                return factory.create(camera_id, *args, **kwargs)
             except CameraCreateException as ex:
                 print(ex)
                 return None

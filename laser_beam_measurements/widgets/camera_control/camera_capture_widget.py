@@ -16,11 +16,13 @@ from PySide6.QtCore import Slot
 from .ui_camera_capture_widget import Ui_Form
 from laser_beam_measurements.widgets.utils.custom_graphics_scene import CustomGraphicsScene
 from laser_beam_measurements.utils.colormap import COLORMAPS
+from .camera_select_dialog import CameraSelectDialog
+from laser_beam_measurements.camera_control.camera_selector import CameraSelector
 
 
 class CameraCaptureWidget(CameraCaptureWidgetBase):
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, use_camera_select_dialog: bool = False):
         super(CameraCaptureWidget, self).__init__(parent)
         self.ui = Ui_Form()
         self.ui.setupUi(self)
@@ -36,6 +38,7 @@ class CameraCaptureWidget(CameraCaptureWidgetBase):
 
         self._connect_signals()
         self._fill_colormap_combobox()
+        self._use_camera_select_dialog: bool = use_camera_select_dialog
 
     def _connect_signals(self) -> None:
         self.ui.start_button.clicked.connect(self.start_button_clicked)
@@ -54,6 +57,10 @@ class CameraCaptureWidget(CameraCaptureWidgetBase):
         else:
             self.ui.start_button.setText("Start")
             self._update_properties(disable_all=True)
+            if self._use_camera_select_dialog:
+                camera = self._camera_grabber.camera
+                if camera is not None:
+                    camera.close()
 
     def _on_error(self, error_message: str) -> None:
         pass
@@ -77,6 +84,8 @@ class CameraCaptureWidget(CameraCaptureWidgetBase):
     @Slot()
     def start_button_clicked(self):
         if self.ui.start_button.text() == "Start":
+            if self._use_camera_select_dialog:
+                self.show_camera_select_dialog()
             self.change_run_status(True)
         else:
             self.change_run_status(False)
@@ -138,3 +147,10 @@ class CameraCaptureWidget(CameraCaptureWidgetBase):
             self.ui.gain_slider.setValue(value)
         elif name == "exposure":
             self.ui.exposure_slider.setValue(value)
+
+    def show_camera_select_dialog(self):
+        selector = CameraSelector(self._camera_grabber)
+        selector.set_grabber(self._camera_grabber)
+        camera_select_dialog = CameraSelectDialog(self)
+        camera_select_dialog.set_selector(selector)
+        camera_select_dialog.exec()

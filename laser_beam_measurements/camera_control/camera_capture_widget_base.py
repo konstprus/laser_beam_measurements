@@ -114,4 +114,6 @@ class CameraCaptureWidgetBase(QWidget):
     def closeEvent(self, event):
         if self._camera_grabber:
             self._camera_grabber.run_status_changed(False)
+            # del self._camera_grabber
+            self._camera_grabber.stop_thread()
         super(CameraCaptureWidgetBase, self).closeEvent(event)

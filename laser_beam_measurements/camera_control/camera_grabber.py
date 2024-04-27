@@ -21,8 +21,6 @@ __all__ = ["CameraGrabber"]
 
 class CameraGrabber(QObject):
 
-    # signal_property_changed = Signal(str, object)
-
     def __init__(self, parent=None, **kwargs):
         super(CameraGrabber, self).__init__(parent)
         self._camera: CameraBase | None = None
@@ -44,15 +42,20 @@ class CameraGrabber(QObject):
         if not self._thread.isRunning():
             self._thread.start()
 
-    def __del__(self):
+    # def __del__(self):
+    #     self.stop()
+    #     if self._camera:
+    #         self._camera.close()
+    #     if self._own_thread:
+    #         self._thread.quit()
+    #         self._thread.wait(10000)
+    #         del self._thread
+
+    def stop_thread(self):
         self.stop()
-        if self._camera:
-            self._camera.close()
         if self._own_thread:
             self._thread.quit()
-            # self._thread.msleep(1000)
-            self._thread.wait(10000)
-            del self._thread
+            self._thread.wait(1000)
 
     def set_camera(self, camera: CameraBase) -> None:
         with QMutexLocker(self._mutex):
@@ -60,6 +63,11 @@ class CameraGrabber(QObject):
             self._property_controller.set_camera(self._camera)
             if self._listener is not None:
                 self._listener.reset()
+
+    @property
+    def camera(self) -> CameraBase | None:
+        with QMutexLocker(self._mutex):
+            return self._camera
 
     @property
     def auto_grabbing_enabled(self) -> bool:
@@ -132,33 +140,6 @@ class CameraGrabber(QObject):
                 self.start()
             else:
                 self.stop()
-
-    # @Slot(str, object)
-    # def set_property_value(self, name: str, value: object) -> None:
-    #     with QMutexLocker(self._mutex):
-    #         try:
-    #             if self._camera is None:
-    #                 return
-    #             if not self._camera.has_property(name):
-    #                 return
-    #             last_value = self._camera.get_property(name)
-    #             if last_value != value:
-    #                 self._camera.set_property_value(name, value)
-    #                 self.signal_property_changed.emit(name, value)
-    #                 if name == "fps":
-    #                     self._update_timer_interval()
-    #                     self._change_interval(self._timer_interval)
-    #         except Exception as ex:
-    #             if self._listener:
-    #                 self._listener.on_error(str(ex))
-
-    def has_property(self, name: str) -> bool:
-        with QMutexLocker(self._mutex):
-            if self._camera is None:
-                return False
-            if self._camera.has_property(name):
-                prop = self._camera.get_property(name)
-                return prop.available
 
     def _change_interval(self, value: int) -> None:
         if self._timer_interval == value:

@@ -31,13 +31,15 @@ class CameraFactoryBase(object):
             return self._func
         if hasattr(self._func, '__call__'):
             return self._func(*args, **kwargs)
+        if hasattr(self, "_get_available_devices"):
+            return self._get_available_devices(*args, **kwargs)
         return []
 
-    def create(self, camera_id=None):
+    def create(self, camera_id=None, *args, **kwargs):
         if self.camera_class:
             try:
                 if camera_id is not None:
-                    return self.camera_class(camera_id=camera_id)
+                    return self.camera_class(camera_id=camera_id, *args, **kwargs)
             except Exception as ex:
                 raise CameraCreateException(
                     f"Error occurred during creation of camera object. Error message: {ex}")

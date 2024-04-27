@@ -12,6 +12,8 @@ from laser_beam_measurements.widgets.camera_control.camera_capture_widget import
 from laser_beam_measurements.camera_control.camera_grabber import CameraGrabber
 from laser_beam_measurements.camera_control.camera_factory import CameraFactory
 
+USE_CAMERA_SELECT_DIALOG: bool = False
+
 if __name__ == "__main__":
     from PySide6.QtWidgets import QApplication
     import sys
@@ -24,7 +26,7 @@ if __name__ == "__main__":
     del factory
     grabber.set_camera(camera)
 
-    w = CameraCaptureWidget()
+    w = CameraCaptureWidget(use_camera_select_dialog=USE_CAMERA_SELECT_DIALOG)
     w.set_grabber(grabber)
     w.show()
     app.exec()
