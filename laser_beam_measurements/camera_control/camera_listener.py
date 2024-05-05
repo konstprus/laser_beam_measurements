@@ -12,7 +12,7 @@
 import numpy
 from PySide6.QtCore import QObject, Signal, QElapsedTimer
 from PySide6.QtGui import QImage
-from .camera_listener_base import CameraListenerBase
+from .camera_listener_base import CameraListenerBase, CameraState
 
 __all__ = ["CameraListener"]
 
@@ -20,7 +20,7 @@ __all__ = ["CameraListener"]
 class CameraListener(QObject, CameraListenerBase):
 
     signal_new_image_received = Signal(numpy.ndarray)
-    signal_camera_state_changed = Signal(bool)
+    signal_camera_state_changed = Signal(CameraState)
     signal_error_received = Signal(str)
     signal_statistic_collected = Signal(int, int, float)
 
@@ -52,7 +52,7 @@ class CameraListener(QObject, CameraListenerBase):
         self._t0 = self._t1
         self.signal_statistic_collected.emit(self._frame_counter, self._error_counter, self._actual_fps)
 
-    def on_camera_state_changed(self, flag_state: bool) -> None:
+    def on_camera_state_changed(self, flag_state: CameraState) -> None:
         self.signal_camera_state_changed.emit(flag_state)
 
     def on_error(self, error_message: str) -> None:

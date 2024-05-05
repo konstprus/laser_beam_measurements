@@ -18,6 +18,7 @@ from laser_beam_measurements.widgets.utils.custom_graphics_scene import CustomGr
 from laser_beam_measurements.utils.colormap import COLORMAPS
 from .camera_select_dialog import CameraSelectDialog
 from laser_beam_measurements.camera_control.camera_selector import CameraSelector
+from laser_beam_measurements.camera_control.camera_listener_base import CameraState
 
 
 class CameraCaptureWidget(CameraCaptureWidgetBase):
@@ -50,8 +51,8 @@ class CameraCaptureWidget(CameraCaptureWidgetBase):
     def _on_new_image(self, img: numpy.ndarray) -> None:
         self._scene.update_image(img)
 
-    def _on_camera_state_changed(self, state: bool) -> None:
-        if state:
+    def _on_camera_state_changed(self, state: CameraState) -> None:
+        if state == CameraState.STARTED:
             self._update_properties()
             self.ui.start_button.setText("Stop")
         else:

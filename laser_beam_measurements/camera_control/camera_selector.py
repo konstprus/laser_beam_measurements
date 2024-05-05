@@ -24,6 +24,8 @@ class CameraSelector(QObject):
         super(CameraSelector, self).__init__(parent)
         self._factory = CameraFactory()
         self._grabber: CameraGrabber | None = None
+        if isinstance(parent, CameraGrabber):
+            self._grabber = parent
 
     def set_grabber(self, camera_grabber: CameraGrabber):
         self._grabber = camera_grabber

@@ -12,6 +12,7 @@ from PySide6.QtCore import Slot, Signal
 from PySide6.QtWidgets import QWidget
 import numpy
 from .camera_listener import CameraListener
+from .camera_listener_base import CameraState
 from .camera_property_controller import CameraPropertyController
 from .camera_grabber import CameraGrabber
 
@@ -69,7 +70,7 @@ class CameraCaptureWidgetBase(QWidget):
         self._on_new_image(img)
 
     @Slot(bool)
-    def on_camera_state_changed(self, state: bool) -> None:
+    def on_camera_state_changed(self, state: CameraState) -> None:
         self._on_camera_state_changed(state)
 
     @Slot(str)
@@ -96,7 +97,7 @@ class CameraCaptureWidgetBase(QWidget):
     def _on_new_image(self, img: numpy.ndarray) -> None:
         raise NotImplementedError()
 
-    def _on_camera_state_changed(self, state: bool) -> None:
+    def _on_camera_state_changed(self, state: CameraState) -> None:
         raise NotImplementedError()
 
     def _on_error(self, error_message: str) -> None:

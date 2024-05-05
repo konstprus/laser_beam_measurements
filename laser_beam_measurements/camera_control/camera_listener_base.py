@@ -9,8 +9,15 @@
 #
 
 import numpy
+from enum import Enum
 
-__all__ = ["CameraListenerBase"]
+__all__ = ["CameraListenerBase", "CameraState"]
+
+
+class CameraState(Enum):
+    CLOSED = -1
+    STOPPED = 0
+    STARTED = 1
 
 
 class CameraListenerBase(object):
@@ -18,7 +25,7 @@ class CameraListenerBase(object):
     def on_new_image(self, img: numpy.ndarray) -> None:
         pass
 
-    def on_camera_state_changed(self, flag_state: bool) -> None:
+    def on_camera_state_changed(self, flag_state: CameraState) -> None:
         pass
 
     def on_error(self, error_message: str) -> None:

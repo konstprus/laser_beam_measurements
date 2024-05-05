@@ -11,7 +11,7 @@
 
 from PySide6.QtCore import QObject, QThread, QMutex, QMutexLocker, QCoreApplication, Slot, Signal
 
-from .camera_listener_base import CameraListenerBase
+from .camera_listener_base import CameraListenerBase, CameraState
 from .camera_listener import CameraListener
 from .camera_base import CameraBase
 from .camera_property_controller import CameraPropertyController
@@ -52,7 +52,7 @@ class CameraGrabber(QObject):
     #         del self._thread
 
     def stop_thread(self):
-        self.stop()
+        self.close()
         if self._own_thread:
             self._thread.quit()
             self._thread.wait(1000)
@@ -63,6 +63,13 @@ class CameraGrabber(QObject):
             self._property_controller.set_camera(self._camera)
             if self._listener is not None:
                 self._listener.reset()
+
+    @property
+    def is_camera_opened(self) -> bool:
+        with QMutexLocker(self._mutex):
+            if self._camera is None:
+                return False
+            return self._camera.is_opened
 
     @property
     def camera(self) -> CameraBase | None:
@@ -113,7 +120,8 @@ class CameraGrabber(QObject):
 
     def start(self) -> None:
         if self._timer_id > 0:
-            self.stop()
+            # self.stop()
+            return
         if self._camera is None:
             return
         else:
@@ -124,14 +132,14 @@ class CameraGrabber(QObject):
                 self._camera.start()
                 self._update_timer_interval()
                 self._timer_id = self.startTimer(self._timer_interval)
-                self._listener.on_camera_state_changed(True)
+                self._listener.on_camera_state_changed(CameraState.STARTED)
 
     def stop(self) -> None:
         if self._timer_id > 0:
             self.killTimer(self._timer_id)
             self._timer_id = -1
             self._camera.stop()
-            self._listener.on_camera_state_changed(False)
+            self._listener.on_camera_state_changed(CameraState.STOPPED)
 
     @Slot(bool)
     def run_status_changed(self, started: bool) -> None:
@@ -140,6 +148,16 @@ class CameraGrabber(QObject):
                 self.start()
             else:
                 self.stop()
+
+    @Slot()
+    def close(self) -> None:
+        self.stop()
+        with QMutexLocker(self._mutex):
+            if self._camera is not None:
+                self._camera.close()
+                self._camera = None
+                self._listener.on_camera_state_changed(CameraState.CLOSED)
+        self._property_controller.unset_camera()
 
     def _change_interval(self, value: int) -> None:
         if self._timer_interval == value:

@@ -31,6 +31,10 @@ class CameraPropertyController(QObject):
             self._camera = camera
         self.signal_camera_changed.emit()
 
+    def unset_camera(self):
+        with QMutexLocker(self._mutex):
+            self._camera = None
+
     @property
     def available(self) -> bool:
         with QMutexLocker(self._mutex):
