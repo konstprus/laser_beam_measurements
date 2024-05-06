@@ -36,6 +36,7 @@ class CameraDisplay(QWidget):
         self._fill_colormap_combobox()
         if listener is not None:
             self.set_camera_listener(listener)
+        self.ui.colormap_combo_box.currentTextChanged.connect(self.set_colormap)
 
     @Slot(numpy.ndarray)
     def on_new_image(self, img: numpy.ndarray) -> None:

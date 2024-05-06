@@ -20,6 +20,7 @@ from laser_beam_measurements.image_processing.beam_profiler import BeamProfiler
 from laser_beam_measurements.image_processing import beam_profiler
 import numpy
 import pyqtgraph as pg
+from laser_beam_measurements.utils.colormap import COLORMAPS
 
 
 __all__ = ["BeamProfilerWidget"]
@@ -70,14 +71,15 @@ class BeamProfilerWidget(ImageProcessorViewerBase):
         self.ui.output_beam_view.setScene(self._output_image_scene)
         self.setWindowTitle("Beam Profiler")
         self.setObjectName("Beam Profiler")
-
-        self.curve_x = None
-        self.curve_y = None
-        self.curve_line_x = None
-        self.curve_line_y = None
-        self.flag_gauss_apr = True
+        self.ui.colormap_combo_box.currentTextChanged.connect(self.slot_set_colormap_for_output)
+        self.curve_x: pg.ScatterPlotItem | None = None
+        self.curve_y: pg.ScatterPlotItem | None = None
+        self.curve_line_x: pg.PlotDataItem | None = None
+        self.curve_line_y: pg.PlotDataItem | None = None
+        self.flag_gauss_apr: bool = True
         self._configure_curves()
         self.table_widget_items: dict[str, QTableWidgetItem | tuple[QTableWidgetItem, QTableWidgetItem]] = dict()
+        self._fill_colormap_combobox()
 
     def _configure_curves(self):
         self.curve_x = pg.ScatterPlotItem(name="X cross section")
@@ -102,6 +104,10 @@ class BeamProfilerWidget(ImageProcessorViewerBase):
 
     def _update_parameters(self) -> None:
         pass
+
+    def _fill_colormap_combobox(self) -> None:
+        for name in COLORMAPS.get_names():
+            self.ui.colormap_combo_box.addItem(name)
 
     def _connect_processor_signal(self):
         super(BeamProfilerWidget, self)._connect_processor_signal()

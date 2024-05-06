@@ -28,6 +28,7 @@ class BeamFinderWidget(ImageProcessorViewerBase):
         self.setWindowTitle("Beam Finder")
 
         self._connect_signals()
+        self._fill_colormap_combobox()
 
     def _connect_signals(self) -> None:
         self.ui.enable_check_box.toggled.connect(self._slot_enabled_changed)
