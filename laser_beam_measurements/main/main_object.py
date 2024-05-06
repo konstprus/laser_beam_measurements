@@ -51,3 +51,7 @@ class MainObject(QObject):
             widget.set_image_processor(self._beam_analyzer.beam_profiler)
             return True
         return False
+
+    def closeEvent(self, event) -> None:
+        self._camera_grabber.run_status_changed(False)
+        self._camera_grabber.stop_thread()

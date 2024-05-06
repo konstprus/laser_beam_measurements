@@ -173,3 +173,7 @@ class MainWindow(QMainWindow):
         if show:
             sub.show()
         return sub
+
+    def closeEvent(self, event) -> None:
+        self._main_object.closeEvent(event)
+        super().closeEvent(event)
