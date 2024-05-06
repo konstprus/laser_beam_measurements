@@ -18,10 +18,11 @@ from .ui_main_window import Ui_MainWindow
 
 from laser_beam_measurements.widgets.camera_control.camera_display import CameraDisplay
 from laser_beam_measurements.widgets.camera_control.camera_select_dialog import CameraSelectDialog
+from laser_beam_measurements.widgets.image_processing.beam_finder_widget import BeamFinderWidget
+from laser_beam_measurements.widgets.image_processing.beam_profiler_widget import BeamProfilerWidget
 from laser_beam_measurements.main.main_object import MainObject
 from laser_beam_measurements.camera_control.camera_listener import CameraListener
 from laser_beam_measurements.camera_control.camera_listener_base import CameraState
-from laser_beam_measurements.camera_control.camera_selector import CameraSelector
 
 import laser_beam_measurements.icons.rc_icons
 
@@ -49,6 +50,8 @@ class MainWindow(QMainWindow):
         self._main_object: MainObject = main_object
         self._icons = Icons()
         self._camera_display: CameraDisplay | None = None
+        self._beam_finder_widget: BeamFinderWidget | None = None
+        self._beam_profiler_widget: BeamProfilerWidget | None = None
 
         self._set_icons()
         self._connect_signals()
@@ -71,6 +74,8 @@ class MainWindow(QMainWindow):
         self.ui.stop_button.clicked.connect(self.stop_button_clicked)
         self.ui.pause_button.clicked.connect(self.pause_button_clicked)
         self.ui.show_display_button.clicked.connect(self.show_camera_display)
+        self.ui.show_beam_finder.clicked.connect(self.show_beam_finder_widget)
+        self.ui.show_beam_profiler.clicked.connect(self.show_beam_profiler_widget)
 
     @Slot(bool)
     def _slot_camera_state_changed(self, state: CameraState) -> None:
@@ -122,6 +127,28 @@ class MainWindow(QMainWindow):
             self._main_object.set_display(self._camera_display)
             self._camera_display.setWindowIcon(self._icons.display)
         sub = self._create_sub_window(self._camera_display, False)
+        if sub.isHidden():
+            sub.show()
+        else:
+            sub.setHidden(True)
+
+    @Slot()
+    def show_beam_finder_widget(self):
+        if self._beam_finder_widget is None:
+            self._beam_finder_widget = BeamFinderWidget(self)
+            self._main_object.set_widget_for_beam_finder(self._beam_finder_widget)
+        sub = self._create_sub_window(self._beam_finder_widget, False)
+        if sub.isHidden():
+            sub.show()
+        else:
+            sub.setHidden(True)
+
+    @Slot()
+    def show_beam_profiler_widget(self):
+        if self._beam_profiler_widget is None:
+            self._beam_profiler_widget = BeamProfilerWidget(self)
+            self._main_object.set_widget_for_beam_profiler(self._beam_profiler_widget)
+        sub = self._create_sub_window(self._beam_profiler_widget, False)
         if sub.isHidden():
             sub.show()
         else:

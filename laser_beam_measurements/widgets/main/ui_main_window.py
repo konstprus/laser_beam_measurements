@@ -125,6 +125,47 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.line)
 
+        self.image_processing_section_label = QLabel(self.buttonsGroupBox)
+        self.image_processing_section_label.setObjectName(u"image_processing_section_label")
+        sizePolicy1.setHeightForWidth(self.image_processing_section_label.sizePolicy().hasHeightForWidth())
+        self.image_processing_section_label.setSizePolicy(sizePolicy1)
+        self.image_processing_section_label.setMinimumSize(QSize(30, 30))
+        self.image_processing_section_label.setMaximumSize(QSize(30, 30))
+
+        self.horizontalLayout.addWidget(self.image_processing_section_label)
+
+        self.show_beam_finder = QPushButton(self.buttonsGroupBox)
+        self.show_beam_finder.setObjectName(u"show_beam_finder")
+        sizePolicy1.setHeightForWidth(self.show_beam_finder.sizePolicy().hasHeightForWidth())
+        self.show_beam_finder.setSizePolicy(sizePolicy1)
+        self.show_beam_finder.setMaximumSize(QSize(30, 30))
+        self.show_beam_finder.setIconSize(QSize(25, 25))
+        self.show_beam_finder.setCheckable(True)
+        self.show_beam_finder.setChecked(False)
+
+        self.horizontalLayout.addWidget(self.show_beam_finder)
+
+        self.show_beam_profiler = QPushButton(self.buttonsGroupBox)
+        self.show_beam_profiler.setObjectName(u"show_beam_profiler")
+        sizePolicy1.setHeightForWidth(self.show_beam_profiler.sizePolicy().hasHeightForWidth())
+        self.show_beam_profiler.setSizePolicy(sizePolicy1)
+        self.show_beam_profiler.setMaximumSize(QSize(30, 30))
+        self.show_beam_profiler.setIconSize(QSize(25, 25))
+        self.show_beam_profiler.setCheckable(True)
+        self.show_beam_profiler.setChecked(False)
+
+        self.horizontalLayout.addWidget(self.show_beam_profiler)
+
+        self.line_2 = QFrame(self.buttonsGroupBox)
+        self.line_2.setObjectName(u"line_2")
+        sizePolicy2.setHeightForWidth(self.line_2.sizePolicy().hasHeightForWidth())
+        self.line_2.setSizePolicy(sizePolicy2)
+        self.line_2.setMinimumSize(QSize(10, 0))
+        self.line_2.setFrameShape(QFrame.Shape.VLine)
+        self.line_2.setFrameShadow(QFrame.Shadow.Sunken)
+
+        self.horizontalLayout.addWidget(self.line_2)
+
         self.horizontalSpacer = QSpacerItem(185, 18, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout.addItem(self.horizontalSpacer)
@@ -181,5 +222,20 @@ class Ui_MainWindow(object):
         self.save_image_button.setToolTip(QCoreApplication.translate("MainWindow", u"Save Image", None))
 #endif // QT_CONFIG(tooltip)
         self.save_image_button.setText("")
+#if QT_CONFIG(tooltip)
+        self.image_processing_section_label.setToolTip(QCoreApplication.translate("MainWindow", u"Camera Control Section", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(whatsthis)
+        self.image_processing_section_label.setWhatsThis("")
+#endif // QT_CONFIG(whatsthis)
+        self.image_processing_section_label.setText("")
+#if QT_CONFIG(tooltip)
+        self.show_beam_finder.setToolTip(QCoreApplication.translate("MainWindow", u"Beam Finder", None))
+#endif // QT_CONFIG(tooltip)
+        self.show_beam_finder.setText("")
+#if QT_CONFIG(tooltip)
+        self.show_beam_profiler.setToolTip(QCoreApplication.translate("MainWindow", u"Beam Profiler", None))
+#endif // QT_CONFIG(tooltip)
+        self.show_beam_profiler.setText("")
     # retranslateUi
 
