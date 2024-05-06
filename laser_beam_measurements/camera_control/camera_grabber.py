@@ -82,7 +82,7 @@ class CameraGrabber(QObject):
             return self._auto_grabbing_enabled
 
     @property
-    def listener(self) -> CameraListenerBase | None:
+    def listener(self) -> CameraListener | None:
         with QMutexLocker(self._mutex):
             return self._listener
 
