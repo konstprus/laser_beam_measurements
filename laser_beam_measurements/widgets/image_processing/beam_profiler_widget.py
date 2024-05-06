@@ -64,6 +64,8 @@ def _create_table_header(
 
 class BeamProfilerWidget(ImageProcessorViewerBase):
 
+    DEFAULT_COLORMAP = "Seismic"
+
     def __init__(self, parent=None):
         super(BeamProfilerWidget, self).__init__(parent, configure_output_scene=True)
         self.ui = Ui_Form()
@@ -108,6 +110,7 @@ class BeamProfilerWidget(ImageProcessorViewerBase):
     def _fill_colormap_combobox(self) -> None:
         for name in COLORMAPS.get_names():
             self.ui.colormap_combo_box.addItem(name)
+        self.ui.colormap_combo_box.setCurrentText(self.DEFAULT_COLORMAP)
 
     def _connect_processor_signal(self):
         super(BeamProfilerWidget, self)._connect_processor_signal()

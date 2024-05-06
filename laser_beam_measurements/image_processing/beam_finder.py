@@ -116,7 +116,7 @@ class BeamFinder(ImageProcessorBase):
                 self._rotation_angle = angle
             if self._flag_rotation_enable:
                 beam_state.update({
-                    BeamState.ANGLE: self._rotation_angle,
+                    BeamState.ANGLE: self._rotation_angle * 180 / pi,
                 })
             self._beam_state.clear()
             self._beam_state.update(beam_state)
