@@ -71,7 +71,8 @@ class VirtualCamera(CameraBase):
         return img
 
     def open(self, camera_id: str | int | None = None) -> None:
-        self._id = camera_id
+        if camera_id is not None:
+            self._id = camera_id
         self.flag_opened = True
 
     def close(self):
