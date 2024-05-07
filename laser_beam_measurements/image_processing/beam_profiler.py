@@ -11,7 +11,7 @@
 
 import numpy
 
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Signal, QSettings
 from .image_processor_base import ImageProcessorBase
 from .beam_finder import BeamState
 from enum import StrEnum
@@ -205,3 +205,7 @@ class BeamProfiler(ImageProcessorBase):
         self.signal_beam_parameters_updated.emit(self._beam_parameters)
 
         return True
+
+    def save_settings(self, settings: QSettings) -> None:
+        settings.beginGroup("BeamFinder")
+        settings.endGroup()

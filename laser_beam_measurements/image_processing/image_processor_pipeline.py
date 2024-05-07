@@ -9,7 +9,7 @@
 #
 
 from .image_processor_base import ImageProcessorBase
-from PySide6.QtCore import Slot, QMutexLocker
+from PySide6.QtCore import Slot, QMutexLocker, QSettings
 import numpy
 
 
@@ -68,4 +68,16 @@ class ImageProcessorPipeline(ImageProcessorBase):
         while processor is not self._last_processor:
             if type(self).__name__ == processor_name:
                 processor.set_parameter_value(parameter_name, value)
+            processor = processor.get_next_processor()
+
+    def save_settings(self, settings: QSettings) -> None:
+        processor = self._first_processor
+        while processor is not None:
+            processor.save_settings(settings)
+            processor = processor.get_next_processor()
+
+    def load_settings(self, settings: QSettings) -> None:
+        processor = self._first_processor
+        while processor is not None:
+            processor.load_settings(settings)
             processor = processor.get_next_processor()

@@ -8,7 +8,7 @@
 # Copyright 2024 Konstantin Prusakov <konstantin.prusakov@phystech.edu>
 #
 
-from PySide6.QtCore import QObject, Signal, Slot, QThread, QMutex, QMutexLocker
+from PySide6.QtCore import QObject, Signal, Slot, QThread, QMutex, QMutexLocker, QSettings
 import numpy
 
 
@@ -107,3 +107,9 @@ class ImageProcessorBase(QObject):
 
     def get_parameter_value(self, parameter: str) -> object | None:
         return None
+
+    def save_settings(self, settings: QSettings) -> None:
+        pass
+
+    def load_settings(self, settings: QSettings) -> None:
+        pass
