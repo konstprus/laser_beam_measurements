@@ -9,7 +9,7 @@
 #
 
 
-from PySide6.QtCore import QObject
+from PySide6.QtCore import QObject, QSettings
 from PySide6.QtWidgets import QWidget
 from laser_beam_measurements.camera_control.camera_grabber import CameraGrabber
 from laser_beam_measurements.camera_control.camera_selector import CameraSelector
@@ -25,6 +25,10 @@ class MainObject(QObject):
 
         self._beam_analyzer: BeamAnalyzer = BeamAnalyzer()
         self._camera_grabber.listener.signal_new_image_received.connect(self._beam_analyzer.on_new_image)
+
+        self._settings_name = "settings.conf"
+
+        self._load_settings()
 
     @property
     def camera_grabber(self) -> CameraGrabber:
@@ -54,4 +58,17 @@ class MainObject(QObject):
 
     def closeEvent(self, event) -> None:
         self._camera_grabber.run_status_changed(False)
+        self._save_settings()
         self._camera_grabber.stop_thread()
+
+    def _save_settings(self):
+        settings = QSettings(self._settings_name, QSettings.Format.IniFormat)
+        settings.clear()
+        self._camera_selector.save_settings(settings)
+        self._beam_analyzer.save_settings(settings
+                                          )
+
+    def _load_settings(self):
+        settings = QSettings(self._settings_name, QSettings.Format.IniFormat)
+        self._camera_selector.load_settings(settings)
+        self._beam_analyzer.load_settings(settings)
