@@ -25,7 +25,7 @@ class CameraFactory(object):
         self._discovered_plugins: dict[str, object] = {}
         self._factories: dict[str, CameraFactoryBase] = {}
         self._factory_obj_name_ending: str = kwargs.get('obj_name_ending', 'CameraFactory')
-
+        self._camera_type_factory_mapping: dict[str, str] = {}
         self.discover_plugins()
         self.create_factories()
 
@@ -51,6 +51,7 @@ class CameraFactory(object):
             factory = self._get_factory(value)
             if factory:
                 self._factories.update({name: factory})
+                self._camera_type_factory_mapping.update({factory.camera_class.type: name})
 
     @property
     def factories(self) -> dict[str, CameraFactoryBase]:
@@ -59,6 +60,15 @@ class CameraFactory(object):
     @property
     def camera_device_types(self) -> list[str]:
         return list(self._factories.keys())
+
+    @property
+    def camera_types(self) -> list[str]:
+        return list(self._camera_type_factory_mapping.keys())
+
+    def get_factory_by_camera_type(self, name: str) -> CameraFactoryBase | None:
+        if name in self._camera_type_factory_mapping.keys():
+            return self.get_factory(self._camera_type_factory_mapping[name])
+        return None
 
     def get_factory(self, name: str) -> CameraFactoryBase | None:
         if name in self._factories.keys():
