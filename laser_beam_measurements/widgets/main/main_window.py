@@ -18,6 +18,7 @@ from .ui_main_window import Ui_MainWindow
 
 from laser_beam_measurements.widgets.camera_control.camera_display import CameraDisplay
 from laser_beam_measurements.widgets.camera_control.camera_select_dialog import CameraSelectDialog
+from laser_beam_measurements.widgets.camera_control.camera_property_controller_widget import CameraPropertyControllerWidget
 from laser_beam_measurements.widgets.image_processing.beam_finder_widget import BeamFinderWidget
 from laser_beam_measurements.widgets.image_processing.beam_profiler_widget import BeamProfilerWidget
 from laser_beam_measurements.main.main_object import MainObject
@@ -52,18 +53,19 @@ class MainWindow(QMainWindow):
         self._camera_display: CameraDisplay | None = None
         self._beam_finder_widget: BeamFinderWidget | None = None
         self._beam_profiler_widget: BeamProfilerWidget | None = None
+        self._property_controller_widget: CameraPropertyControllerWidget | None = None
 
         self._set_icons()
         self._connect_signals()
 
-    def _set_icons(self):
+    def _set_icons(self) -> None:
         self.ui.camera_section_label.setPixmap(self._icons.camera.pixmap(25, 25, QIcon.Mode.Normal, QIcon.State.On))
         self.ui.start_button.setIcon(self._icons.start)
         self.ui.stop_button.setIcon(self._icons.stop)
         self.ui.pause_button.setIcon(self._icons.pause)
         self.ui.show_display_button.setIcon(self._icons.display)
 
-    def _connect_signals(self):
+    def _connect_signals(self) -> None:
         self.signal_camera_grabber_status.connect(self._main_object.camera_grabber.run_status_changed)
         self.signal_camera_close.connect(self._main_object.camera_grabber.close)
         listener = self._main_object.camera_grabber.listener
@@ -76,6 +78,7 @@ class MainWindow(QMainWindow):
         self.ui.show_display_button.clicked.connect(self.show_camera_display)
         self.ui.show_beam_finder.clicked.connect(self.show_beam_finder_widget)
         self.ui.show_beam_profiler.clicked.connect(self.show_beam_profiler_widget)
+        self.ui.show_settings_button.clicked.connect(self.show_property_controller_widget)
 
     @Slot(bool)
     def _slot_camera_state_changed(self, state: CameraState) -> None:
@@ -92,6 +95,10 @@ class MainWindow(QMainWindow):
                 self._camera_display.setWindowIcon(self._icons.display)
                 self._create_sub_window(self._camera_display, True)
 
+            if self._property_controller_widget is None:
+                self._property_controller_widget = CameraPropertyControllerWidget(self)
+                self._main_object.set_widget_for_property_controller(self._property_controller_widget)
+
         elif state == CameraState.STOPPED:
             self.ui.start_button.setEnabled(True)
             self.ui.pause_button.setEnabled(False)
@@ -107,21 +114,21 @@ class MainWindow(QMainWindow):
             self.ui.statusbar.showMessage("Stopped", -1)
 
     @Slot()
-    def start_button_clicked(self):
+    def start_button_clicked(self) -> None:
         if not self._main_object.camera_grabber.is_camera_opened:
             self._show_camera_select_dialog()
         self.signal_camera_grabber_status.emit(True)
 
     @Slot()
-    def stop_button_clicked(self):
+    def stop_button_clicked(self) -> None:
         self.signal_camera_close.emit()
 
     @Slot()
-    def pause_button_clicked(self):
+    def pause_button_clicked(self) -> None:
         self.signal_camera_grabber_status.emit(False)
 
     @Slot()
-    def show_camera_display(self):
+    def show_camera_display(self) -> None:
         if self._camera_display is None:
             self._camera_display = CameraDisplay(self)
             self._main_object.set_display(self._camera_display)
@@ -133,7 +140,7 @@ class MainWindow(QMainWindow):
             sub.setHidden(True)
 
     @Slot()
-    def show_beam_finder_widget(self):
+    def show_beam_finder_widget(self) -> None:
         if self._beam_finder_widget is None:
             self._beam_finder_widget = BeamFinderWidget(self)
             self._main_object.set_widget_for_beam_finder(self._beam_finder_widget)
@@ -144,7 +151,7 @@ class MainWindow(QMainWindow):
             sub.setHidden(True)
 
     @Slot()
-    def show_beam_profiler_widget(self):
+    def show_beam_profiler_widget(self) -> None:
         if self._beam_profiler_widget is None:
             self._beam_profiler_widget = BeamProfilerWidget(self)
             self._main_object.set_widget_for_beam_profiler(self._beam_profiler_widget)
@@ -154,7 +161,18 @@ class MainWindow(QMainWindow):
         else:
             sub.setHidden(True)
 
-    def _show_camera_select_dialog(self):
+    @Slot()
+    def show_property_controller_widget(self) -> None:
+        if self._property_controller_widget is None:
+            self._property_controller_widget = CameraPropertyControllerWidget(self)
+            self._main_object.set_widget_for_property_controller(self._property_controller_widget)
+        sub = self._create_sub_window(self._property_controller_widget, False)
+        if sub.isHidden():
+            sub.show()
+        else:
+            sub.setHidden(True)
+
+    def _show_camera_select_dialog(self) -> None:
         camera_select_dialog = CameraSelectDialog(self)
         camera_select_dialog.set_selector(self._main_object.camera_selector)
         camera_select_dialog.exec()

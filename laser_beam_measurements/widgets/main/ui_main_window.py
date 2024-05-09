@@ -101,6 +101,14 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.show_display_button)
 
+        self.show_settings_button = QPushButton(self.buttonsGroupBox)
+        self.show_settings_button.setObjectName(u"show_settings_button")
+        sizePolicy1.setHeightForWidth(self.show_settings_button.sizePolicy().hasHeightForWidth())
+        self.show_settings_button.setSizePolicy(sizePolicy1)
+        self.show_settings_button.setMaximumSize(QSize(30, 30))
+
+        self.horizontalLayout.addWidget(self.show_settings_button)
+
         self.save_image_button = QPushButton(self.buttonsGroupBox)
         self.save_image_button.setObjectName(u"save_image_button")
         sizePolicy1.setHeightForWidth(self.save_image_button.sizePolicy().hasHeightForWidth())
@@ -218,6 +226,10 @@ class Ui_MainWindow(object):
         self.show_display_button.setToolTip(QCoreApplication.translate("MainWindow", u"Show Display", None))
 #endif // QT_CONFIG(tooltip)
         self.show_display_button.setText("")
+#if QT_CONFIG(tooltip)
+        self.show_settings_button.setToolTip(QCoreApplication.translate("MainWindow", u"Show Property Controller", None))
+#endif // QT_CONFIG(tooltip)
+        self.show_settings_button.setText("")
 #if QT_CONFIG(tooltip)
         self.save_image_button.setToolTip(QCoreApplication.translate("MainWindow", u"Save Image", None))
 #endif // QT_CONFIG(tooltip)

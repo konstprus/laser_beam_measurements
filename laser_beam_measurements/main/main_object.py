@@ -56,6 +56,12 @@ class MainObject(QObject):
             return True
         return False
 
+    def set_widget_for_property_controller(self, widget: QWidget) -> bool:
+        if hasattr(widget, "set_controller"):
+            widget.set_controller(self._camera_grabber.property_controller)
+            return True
+        return False
+
     def closeEvent(self, event) -> None:
         self._camera_grabber.run_status_changed(False)
         self._save_settings()
@@ -65,8 +71,7 @@ class MainObject(QObject):
         settings = QSettings(self._settings_name, QSettings.Format.IniFormat)
         settings.clear()
         self._camera_selector.save_settings(settings)
-        self._beam_analyzer.save_settings(settings
-                                          )
+        self._beam_analyzer.save_settings(settings)
 
     def _load_settings(self):
         settings = QSettings(self._settings_name, QSettings.Format.IniFormat)
