@@ -19,6 +19,7 @@ class CameraPropertyController(QObject):
 
     signal_camera_changed = Signal()
     signal_property_value_changed = Signal(str, object)
+    signal_camera_unset = Signal()
 
     def __init__(self, parent: QObject = None, camera: CameraBase = None):
         super(CameraPropertyController, self).__init__(parent)
@@ -33,7 +34,10 @@ class CameraPropertyController(QObject):
 
     def unset_camera(self):
         with QMutexLocker(self._mutex):
+            if self._camera is None:
+                return
             self._camera = None
+            self.signal_camera_unset.emit()
 
     @property
     def available(self) -> bool:
