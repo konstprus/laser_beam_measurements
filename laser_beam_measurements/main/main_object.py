@@ -66,6 +66,7 @@ class MainObject(QObject):
         self._camera_grabber.run_status_changed(False)
         self._save_settings()
         self._camera_grabber.stop_thread()
+        self._beam_analyzer.stop_thread()
 
     def _save_settings(self):
         settings = QSettings(self._settings_name, QSettings.Format.IniFormat)
