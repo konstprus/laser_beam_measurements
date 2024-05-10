@@ -44,6 +44,7 @@ class CameraPropertyControllerWidget(QWidget):
         self.signal_camera_property_changed.connect(self._property_controller.set_property_value)
         self._property_controller.signal_property_value_changed.connect(self.slot_update_property_value)
         self._property_controller.signal_camera_unset.connect(self.slot_camera_unset)
+        self._update_properties()
 
     @Slot()
     def slot_camera_changed(self) -> None:
