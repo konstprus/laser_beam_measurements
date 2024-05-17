@@ -74,3 +74,15 @@ class CameraPropertyController(QObject):
             if self._camera.has_property(name):
                 return self._camera.get_property(name)
             return None
+
+    def collect_camera_info(self) -> dict | None:
+        with QMutexLocker(self._mutex):
+            if self._camera is None:
+                return None
+            info = {
+                "type": self._camera.type,
+                "id": self._camera.camera_id,
+                "resolution": self._camera.resolution,
+                "pixel_size": self._camera.pixel_size
+            }
+            return info

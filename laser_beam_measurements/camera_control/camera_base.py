@@ -54,6 +54,10 @@ class CameraBase(object):
         return self._pixel_size
 
     @property
+    def resolution(self) -> tuple[int, int]:
+        return self._resolution
+
+    @property
     def camera_id(self) -> str | int | None:
         return self._id
 
