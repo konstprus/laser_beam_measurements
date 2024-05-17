@@ -55,6 +55,7 @@ class CameraPropertyControllerWidget(QWidget):
             self.ui.fps_slider.setDisabled(True)
             self.ui.gain_slider.setDisabled(True)
             self.ui.exposure_slider.setDisabled(True)
+            return
         controller = self._property_controller
         if controller is not None and controller.available:
             self.blockSignals(True)
