@@ -11,7 +11,7 @@
 # pyside6-uic laser_beam_measurements/widgets/camera_control/camera_property_controller_widget.ui -o laser_beam_measurements/widgets/camera_control/ui_camera_property_controller_widget.py
 
 
-from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QWidget, QTableWidgetItem
 from PySide6.QtCore import Slot, Signal
 from laser_beam_measurements.camera_control.camera_property_controller import CameraPropertyController
 from laser_beam_measurements.camera_control.camera_base import CameraBase
@@ -55,6 +55,13 @@ class CameraPropertyControllerWidget(QWidget):
             self.ui.fps_slider.setDisabled(True)
             self.ui.gain_slider.setDisabled(True)
             self.ui.exposure_slider.setDisabled(True)
+            info = {
+                "type": "",
+                "id": "",
+                "resolution": "",
+                "pixel_size": ""
+            }
+            self._fill_camera_info(info)
             return
         controller = self._property_controller
         if controller is not None and controller.available:
@@ -86,6 +93,9 @@ class CameraPropertyControllerWidget(QWidget):
             else:
                 self.ui.exposure_slider.setDisabled(True)
             self.blockSignals(False)
+            camera_info = controller.collect_camera_info()
+            if camera_info is not None:
+                self._fill_camera_info(camera_info)
 
     @Slot(str, object)
     def slot_update_property_value(self, name: str, value: object) -> None:
@@ -121,3 +131,17 @@ class CameraPropertyControllerWidget(QWidget):
     @Slot(float)
     def _change_gain_value(self, value: float) -> None:
         self.signal_camera_property_changed.emit("gain", value)
+
+    def _fill_camera_info(self, info: dict) -> None:
+        self.ui.camera_info.setItem(0, 0, QTableWidgetItem(info['type']))
+        self.ui.camera_info.setItem(1, 0, QTableWidgetItem(info['id']))
+        if isinstance(info['resolution'], (list, tuple)):
+            matrix_shape = '{}x{} pixels'.format(info['resolution'][0], info['resolution'][1])
+        else:
+            matrix_shape = info['resolution']
+        self.ui.camera_info.setItem(2, 0, QTableWidgetItem(matrix_shape))
+        if info['pixel_size'] != '':
+            pixel_size = '{} um'.format(info['pixel_size'])
+        else:
+            pixel_size = ''
+        self.ui.camera_info.setItem(3, 0, QTableWidgetItem(pixel_size))
