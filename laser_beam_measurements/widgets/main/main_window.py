@@ -12,18 +12,20 @@
 
 from PySide6.QtWidgets import QMainWindow, QWidget, QMdiSubWindow
 from PySide6.QtGui import QIcon
-from PySide6.QtCore import Signal, Slot, Qt
+from PySide6.QtCore import Signal, Slot, Qt, QSettings
 
 from .ui_main_window import Ui_MainWindow
 
 from laser_beam_measurements.widgets.camera_control.camera_display import CameraDisplay
 from laser_beam_measurements.widgets.camera_control.camera_select_dialog import CameraSelectDialog
-from laser_beam_measurements.widgets.camera_control.camera_property_controller_widget import CameraPropertyControllerWidget
+from laser_beam_measurements.widgets.camera_control.camera_property_controller_widget import (
+    CameraPropertyControllerWidget)
 from laser_beam_measurements.widgets.image_processing.beam_finder_widget import BeamFinderWidget
 from laser_beam_measurements.widgets.image_processing.beam_profiler_widget import BeamProfilerWidget
 from laser_beam_measurements.main.main_object import MainObject
 from laser_beam_measurements.camera_control.camera_listener import CameraListener
 from laser_beam_measurements.camera_control.camera_listener_base import CameraState
+from laser_beam_measurements.utils.settings_bool_reader import read_boolean_value
 
 import laser_beam_measurements.icons.rc_icons
 
@@ -57,6 +59,8 @@ class MainWindow(QMainWindow):
 
         self._set_icons()
         self._connect_signals()
+
+        self._load_settings()
 
     def _set_icons(self) -> None:
         self.ui.camera_section_label.setPixmap(self._icons.camera.pixmap(25, 25, QIcon.Mode.Normal, QIcon.State.On))
@@ -129,48 +133,77 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def show_camera_display(self) -> None:
+        # if self._camera_display is None:
+        #     self._camera_display = CameraDisplay(self)
+        #     self._main_object.set_display(self._camera_display)
+        #     self._camera_display.setWindowIcon(self._icons.display)
+        # sub = self._create_sub_window(self._camera_display, False)
+        sub = self._create_camera_display_sub_window()
+        if sub.isHidden():
+            sub.show()
+        else:
+            sub.setHidden(True)
+
+    def _create_camera_display_sub_window(self) -> QMdiSubWindow:
         if self._camera_display is None:
             self._camera_display = CameraDisplay(self)
             self._main_object.set_display(self._camera_display)
             self._camera_display.setWindowIcon(self._icons.display)
-        sub = self._create_sub_window(self._camera_display, False)
-        if sub.isHidden():
-            sub.show()
-        else:
-            sub.setHidden(True)
+        return self._create_sub_window(self._camera_display, False)
 
     @Slot()
     def show_beam_finder_widget(self) -> None:
+        # if self._beam_finder_widget is None:
+        #     self._beam_finder_widget = BeamFinderWidget(self)
+        #     self._main_object.set_widget_for_beam_finder(self._beam_finder_widget)
+        # sub = self._create_sub_window(self._beam_finder_widget, False)
+        sub = self._create_beam_finder_widget_sub_window()
+        if sub.isHidden():
+            sub.show()
+        else:
+            sub.setHidden(True)
+
+    def _create_beam_finder_widget_sub_window(self) -> QMdiSubWindow:
         if self._beam_finder_widget is None:
             self._beam_finder_widget = BeamFinderWidget(self)
             self._main_object.set_widget_for_beam_finder(self._beam_finder_widget)
-        sub = self._create_sub_window(self._beam_finder_widget, False)
-        if sub.isHidden():
-            sub.show()
-        else:
-            sub.setHidden(True)
+        return self._create_sub_window(self._beam_finder_widget, False)
 
     @Slot()
     def show_beam_profiler_widget(self) -> None:
-        if self._beam_profiler_widget is None:
-            self._beam_profiler_widget = BeamProfilerWidget(self)
-            self._main_object.set_widget_for_beam_profiler(self._beam_profiler_widget)
-        sub = self._create_sub_window(self._beam_profiler_widget, False)
+        # if self._beam_profiler_widget is None:
+        #     self._beam_profiler_widget = BeamProfilerWidget(self)
+        #     self._main_object.set_widget_for_beam_profiler(self._beam_profiler_widget)
+        # sub = self._create_sub_window(self._beam_profiler_widget, False)
+        sub = self._create_beam_profiler_widget_sub_window()
         if sub.isHidden():
             sub.show()
         else:
             sub.setHidden(True)
 
+    def _create_beam_profiler_widget_sub_window(self) -> QMdiSubWindow:
+        if self._beam_profiler_widget is None:
+            self._beam_profiler_widget = BeamProfilerWidget(self)
+            self._main_object.set_widget_for_beam_profiler(self._beam_profiler_widget)
+        return self._create_sub_window(self._beam_profiler_widget, False)
+
     @Slot()
     def show_property_controller_widget(self) -> None:
-        if self._property_controller_widget is None:
-            self._property_controller_widget = CameraPropertyControllerWidget(self)
-            self._main_object.set_widget_for_property_controller(self._property_controller_widget)
-        sub = self._create_sub_window(self._property_controller_widget, False)
+        # if self._property_controller_widget is None:
+        #     self._property_controller_widget = CameraPropertyControllerWidget(self)
+        #     self._main_object.set_widget_for_property_controller(self._property_controller_widget)
+        # sub = self._create_sub_window(self._property_controller_widget, False)
+        sub = self._create_property_controller_widget_sub_window()
         if sub.isHidden():
             sub.show()
         else:
             sub.setHidden(True)
+
+    def _create_property_controller_widget_sub_window(self) -> QMdiSubWindow:
+        if self._property_controller_widget is None:
+            self._property_controller_widget = CameraPropertyControllerWidget(self)
+            self._main_object.set_widget_for_property_controller(self._property_controller_widget)
+        return self._create_sub_window(self._property_controller_widget, False)
 
     def _show_camera_select_dialog(self) -> None:
         camera_select_dialog = CameraSelectDialog(self)
@@ -187,6 +220,7 @@ class MainWindow(QMainWindow):
         sub.setObjectName(widget.objectName())
         sub.setWindowIcon(widget.windowIcon())
         sub.setWindowTitle(widget.windowTitle())
+        sub.resize(widget.size())
         self.ui.mdiArea.addSubWindow(sub)
         if show:
             sub.show()
@@ -194,4 +228,94 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event) -> None:
         self._main_object.closeEvent(event)
+        self.save_settings(self._main_object.settings_file)
         super().closeEvent(event)
+
+    def _save_widget_settings(self, widget: QWidget, settings: QSettings, group_name: str) -> None:
+        if widget is None:
+            return
+        sub_window = self._create_sub_window(widget, False)
+        settings.beginGroup(group_name)
+        settings.setValue("IsHidden", sub_window.isHidden())
+        pos = sub_window.pos()
+        settings.setValue("PosX", pos.x())
+        settings.setValue("PosY", pos.y())
+        size = sub_window.size()
+        settings.setValue("Width", size.width())
+        settings.setValue("Height", size.height())
+        settings.endGroup()
+
+    def save_settings(self, settings: QSettings) -> None:
+        settings.beginGroup("MainWindow")
+        if self.isMaximized():
+            settings.setValue("IsMaximized", True)
+        else:
+            pos = self.pos()
+            settings.setValue("PosX", pos.x())
+            settings.setValue("PosY", pos.y())
+            size = self.size()
+            settings.setValue("Width", size.width())
+            settings.setValue("Height", size.height())
+        settings.endGroup()
+        self._save_widget_settings(self._camera_display, settings, "CameraDisplayWidget")
+        self._save_widget_settings(self._beam_finder_widget, settings, "BeamFinderWidget")
+        self._save_widget_settings(self._beam_profiler_widget, settings, "BeamProfilerWidget")
+        self._save_widget_settings(self._property_controller_widget, settings, "PropertyControllerWidget")
+
+    def _load_setting_for_sub_window(self, sub_window: QMdiSubWindow, settings: QSettings) -> None:
+        if settings.contains("IsHidden"):
+            is_hidden = read_boolean_value(settings, "IsHidden", sub_window.isHidden())
+            if not is_hidden:
+                sub_window.show()
+        if settings.contains("PosX") and settings.contains("PosY"):
+            pos_x = int(settings.value("PosX"))
+            pos_y = int(settings.value("PosY"))
+            sub_window.move(pos_x, pos_y)
+        if settings.contains("Width") and settings.contains("Height"):
+            width = int(settings.value("Width"))
+            height = int(settings.value("Height"))
+            sub_window.resize(width, height)
+
+    def _load_settings(self):
+        settings = self._main_object.settings_file
+        child_groups = settings.childGroups()
+        for group in child_groups:
+            if group == "MainWindow":
+                settings.beginGroup(group)
+                is_maximized = read_boolean_value(settings, "IsMaximized", False)
+                if is_maximized:
+                    self.showMaximized()
+                else:
+                    if settings.contains("PosX") and settings.contains("PosY"):
+                        pos_x = int(settings.value("PosX"))
+                        pos_y = int(settings.value("PosY"))
+                        self.move(pos_x, pos_y)
+                    if settings.contains("Width") and settings.contains("Height"):
+                        width = int(settings.value("Width"))
+                        height = int(settings.value("Height"))
+                        self.resize(width, height)
+                settings.endGroup()
+
+            if group == "CameraDisplayWidget":
+                settings.beginGroup(group)
+                sub = self._create_camera_display_sub_window()
+                self._load_setting_for_sub_window(sub, settings)
+                settings.endGroup()
+
+            if group == "BeamFinderWidget":
+                settings.beginGroup(group)
+                sub = self._create_beam_finder_widget_sub_window()
+                self._load_setting_for_sub_window(sub, settings)
+                settings.endGroup()
+
+            if group == "BeamProfilerWidget":
+                settings.beginGroup(group)
+                sub = self._create_beam_profiler_widget_sub_window()
+                self._load_setting_for_sub_window(sub, settings)
+                settings.endGroup()
+
+            if group == "PropertyControllerWidget":
+                settings.beginGroup(group)
+                sub = self._create_property_controller_widget_sub_window()
+                self._load_setting_for_sub_window(sub, settings)
+                settings.endGroup()

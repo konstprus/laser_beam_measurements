@@ -38,6 +38,11 @@ class MainObject(QObject):
     def camera_selector(self) -> CameraSelector:
         return self._camera_selector
 
+    @property
+    def settings_file(self) -> QSettings:
+        settings = QSettings(self._settings_name, QSettings.Format.IniFormat)
+        return settings
+
     def set_display(self, display_widget: QWidget) -> bool:
         if hasattr(display_widget, "set_camera_listener"):
             display_widget.set_camera_listener(self._camera_grabber.listener)
