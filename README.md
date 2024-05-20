@@ -26,4 +26,6 @@ Copyright (c) 2012  University of North Carolina at Chapel Hill
 
 # Additionally
 
-TODO
+At this project Colorsets from https://colorcet.com are used. \
+Download link: https://colorcet.com/download/CETperceptual_csv_0_255.zip \
+Peter Kovesi. Good Colour Maps: How to Design Them. [arXiv:1509.03700 [cs.GR] 2015](https://arxiv.org/abs/1509.03700)
