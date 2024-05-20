@@ -114,6 +114,13 @@ class ImageProcessorBase(QObject):
     def load_settings(self, settings: QSettings) -> None:
         pass
 
+    @Slot(dict)
+    def slot_set_init_parameters(self, parameters: dict) -> None:
+        self._set_init_parameters(parameters)
+
+    def _set_init_parameters(self, parameters: dict) -> None:
+        pass
+
     def stop_thread(self) -> None:
         if self._own_thread:
             self._thread.quit()

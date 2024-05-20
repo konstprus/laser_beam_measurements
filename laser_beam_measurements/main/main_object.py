@@ -25,6 +25,7 @@ class MainObject(QObject):
 
         self._beam_analyzer: BeamAnalyzer = BeamAnalyzer()
         self._camera_grabber.listener.signal_new_image_received.connect(self._beam_analyzer.on_new_image)
+        self._camera_selector.signal_camera_selected.connect(self._beam_analyzer.slot_set_init_parameters)
 
         self._settings_name = "settings.conf"
 

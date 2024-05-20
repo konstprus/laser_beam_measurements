@@ -74,6 +74,7 @@ class BeamProfiler(ImageProcessorBase):
         self._center: tuple[float, float] = (0.0, 0.0)
         # self._beam_parameters: dict[str, tuple[float, float] | float] = dict()
         self._beam_parameters: dict[str, dict[str, tuple[float, float] | float]] = dict()
+        self._pixel_size: float = 1.0
 
     def process(self, image: numpy.ndarray) -> bool | None:
         if len(image.shape) != 2:
@@ -86,11 +87,12 @@ class BeamProfiler(ImageProcessorBase):
         beam_width = dict()
         beam_position_and_orientation = dict()
         beam_other_parameters = dict()
+        ps = self._pixel_size
 
         if self._calculation_flags[BeamWidthMethods.FOUR_SIGMA]:
             cx, cy, d_4sigma_x, d_4sigma_y, _ = bm.width_by_moments(denoised_image, False)
             # beam_parameters.update({BeamWidthMethods.FOUR_SIGMA: (d_4sigma_x, d_4sigma_y)})
-            beam_width.update({BeamWidthMethods.FOUR_SIGMA: (d_4sigma_x, d_4sigma_y)})
+            beam_width.update({BeamWidthMethods.FOUR_SIGMA: (d_4sigma_x*ps, d_4sigma_y*ps)})
             if self._flag_cross_sections_auto:
                 self._center = (cx, cy)
                 self.signal_beam_center_updated.emit(self._center[1], self._center[0])
@@ -107,14 +109,14 @@ class BeamProfiler(ImageProcessorBase):
             d_gauss_x, xx, model_x = bm.width_by_gauss_approximation(im_x, d0_x)
             d_gauss_y, yy, model_y = bm.width_by_gauss_approximation(im_y, d0_y)
             # beam_parameters.update({BeamWidthMethods.GAUSS_APPR: (d_gauss_x, d_gauss_y)})
-            beam_width.update({BeamWidthMethods.GAUSS_APPR: (d_gauss_x, d_gauss_y)})
+            beam_width.update({BeamWidthMethods.GAUSS_APPR: (d_gauss_x*ps, d_gauss_y*ps)})
             self.signal_gauss_approximation_updated.emit(xx, model_x, yy, model_y)
 
         if self._calculation_flags[BeamWidthMethods.LEVELED_135]:
             d_135_x = bm.width_by_level(im_x, level=0.135)
             d_135_y = bm.width_by_level(im_y, level=0.135)
             # beam_parameters.update({BeamWidthMethods.LEVELED_135: (d_135_x, d_135_y)})
-            beam_width.update({BeamWidthMethods.LEVELED_135: (d_135_x, d_135_y)})
+            beam_width.update({BeamWidthMethods.LEVELED_135: (d_135_x*ps, d_135_y*ps)})
 
         if self._calculation_flags[BeamWidthMethods.POWER_86]:
             power = None
@@ -127,7 +129,7 @@ class BeamProfiler(ImageProcessorBase):
             #     BeamWidthMethods.POWER_86: d_power,
             # })
             beam_width.update({
-                BeamWidthMethods.POWER_86: d_power,
+                BeamWidthMethods.POWER_86: d_power*ps,
             })
 
             if self._calculation_flags[OtherParameters.POWER]:
@@ -177,7 +179,9 @@ class BeamProfiler(ImageProcessorBase):
                 #     BeamPositionAndOrientation.GLOBAL: self._extra_context[BeamPositionAndOrientation.GLOBAL]
                 # })
                 beam_position_and_orientation.update({
-                    BeamPositionAndOrientation.GLOBAL: self._extra_context[BeamState.POS]
+                    BeamPositionAndOrientation.GLOBAL:
+                        (self._extra_context[BeamState.POS][0]*ps,
+                         self._extra_context[BeamState.POS][0]*ps)
                 })
 
         if self._calculation_flags[BeamPositionAndOrientation.LOCAL]:
@@ -185,7 +189,7 @@ class BeamProfiler(ImageProcessorBase):
             #     BeamPositionAndOrientation.LOCAL: self._center
             # })
             beam_position_and_orientation.update({
-                BeamPositionAndOrientation.LOCAL: self._center
+                BeamPositionAndOrientation.LOCAL: (self._center[0]*ps, self._center[1]*ps)
             })
 
         self._processed_image = denoised_image
@@ -209,3 +213,6 @@ class BeamProfiler(ImageProcessorBase):
     def save_settings(self, settings: QSettings) -> None:
         settings.beginGroup("BeamFinder")
         settings.endGroup()
+
+    def _set_init_parameters(self, parameters: dict) -> None:
+        self._pixel_size = parameters.get("pixel_size", 1.0)

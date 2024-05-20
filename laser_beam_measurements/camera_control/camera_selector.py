@@ -18,7 +18,8 @@ __all__ = ["CameraSelector"]
 
 class CameraSelector(QObject):
 
-    signal_camera_selected = Signal(str, str, float)
+    # signal_camera_selected = Signal(str, str, float)
+    signal_camera_selected = Signal(dict)
     signal_factory_selected = Signal(list)
 
     def __init__(self, parent=None):
@@ -68,7 +69,13 @@ class CameraSelector(QObject):
         _camera_type = camera.type
         _camera_id = camera.camera_id
         _pixel_size = camera.pixel_size
-        self.signal_camera_selected.emit(_camera_type, _camera_id, _pixel_size)
+        camera_parameters = {
+            "camera_type": _camera_type,
+            "camera_id": _camera_id,
+            "pixel_size": _pixel_size,
+        }
+        self.signal_camera_selected.emit(camera_parameters)
+        # self.signal_camera_selected.emit(_camera_type, _camera_id, _pixel_size)
 
     def get_available_factories(self) -> list[str]:
         return self._factory.camera_device_types

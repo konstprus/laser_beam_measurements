@@ -81,3 +81,9 @@ class ImageProcessorPipeline(ImageProcessorBase):
         while processor is not None:
             processor.load_settings(settings)
             processor = processor.get_next_processor()
+
+    def _set_init_parameters(self, parameters: dict) -> None:
+        processor = self._first_processor
+        while processor is not None:
+            processor._set_init_parameters(parameters)
+            processor = processor.get_next_processor()
