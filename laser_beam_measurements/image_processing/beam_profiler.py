@@ -215,4 +215,4 @@ class BeamProfiler(ImageProcessorBase):
         settings.endGroup()
 
     def _set_init_parameters(self, parameters: dict) -> None:
-        self._pixel_size = parameters.get("pixel_size", 1.0)
+        self._pixel_size = float(parameters.get("pixel_size", 1.0))

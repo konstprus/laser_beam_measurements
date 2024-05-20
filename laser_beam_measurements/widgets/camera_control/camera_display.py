@@ -17,6 +17,7 @@ from laser_beam_measurements.camera_control.camera_listener import CameraListene
 from laser_beam_measurements.camera_control.camera_listener_base import CameraState
 from laser_beam_measurements.widgets.utils.custom_graphics_scene import CustomGraphicsScene
 from laser_beam_measurements.utils.colormap import COLORMAPS
+from laser_beam_measurements.utils.image_saver import ImageSaver
 from .ui_camera_display import Ui_Form
 
 
@@ -37,6 +38,7 @@ class CameraDisplay(QWidget):
         if listener is not None:
             self.set_camera_listener(listener)
         self.ui.colormap_combo_box.currentTextChanged.connect(self.set_colormap)
+        self._image_saver = ImageSaver(self)
 
     @Slot(numpy.ndarray)
     def on_new_image(self, img: numpy.ndarray) -> None:
@@ -50,6 +52,12 @@ class CameraDisplay(QWidget):
         self.ui.frames_label.setText(text_fps)
         text_fps = "Errors: {}".format(int(error_counter))
         self.ui.errors_label.setText(text_fps)
+
+    @Slot()
+    def save(self):
+        self._image_saver.set_image(self._scene.image_item.raw_image)
+        self._image_saver.set_colormap(self._scene.image_item.colormap)
+        self._image_saver.show_save_dialog()
 
     def _fill_colormap_combobox(self) -> None:
         for name in COLORMAPS.get_names():

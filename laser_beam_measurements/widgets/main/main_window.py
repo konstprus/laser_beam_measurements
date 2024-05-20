@@ -94,15 +94,12 @@ class MainWindow(QMainWindow):
             self.ui.statusbar.showMessage("Active", -1)
 
             if self._camera_display is None:
-                self._camera_display = CameraDisplay(self)
-                self._main_object.set_display(self._camera_display)
-                self._camera_display.setWindowIcon(self._icons.display)
-                self._create_sub_window(self._camera_display, True)
+                sub = self._create_camera_display_sub_window()
+                sub.show()
 
             if self._property_controller_widget is None:
-                self._property_controller_widget = CameraPropertyControllerWidget(self)
-                self._main_object.set_widget_for_property_controller(self._property_controller_widget)
-
+                sub = self._create_property_controller_widget_sub_window()
+                sub.setHidden(True)
         elif state == CameraState.STOPPED:
             self.ui.start_button.setEnabled(True)
             self.ui.pause_button.setEnabled(False)
@@ -147,6 +144,7 @@ class MainWindow(QMainWindow):
     def _create_camera_display_sub_window(self) -> QMdiSubWindow:
         if self._camera_display is None:
             self._camera_display = CameraDisplay(self)
+            self.ui.save_image_button.clicked.connect(self._camera_display.save)
             self._main_object.set_display(self._camera_display)
             self._camera_display.setWindowIcon(self._icons.display)
         return self._create_sub_window(self._camera_display, False)

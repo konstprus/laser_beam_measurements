@@ -31,6 +31,14 @@ class ImageItem(QGraphicsObject):
         self._unrenderable = False
         self.set_image(image)
 
+    @property
+    def raw_image(self):
+        return self.image
+
+    @property
+    def colormap(self):
+        return self._colormap
+
     def set_image(self, image: numpy.ndarray) -> None:
         self.image = image
 
