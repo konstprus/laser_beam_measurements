@@ -13,6 +13,7 @@ from PySide6.QtWidgets import QWidget
 from .image_processor_base import ImageProcessorBase
 from laser_beam_measurements.widgets.utils.custom_graphics_scene import CustomGraphicsScene
 from laser_beam_measurements.utils.colormap import COLORMAPS
+from laser_beam_measurements.utils.image_saver import ImageSaver
 import numpy
 
 
@@ -28,6 +29,7 @@ class ImageProcessorViewerBase(QWidget):
         self._flag_show_processed_image: bool = False
         self._input_image_scene: CustomGraphicsScene | None = None
         self._output_image_scene: CustomGraphicsScene | None = None
+        self._image_saver = ImageSaver(self)
 
         configure_input_scene = kwargs.get("configure_input_scene", False)
         if configure_input_scene:
@@ -95,8 +97,16 @@ class ImageProcessorViewerBase(QWidget):
         if self._output_image_scene is not None:
             self._output_image_scene.set_colormap(COLORMAPS.get_colormap(name))
 
-    # @Slot(str, object)
-    # def set_parameter_value(self, parameter_name: str, value: object) -> None:
-    #     pass
-    #
-    # def _set_parameter_value(self, parameter_name: str, value: object) -> None:
+    @Slot()
+    def slot_save_save_input_image(self):
+        if self._input_image_scene is not None:
+            self._image_saver.set_image(self._input_image_scene.image_item.raw_image)
+            self._image_saver.set_colormap(self._input_image_scene.image_item.colormap)
+            self._image_saver.show_save_dialog()
+
+    @Slot()
+    def slot_save_save_output_image(self):
+        if self._output_image_scene is not None:
+            self._image_saver.set_image(self._output_image_scene.image_item.raw_image)
+            self._image_saver.set_colormap(self._output_image_scene.image_item.colormap)
+            self._image_saver.show_save_dialog()
