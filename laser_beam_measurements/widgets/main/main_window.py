@@ -182,6 +182,7 @@ class MainWindow(QMainWindow):
     def _create_beam_profiler_widget_sub_window(self) -> QMdiSubWindow:
         if self._beam_profiler_widget is None:
             self._beam_profiler_widget = BeamProfilerWidget(self)
+            self.ui.save_processed_image_button.clicked.connect(self._beam_profiler_widget.slot_save_save_output_image)
             self._main_object.set_widget_for_beam_profiler(self._beam_profiler_widget)
         return self._create_sub_window(self._beam_profiler_widget, False)
 

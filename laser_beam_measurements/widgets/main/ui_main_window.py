@@ -164,6 +164,15 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.show_beam_profiler)
 
+        self.save_processed_image_button = QPushButton(self.buttonsGroupBox)
+        self.save_processed_image_button.setObjectName(u"save_processed_image_button")
+        sizePolicy1.setHeightForWidth(self.save_processed_image_button.sizePolicy().hasHeightForWidth())
+        self.save_processed_image_button.setSizePolicy(sizePolicy1)
+        self.save_processed_image_button.setMinimumSize(QSize(0, 0))
+        self.save_processed_image_button.setMaximumSize(QSize(30, 30))
+
+        self.horizontalLayout.addWidget(self.save_processed_image_button)
+
         self.line_2 = QFrame(self.buttonsGroupBox)
         self.line_2.setObjectName(u"line_2")
         sizePolicy2.setHeightForWidth(self.line_2.sizePolicy().hasHeightForWidth())
@@ -249,5 +258,9 @@ class Ui_MainWindow(object):
         self.show_beam_profiler.setToolTip(QCoreApplication.translate("MainWindow", u"Beam Profiler", None))
 #endif // QT_CONFIG(tooltip)
         self.show_beam_profiler.setText("")
+#if QT_CONFIG(tooltip)
+        self.save_processed_image_button.setToolTip(QCoreApplication.translate("MainWindow", u"Save Processed Image", None))
+#endif // QT_CONFIG(tooltip)
+        self.save_processed_image_button.setText("")
     # retranslateUi
 

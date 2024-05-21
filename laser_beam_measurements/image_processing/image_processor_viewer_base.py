@@ -98,14 +98,14 @@ class ImageProcessorViewerBase(QWidget):
             self._output_image_scene.set_colormap(COLORMAPS.get_colormap(name))
 
     @Slot()
-    def slot_save_save_input_image(self):
+    def slot_save_save_input_image(self) -> None:
         if self._input_image_scene is not None:
             self._image_saver.set_image(self._input_image_scene.image_item.raw_image)
             self._image_saver.set_colormap(self._input_image_scene.image_item.colormap)
             self._image_saver.show_save_dialog()
 
     @Slot()
-    def slot_save_save_output_image(self):
+    def slot_save_save_output_image(self) -> None:
         if self._output_image_scene is not None:
             self._image_saver.set_image(self._output_image_scene.image_item.raw_image)
             self._image_saver.set_colormap(self._output_image_scene.image_item.colormap)
