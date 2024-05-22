@@ -163,7 +163,7 @@ class Ui_Form(object):
     # setupUi
 
     def retranslateUi(self, Form):
-        Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
+        Form.setWindowTitle(QCoreApplication.translate("Form", u"Property Controller", None))
         self.camera_info_group_box.setTitle(QCoreApplication.translate("Form", u"Camera Info", None))
         ___qtablewidgetitem = self.camera_info.verticalHeaderItem(0)
         ___qtablewidgetitem.setText(QCoreApplication.translate("Form", u"Type:", None));
