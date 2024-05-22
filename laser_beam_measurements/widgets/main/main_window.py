@@ -12,7 +12,7 @@
 
 from PySide6.QtWidgets import QMainWindow, QWidget, QMdiSubWindow
 from PySide6.QtGui import QIcon
-from PySide6.QtCore import Signal, Slot, Qt, QSettings
+from PySide6.QtCore import Signal, Slot, QSettings
 
 from .ui_main_window import Ui_MainWindow
 
@@ -27,15 +27,26 @@ from laser_beam_measurements.camera_control.camera_listener import CameraListene
 from laser_beam_measurements.camera_control.camera_listener_base import CameraState
 from laser_beam_measurements.utils.settings_bool_reader import read_boolean_value
 
-import laser_beam_measurements.icons.rc_icons
+from laser_beam_measurements.icons import Icon
 
 
 class Icons:
-    start = QIcon(u":/icons/svg/play-button.svg")
-    stop = QIcon(u":/icons/svg/stop-button.svg")
-    pause = QIcon(u":/icons/svg/pause-button.svg")
-    camera = QIcon(u":/icons/svg/camera.svg")
-    display = QIcon(u":/icons/svg/display-button.svg")
+    # start = QIcon(u":/icons/__svg/play-button.__svg")
+    # stop = QIcon(u":/icons/__svg/stop-button.__svg")
+    # pause = QIcon(u":/icons/__svg/pause-button.__svg")
+    # camera = QIcon(u":/icons/__svg/camera.__svg")
+    # display = QIcon(u":/icons/__svg/display-button.__svg")
+    start = Icon("play.__svg")
+    stop = Icon("stop.__svg")
+    pause = Icon("pause.__svg")
+    camera = Icon("camera.__svg")
+    display = Icon("display.__svg")
+    save = Icon("save.__svg")
+    settings = Icon("settings.__svg")
+    beam_find = Icon("beam_find.__svg")
+    beam_analyze = Icon("beam_analyze.__svg")
+    beam_profiler = Icon("beam_profiler.__svg")
+    main = Icon("main.__svg")
 
 
 class MainWindow(QMainWindow):
@@ -68,6 +79,14 @@ class MainWindow(QMainWindow):
         self.ui.stop_button.setIcon(self._icons.stop)
         self.ui.pause_button.setIcon(self._icons.pause)
         self.ui.show_display_button.setIcon(self._icons.display)
+        self.ui.show_settings_button.setIcon(self._icons.settings)
+        self.ui.save_image_button.setIcon(self._icons.save)
+        self.ui.save_processed_image_button.setIcon(self._icons.save)
+        self.ui.show_beam_finder.setIcon(self._icons.beam_find)
+        self.ui.show_beam_profiler.setIcon(self._icons.beam_profiler)
+        self.ui.beam_analyzing_section_label.setPixmap(
+            self._icons.beam_analyze.pixmap(25, 25, QIcon.Mode.Normal, QIcon.State.On))
+        self.setWindowIcon(self._icons.main)
 
     def _connect_signals(self) -> None:
         self.signal_camera_grabber_status.connect(self._main_object.camera_grabber.run_status_changed)
@@ -165,6 +184,7 @@ class MainWindow(QMainWindow):
         if self._beam_finder_widget is None:
             self._beam_finder_widget = BeamFinderWidget(self)
             self._main_object.set_widget_for_beam_finder(self._beam_finder_widget)
+            self._beam_finder_widget.setWindowIcon(self._icons.beam_find)
         return self._create_sub_window(self._beam_finder_widget, False)
 
     @Slot()
@@ -184,6 +204,7 @@ class MainWindow(QMainWindow):
             self._beam_profiler_widget = BeamProfilerWidget(self)
             self.ui.save_processed_image_button.clicked.connect(self._beam_profiler_widget.slot_save_save_output_image)
             self._main_object.set_widget_for_beam_profiler(self._beam_profiler_widget)
+            self._beam_profiler_widget.setWindowIcon(self._icons.beam_profiler)
         return self._create_sub_window(self._beam_profiler_widget, False)
 
     @Slot()
@@ -202,6 +223,7 @@ class MainWindow(QMainWindow):
         if self._property_controller_widget is None:
             self._property_controller_widget = CameraPropertyControllerWidget(self)
             self._main_object.set_widget_for_property_controller(self._property_controller_widget)
+            self._property_controller_widget.setWindowIcon(self._icons.settings)
         return self._create_sub_window(self._property_controller_widget, False)
 
     def _show_camera_select_dialog(self) -> None:

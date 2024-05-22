@@ -1,9 +1,0 @@
-<RCC>
-  <qresource prefix="icons">
-    <file>svg/camera.svg</file>
-    <file>svg/display-button.svg</file>
-    <file>svg/pause-button.svg</file>
-    <file>svg/play-button.svg</file>
-    <file>svg/stop-button.svg</file>
-  </qresource>
-</RCC>

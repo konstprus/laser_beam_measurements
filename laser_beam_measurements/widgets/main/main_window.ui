@@ -122,8 +122,8 @@
          </property>
          <property name="iconSize">
           <size>
-           <width>25</width>
-           <height>25</height>
+           <width>16</width>
+           <height>16</height>
           </size>
          </property>
          <property name="checkable">
@@ -156,8 +156,8 @@
          </property>
          <property name="iconSize">
           <size>
-           <width>25</width>
-           <height>25</height>
+           <width>16</width>
+           <height>16</height>
           </size>
          </property>
          <property name="checkable">
@@ -193,8 +193,8 @@
          </property>
          <property name="iconSize">
           <size>
-           <width>24</width>
-           <height>24</height>
+           <width>16</width>
+           <height>16</height>
           </size>
          </property>
          <property name="checkable">
@@ -227,8 +227,8 @@
          </property>
          <property name="iconSize">
           <size>
-           <width>24</width>
-           <height>24</height>
+           <width>16</width>
+           <height>16</height>
           </size>
          </property>
          <property name="checkable">
@@ -286,8 +286,8 @@
          </property>
          <property name="iconSize">
           <size>
-           <width>24</width>
-           <height>24</height>
+           <width>16</width>
+           <height>16</height>
           </size>
          </property>
          <property name="checkable">
@@ -315,7 +315,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="image_processing_section_label">
+        <widget class="QLabel" name="beam_analyzing_section_label">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -335,7 +335,7 @@
           </size>
          </property>
          <property name="toolTip">
-          <string>Camera Control Section</string>
+          <string>Beam Analyzing Section</string>
          </property>
          <property name="whatsThis">
           <string/>
@@ -367,8 +367,8 @@
          </property>
          <property name="iconSize">
           <size>
-           <width>25</width>
-           <height>25</height>
+           <width>16</width>
+           <height>16</height>
           </size>
          </property>
          <property name="checkable">
@@ -401,8 +401,8 @@
          </property>
          <property name="iconSize">
           <size>
-           <width>25</width>
-           <height>25</height>
+           <width>16</width>
+           <height>16</height>
           </size>
          </property>
          <property name="checkable">

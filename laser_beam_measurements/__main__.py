@@ -14,12 +14,15 @@ from laser_beam_measurements.main.main_object import MainObject
 
 
 if __name__ == "__main__":
-    from PySide6.QtWidgets import QApplication
+    from PySide6.QtWidgets import QApplication, QStyleFactory
     import sys
 
     app = QApplication(sys.argv)
+    app.setStyle(QStyleFactory.create('Fusion'))
+
     main_object = MainObject()
     w = MainWindow(main_object)
-
+    w.setStyle(app.style())
     w.show()
+
     app.exec()
