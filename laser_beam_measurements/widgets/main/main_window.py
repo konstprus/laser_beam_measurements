@@ -31,22 +31,17 @@ from laser_beam_measurements.icons import Icon
 
 
 class Icons:
-    # start = QIcon(u":/icons/__svg/play-button.__svg")
-    # stop = QIcon(u":/icons/__svg/stop-button.__svg")
-    # pause = QIcon(u":/icons/__svg/pause-button.__svg")
-    # camera = QIcon(u":/icons/__svg/camera.__svg")
-    # display = QIcon(u":/icons/__svg/display-button.__svg")
-    start = Icon("play.__svg")
-    stop = Icon("stop.__svg")
-    pause = Icon("pause.__svg")
-    camera = Icon("camera.__svg")
-    display = Icon("display.__svg")
-    save = Icon("save.__svg")
-    settings = Icon("settings.__svg")
-    beam_find = Icon("beam_find.__svg")
-    beam_analyze = Icon("beam_analyze.__svg")
-    beam_profiler = Icon("beam_profiler.__svg")
-    main = Icon("main.__svg")
+    start = Icon("play.svg")
+    stop = Icon("stop.svg")
+    pause = Icon("pause.svg")
+    camera = Icon("camera.svg")
+    display = Icon("display.svg")
+    save = Icon("save.svg")
+    settings = Icon("settings.svg")
+    beam_find = Icon("beam_find.svg")
+    beam_analyze = Icon("beam_analyze.svg")
+    beam_profiler = Icon("beam_profiler.svg")
+    main = Icon("main.svg")
 
 
 class MainWindow(QMainWindow):
