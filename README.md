@@ -1,6 +1,8 @@
 # Laser Beam Measurements
 
-Software tool for laser beam measurements using different video cameras
+Software tool for laser beam measurements using different video cameras\
+
+![main_window_screen](/images/main_window.png)
 
 # Description
 
