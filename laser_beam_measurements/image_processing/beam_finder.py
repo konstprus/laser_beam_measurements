@@ -137,7 +137,7 @@ class BeamFinder(ImageProcessorBase):
                     self._position = value
             elif parameter == BeamFinderParameters.ROTATION_ANGLE and self._flag_manual_rotation:
                 if isinstance(value, (float, int)):
-                    self._rotation_angle = value
+                    self._rotation_angle = value * pi / 180
             elif parameter == BeamFinderParameters.SCALE:
                 if isinstance(value, (float, int)):
                     self._scale_factor = value
