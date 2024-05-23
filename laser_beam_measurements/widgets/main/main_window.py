@@ -51,10 +51,9 @@ class MainWindow(QMainWindow):
 
     def __init__(self, main_object: MainObject, parent=None):
         super().__init__(parent)
-        widget = QWidget()
-        self.setCentralWidget(widget)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.setWindowTitle("Laser Beam Measurements")
 
         self._main_object: MainObject = main_object
         self._icons = Icons()
