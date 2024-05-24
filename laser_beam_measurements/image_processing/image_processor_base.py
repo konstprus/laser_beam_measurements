@@ -36,13 +36,6 @@ class ImageProcessorBase(QObject):
             if not self._thread.isRunning():
                 self._thread.start()
 
-    # def __del__(self):
-    #     if self._own_thread:
-    #         self._thread.quit()
-    #         # self._thread.msleep(1000)
-    #         self._thread.wait(10000)
-    #         self._thread.deleteLater()
-
     def set_next_processor(self, processor: QObject | None) -> None:
         with QMutexLocker(self._mutex):
             if processor is None:

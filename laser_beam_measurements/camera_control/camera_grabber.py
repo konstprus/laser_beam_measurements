@@ -9,7 +9,7 @@
 #
 
 
-from PySide6.QtCore import QObject, QThread, QMutex, QMutexLocker, QCoreApplication, Slot, Signal
+from PySide6.QtCore import QObject, QThread, QMutex, QMutexLocker, QCoreApplication, Slot
 
 from .camera_listener_base import CameraListenerBase, CameraState
 from .camera_listener import CameraListener
@@ -41,15 +41,6 @@ class CameraGrabber(QObject):
         self.moveToThread(self._thread)
         if not self._thread.isRunning():
             self._thread.start()
-
-    # def __del__(self):
-    #     self.stop()
-    #     if self._camera:
-    #         self._camera.close()
-    #     if self._own_thread:
-    #         self._thread.quit()
-    #         self._thread.wait(10000)
-    #         del self._thread
 
     def stop_thread(self):
         self.close()
@@ -96,20 +87,6 @@ class CameraGrabber(QObject):
     def property_controller(self) -> CameraPropertyController:
         with QMutexLocker(self._mutex):
             return self._property_controller
-
-    # @Slot()
-    # def enable_auto_grabbing(self) -> None:
-    #     with QMutexLocker(self._mutex):
-    #         self._auto_grabbing_enabled = True
-    #         if self._timer_id <= 0:
-    #             self.start()
-    #
-    # @Slot()
-    # def disable_auto_grabbing(self) -> None:
-    #     with QMutexLocker(self._mutex):
-    #         self._auto_grabbing_enabled = False
-    #         if self._timer_id > 0:
-    #             self.stop()
 
     @Slot(bool)
     def set_auto_grabbing_flag(self, value: bool) -> None:
