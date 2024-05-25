@@ -31,23 +31,23 @@ class ImageProcessorPipeline(ImageProcessorBase):
                 return
             if self._first_processor is None:
                 self._first_processor = processor
-                # self._first_processor.moveToThread(self._thread)
+                self._first_processor.moveToThread(self._thread)
                 self._first_processor.setParent(self)
                 self._first_processor.signal_processed_done.connect(self.set_processed_image)
             else:
                 if self._last_processor is None:
                     self._first_processor.signal_processed_done.disconnect(self.set_processed_image)
                     self._last_processor = processor
-                    self._first_processor.set_next_processor(self._last_processor)
-                    # self._last_processor.moveToThread(self._thread)
+                    self._last_processor.moveToThread(self._thread)
                     self._last_processor.setParent(self)
+                    self._first_processor.set_next_processor(self._last_processor)
                     self._last_processor.signal_processed_done.connect(self.set_processed_image)
                 else:
+                    processor.moveToThread(self._thread)
+                    processor.setParent(self)
                     self._last_processor.set_next_processor(processor)
                     self._last_processor.signal_processed_done.disconnect(self.set_processed_image)
                     self._last_processor = processor
-                    # self._last_processor.moveToThread(self._thread)
-                    self._last_processor.setParent(self)
                     self._last_processor.signal_processed_done.connect(self.set_processed_image)
         self.blockSignals(False)
 
