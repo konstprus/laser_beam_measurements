@@ -21,8 +21,8 @@ class BeamAnalyzer(ImageProcessorPipeline):
     def __init__(self, *args, **kwargs):
         super(BeamAnalyzer, self).__init__(*args, **kwargs)
 
-        finder = BeamFinder(self)
-        profiler = BeamProfiler(self)
+        finder = BeamFinder()
+        profiler = BeamProfiler()
 
         self.add_processor(finder)
         self.add_processor(profiler)

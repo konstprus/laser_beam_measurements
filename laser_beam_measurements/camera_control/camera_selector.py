@@ -23,14 +23,22 @@ class CameraSelector(QObject):
     signal_factory_selected = Signal(list)
 
     def __init__(self, parent=None):
-        super(CameraSelector, self).__init__(parent)
+        _parent = None
+        if not isinstance(parent, CameraGrabber):
+            _parent = parent
+        super(CameraSelector, self).__init__(_parent)
         self._factory = CameraFactory()
         self._grabber: CameraGrabber | None = None
         if isinstance(parent, CameraGrabber):
-            self._grabber = parent
+            self.set_grabber(parent)
+            # self._grabber = parent
+            # self.moveToThread(self._grabber.thread())
+            # self.setParent(self._grabber)
 
     def set_grabber(self, camera_grabber: CameraGrabber):
         self._grabber = camera_grabber
+        self.moveToThread(self._grabber.thread())
+        self.setParent(self._grabber)
 
     @Slot(str, object, object)
     def slot_select_camera(self, factory_name: str, camera_id, pixel_size: float | None) -> None:
