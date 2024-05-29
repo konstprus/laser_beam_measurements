@@ -206,6 +206,8 @@ class BeamFinder(ImageProcessorBase):
         settings.endGroup()
 
     def load_settings(self, settings: QSettings) -> None:
+        if not settings.contains("BeamFinder"):
+            return
         settings.beginGroup("BeamFinder")
         self._flag_enable = read_boolean_value(settings, "Enabled", self._flag_enable)
         self._flag_find_auto = read_boolean_value(settings, "FindAuto", self._flag_find_auto)
@@ -213,14 +215,15 @@ class BeamFinder(ImageProcessorBase):
         self._flag_manual_rotation = read_boolean_value(settings, "ManualRotation", self._flag_manual_rotation)
         self._flag_delete_noise = read_boolean_value(settings, "DeleteNoise", self._flag_delete_noise)
         if self._flag_delete_noise:
-            self._noise_level = settings.value("NoiseLevel", self._noise_level)
+            if settings.contains("NoiseLevel"):
+                self._noise_level = float(settings.value("NoiseLevel"))
         if not self._flag_find_auto:
-            pos_x = settings.value("PositionX", self._position[0])
-            pos_y = settings.value("PositionX", self._position[1])
+            pos_x = int(settings.value("PositionX", self._position[0]))
+            pos_y = int(settings.value("PositionX", self._position[1]))
             self._position = (pos_x, pos_y)
-            shape_x = settings.value("ShapeX", self._shape[0])
-            shape_y = settings.value("ShapeY", self._shape[1])
+            shape_x = int(settings.value("ShapeX", self._shape[0]))
+            shape_y = int(settings.value("ShapeY", self._shape[1]))
             self._shape = (shape_x, shape_y)
-            if self._flag_manual_rotation:
-                self._rotation_angle = settings.value("Angle", self._rotation_angle)
+            if self._flag_manual_rotation and settings.contains("Angle"):
+                self._rotation_angle = float(settings.value("Angle"))
         settings.endGroup()
