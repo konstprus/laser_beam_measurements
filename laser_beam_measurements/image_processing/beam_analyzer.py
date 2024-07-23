@@ -8,8 +8,6 @@
 # Copyright 2024 Konstantin Prusakov <konstantin.prusakov@phystech.edu>
 #
 
-from PySide6.QtCore import QSettings
-
 from .image_processor_pipeline import ImageProcessorPipeline, ImageProcessorBase
 
 from .beam_finder import BeamFinder
