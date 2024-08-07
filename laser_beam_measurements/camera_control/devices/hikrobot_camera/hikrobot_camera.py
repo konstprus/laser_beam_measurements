@@ -44,6 +44,12 @@ class HikRobotCamera(CameraBase):
     def open(self, camera_id: str | int | None = None) -> None:
         if self._cam.MV_CC_OpenDevice(hik.MV_ACCESS_Exclusive, 0) == 0:
             self._is_opened = True
+
+            if self._device_info.nTLayerType == hik.MV_GIGE_DEVICE or self._device_info.nTLayerType == hik.MV_GENTL_GIGE_DEVICE:
+                n_packet_size = self._cam.MV_CC_GetOptimalPacketSize()
+                if int(n_packet_size) > 0:
+                    self._cam.MV_CC_SetIntValue("GevSCPSPacketSize", n_packet_size)
+
             self._init_properties()
 
             self._cam.MV_CC_SetEnumValue("TriggerMode", hik.MV_TRIGGER_MODE_OFF)
@@ -93,4 +99,3 @@ class HikRobotCamera(CameraBase):
     @property
     def is_opened(self) -> bool:
         return self._is_opened
-
