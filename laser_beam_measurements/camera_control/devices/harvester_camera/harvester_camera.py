@@ -26,10 +26,14 @@ class HarvesterCamera(CameraBase):
         self._node_map: NodeMap = node_map
 
     def start(self) -> None:
-        self._image_acquire.start()
+        if not self._image_acquire.is_acquiring():
+            self._image_acquire.start()
+            self._image_acquire.num_buffers += 1
 
     def stop(self) -> None:
-        self._image_acquire.stop()
+        if self._image_acquire.is_acquiring():
+            self._image_acquire.statistics.reset()
+            self._image_acquire.stop()
 
     def query_frame(self, *args, **kwargs) -> numpy.ndarray or None:
         if not self._image_acquire.is_acquiring():
