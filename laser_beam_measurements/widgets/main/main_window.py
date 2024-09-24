@@ -143,16 +143,8 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def show_camera_display(self) -> None:
-        # if self._camera_display is None:
-        #     self._camera_display = CameraDisplay(self)
-        #     self._main_object.set_display(self._camera_display)
-        #     self._camera_display.setWindowIcon(self._icons.display)
-        # sub = self._create_sub_window(self._camera_display, False)
         sub = self._create_camera_display_sub_window()
-        if sub.isHidden():
-            sub.show()
-        else:
-            sub.setHidden(True)
+        self._show_sub_window(sub)
 
     def _create_camera_display_sub_window(self) -> QMdiSubWindow:
         if self._camera_display is None:
@@ -164,15 +156,8 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def show_beam_finder_widget(self) -> None:
-        # if self._beam_finder_widget is None:
-        #     self._beam_finder_widget = BeamFinderWidget(self)
-        #     self._main_object.set_widget_for_beam_finder(self._beam_finder_widget)
-        # sub = self._create_sub_window(self._beam_finder_widget, False)
         sub = self._create_beam_finder_widget_sub_window()
-        if sub.isHidden():
-            sub.show()
-        else:
-            sub.setHidden(True)
+        self._show_sub_window(sub)
 
     def _create_beam_finder_widget_sub_window(self) -> QMdiSubWindow:
         if self._beam_finder_widget is None:
@@ -183,15 +168,8 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def show_beam_profiler_widget(self) -> None:
-        # if self._beam_profiler_widget is None:
-        #     self._beam_profiler_widget = BeamProfilerWidget(self)
-        #     self._main_object.set_widget_for_beam_profiler(self._beam_profiler_widget)
-        # sub = self._create_sub_window(self._beam_profiler_widget, False)
         sub = self._create_beam_profiler_widget_sub_window()
-        if sub.isHidden():
-            sub.show()
-        else:
-            sub.setHidden(True)
+        self._show_sub_window(sub)
 
     def _create_beam_profiler_widget_sub_window(self) -> QMdiSubWindow:
         if self._beam_profiler_widget is None:
@@ -203,15 +181,8 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def show_property_controller_widget(self) -> None:
-        # if self._property_controller_widget is None:
-        #     self._property_controller_widget = CameraPropertyControllerWidget(self)
-        #     self._main_object.set_widget_for_property_controller(self._property_controller_widget)
-        # sub = self._create_sub_window(self._property_controller_widget, False)
         sub = self._create_property_controller_widget_sub_window()
-        if sub.isHidden():
-            sub.show()
-        else:
-            sub.setHidden(True)
+        self._show_sub_window(sub)
 
     def _create_property_controller_widget_sub_window(self) -> QMdiSubWindow:
         if self._property_controller_widget is None:
@@ -240,6 +211,13 @@ class MainWindow(QMainWindow):
         if show:
             sub.show()
         return sub
+
+    def _show_sub_window(self, sub_window: QMdiSubWindow) -> None:
+        if sub_window.isHidden() and sub_window.widget() is not None:
+            sub_window.show()
+            sub_window.widget().show()
+        else:
+            sub_window.setHidden(True)
 
     def closeEvent(self, event) -> None:
         self._main_object.closeEvent(event)
