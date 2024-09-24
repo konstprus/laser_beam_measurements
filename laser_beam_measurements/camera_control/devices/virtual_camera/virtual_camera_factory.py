@@ -16,4 +16,10 @@ class VirtualCameraFactory(CameraFactoryBase):
     camera_class = VirtualCamera
 
     def __init__(self):
-        super(VirtualCameraFactory, self).__init__(func=[0])
+        super(VirtualCameraFactory, self).__init__(
+            func=[
+                "round",
+                "perpendicular",
+                "left",
+                "right"]
+        )

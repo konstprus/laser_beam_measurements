@@ -62,6 +62,12 @@ class VirtualCamera(CameraBase):
         power = 1000.0
         xx, yy = numpy.meshgrid(x, y)
         img = generate_gauss(yy, xx, y0, x0, sigma, power)
+        if self._id == "perpendicular":
+            img += generate_gauss(yy, xx, y0 + sigma/1.5, x0, sigma, power)
+        elif self._id == "left":
+            img += generate_gauss(yy, xx, y0 + sigma/1.5, x0 + sigma/2, sigma, power)
+        elif self._id == "right":
+            img += generate_gauss(yy, xx, y0 + sigma/1.5, x0 - sigma/2, sigma, power)
         img = numpy.array((self.t_ms + 100.0)*img/numpy.max(img))
         img += (self.t_ms*0.01*random([self._resolution[1],
                                        self._resolution[0]]))
