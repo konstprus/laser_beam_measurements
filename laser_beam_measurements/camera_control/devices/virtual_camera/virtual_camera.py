@@ -51,7 +51,7 @@ class VirtualCamera(CameraBase):
             if self._max_fps_t > t1 - t0:
                 self._max_fps_t = t1 - t0
 
-    def _get_stimulated_image(self, x0, y0, is_sleep=True):
+    def _get_stimulated_image(self, x0, y0, is_sleep=True, static=False):
         t0 = time()
         if is_sleep:
             if 1.0/self.fps > (t0 - self.prev_frame_time):
@@ -61,16 +61,21 @@ class VirtualCamera(CameraBase):
         sigma = 300.0
         power = 1000.0
         xx, yy = numpy.meshgrid(x, y)
-        img = generate_gauss(yy, xx, y0, x0, sigma, power)
+        if self._id == "zero":
+            img = (self.t_ms * 0.01 * random([self._resolution[1],
+                                              self._resolution[0]]))
+        else:
+            img = generate_gauss(yy, xx, y0, x0, sigma, power)
         if self._id == "perpendicular":
             img += generate_gauss(yy, xx, y0 + sigma/1.5, x0, sigma, power)
         elif self._id == "left":
             img += generate_gauss(yy, xx, y0 + sigma/1.5, x0 + sigma/2, sigma, power)
         elif self._id == "right":
             img += generate_gauss(yy, xx, y0 + sigma/1.5, x0 - sigma/2, sigma, power)
-        img = numpy.array((self.t_ms + 100.0)*img/numpy.max(img))
-        img += (self.t_ms*0.01*random([self._resolution[1],
-                                       self._resolution[0]]))
+        img = numpy.array((self.t_ms + 100.0) * img / numpy.max(img))
+        if not static:
+            img += (self.t_ms*0.01*random([self._resolution[1],
+                                           self._resolution[0]]))
         numpy.putmask(img, img > 255.0, 255.0)
         img = numpy.array(img, dtype=numpy.uint8)
         self.prev_frame_time = time()
