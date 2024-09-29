@@ -60,7 +60,6 @@ class ImageProcessorSink(QObject):
     def slot_new_image(self, image: numpy.ndarray) -> None:
         with QMutexLocker(self._mutex):
             if not self._processing_flag:
-                print(self._processing_flag)
                 self._image = image
                 self._processing_flag = True
                 self.signal_on_new_image.emit(self._image)
