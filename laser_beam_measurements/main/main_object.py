@@ -14,6 +14,7 @@ from PySide6.QtWidgets import QWidget
 from laser_beam_measurements.camera_control.camera_grabber import CameraGrabber
 from laser_beam_measurements.camera_control.camera_selector import CameraSelector
 from laser_beam_measurements.image_processing.beam_analyzer import BeamAnalyzer
+from laser_beam_measurements.image_processing.image_processor_sink import ImageProcessorSink
 
 
 class MainObject(QObject):
@@ -24,7 +25,9 @@ class MainObject(QObject):
         self._camera_selector: CameraSelector = CameraSelector(self._camera_grabber)
 
         self._beam_analyzer: BeamAnalyzer = BeamAnalyzer()
-        self._camera_grabber.listener.signal_new_image_received.connect(self._beam_analyzer.on_new_image)
+        self._sink = ImageProcessorSink(image_processor=self._beam_analyzer, thread=self._camera_grabber.thread())
+        # self._camera_grabber.listener.signal_new_image_received.connect(self._beam_analyzer.on_new_image)
+        self._camera_grabber.listener.signal_new_image_received.connect(self._sink.slot_new_image)
         self._camera_selector.signal_camera_selected.connect(self._beam_analyzer.slot_set_init_parameters)
 
         self._settings_name = "settings.conf"
