@@ -80,3 +80,9 @@ class CameraBase(object):
         if name in self._properties.keys():
             return self._properties.get(name)
         return None
+
+    def has_property_dialog(self):
+        return False
+
+    def show_property_dialog(self):
+        pass

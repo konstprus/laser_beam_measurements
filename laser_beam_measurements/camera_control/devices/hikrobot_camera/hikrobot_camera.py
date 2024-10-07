@@ -44,7 +44,6 @@ class HikRobotCamera(CameraBase):
     def open(self, camera_id: str | int | None = None) -> None:
         if self._cam.MV_CC_OpenDevice(hik.MV_ACCESS_Exclusive, 0) == 0:
             self._is_opened = True
-
             if self._device_info.nTLayerType == hik.MV_GIGE_DEVICE or self._device_info.nTLayerType == hik.MV_GENTL_GIGE_DEVICE:
                 n_packet_size = self._cam.MV_CC_GetOptimalPacketSize()
                 if int(n_packet_size) > 0:
@@ -99,3 +98,9 @@ class HikRobotCamera(CameraBase):
     @property
     def is_opened(self) -> bool:
         return self._is_opened
+
+    def has_property_dialog(self):
+        return True
+
+    def show_property_dialog(self):
+        ret = self._cam.MV_CC_OpenParamsGUI()
