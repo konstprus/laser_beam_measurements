@@ -33,6 +33,7 @@ class CameraPropertyControllerWidget(QWidget):
         if property_controller is not None:
             self.set_controller(property_controller)
         self.ui.property_dialog_button.clicked.connect(self.show_property_dialog)
+        self.ui.property_dialog_button.setVisible(False)
 
     def set_controller(self, property_controller: CameraPropertyController) -> None:
         if self._property_controller:
