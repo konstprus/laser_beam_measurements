@@ -87,7 +87,7 @@ class BeamFinder(ImageProcessorBase):
         if self._flag_rotation_enable and self._flag_manual_rotation:
             angle = state.get(BeamState.ANGLE, None)
             if isinstance(angle, float):
-                self._rotation_angle = angle * pi / 180
+                self._rotation_angle = -angle * pi / 180
 
     def roi_find(self, image: numpy.ndarray | None) -> numpy.ndarray | None:
         _image = image
@@ -117,7 +117,7 @@ class BeamFinder(ImageProcessorBase):
                 self._rotation_angle = angle
             if self._flag_rotation_enable:
                 beam_state.update({
-                    BeamState.ANGLE: self._rotation_angle * 180 / pi,
+                    BeamState.ANGLE: -self._rotation_angle * 180 / pi,
                 })
             self._beam_state.clear()
             self._beam_state.update(beam_state)
