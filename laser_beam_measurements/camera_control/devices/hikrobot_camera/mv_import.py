@@ -4,9 +4,9 @@ from importlib import import_module
 
 
 if "MVCAM_SDK_PATH" in os.environ.keys():
-    MV_IMPORT_DIR = os.environ.get("MVCAM_SDK_PATH")
+    MVCAM_SDK_PATH = os.environ.get("MVCAM_SDK_PATH")
     MV_IMPORT_RELATIVE_DIR = "Development/Samples/Python/MvImport"
-    sys.path.append(os.path.join(MV_IMPORT_DIR, MV_IMPORT_RELATIVE_DIR))
+    sys.path.append(os.path.join(MVCAM_SDK_PATH, MV_IMPORT_RELATIVE_DIR))
 else:
     MV_IMPORT_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'MvImport')
     if os.path.exists(MV_IMPORT_DIR):
