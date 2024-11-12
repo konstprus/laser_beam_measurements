@@ -32,6 +32,8 @@ class CameraPropertyControllerWidget(QWidget):
         self._connect_signals()
         if property_controller is not None:
             self.set_controller(property_controller)
+        self.ui.property_dialog_button.clicked.connect(self.show_property_dialog)
+        self.ui.property_dialog_button.setVisible(False)
 
     def set_controller(self, property_controller: CameraPropertyController) -> None:
         if self._property_controller:
@@ -44,11 +46,20 @@ class CameraPropertyControllerWidget(QWidget):
         self.signal_camera_property_changed.connect(self._property_controller.set_property_value)
         self._property_controller.signal_property_value_changed.connect(self.slot_update_property_value)
         self._property_controller.signal_camera_unset.connect(self.slot_camera_unset)
+        if self._property_controller.property_dialog_available:
+            self.ui.property_dialog_button.setEnabled(True)
+        else:
+            self.ui.property_dialog_button.setEnabled(False)
         self._update_properties()
 
     @Slot()
     def slot_camera_changed(self) -> None:
         self._update_properties()
+        if self._property_controller.property_dialog_available:
+            self.ui.property_dialog_button.setEnabled(True)
+            self.ui.property_dialog_button.clicked.connect(self._property_controller.show_property_dialog)
+        else:
+            self.ui.property_dialog_button.setEnabled(False)
 
     def _update_properties(self, disable_all: bool = False) -> None:
         if disable_all:
@@ -145,3 +156,8 @@ class CameraPropertyControllerWidget(QWidget):
         else:
             pixel_size = ''
         self.ui.camera_info.setItem(3, 0, QTableWidgetItem(pixel_size))
+
+    @Slot()
+    def show_property_dialog(self):
+        if self._property_controller:
+            self._property_controller.show_property_dialog()

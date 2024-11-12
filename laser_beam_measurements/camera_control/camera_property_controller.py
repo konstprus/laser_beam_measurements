@@ -86,3 +86,15 @@ class CameraPropertyController(QObject):
                 "pixel_size": self._camera.pixel_size
             }
             return info
+
+    @property
+    def property_dialog_available(self):
+        with QMutexLocker(self._mutex):
+            if self._camera is None:
+                return False
+            return self._camera.has_property_dialog()
+
+    @Slot()
+    def show_property_dialog(self):
+        if self.property_dialog_available:
+            self._camera.show_property_dialog()
