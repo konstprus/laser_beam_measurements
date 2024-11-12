@@ -33,10 +33,13 @@ class CameraFactory(object):
         devices_module = importlib.import_module(self._plugin_path)
         for _, name, is_pkg in pkgutil.iter_modules(devices_module.__spec__.submodule_search_locations):
             if is_pkg and name.endswith('_camera'):
-                self._discovered_plugins.update({
-                    name: importlib.import_module(f"{self._plugin_path}.{name}")
-                    # name: importlib.import_module(f".{name}", f".{self._plugin_path}.{name}", )
-                })
+                try:
+                    self._discovered_plugins.update({
+                        name: importlib.import_module(f"{self._plugin_path}.{name}")
+                        # name: importlib.import_module(f".{name}", f".{self._plugin_path}.{name}", )
+                    })
+                except ImportError as ex:
+                    pass
 
     def _get_factory(self, module: object) -> CameraFactoryBase | None:
         for name, obj in inspect.getmembers(module):
