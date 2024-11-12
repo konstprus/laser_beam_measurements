@@ -96,6 +96,7 @@ class BeamFinderWidget(ImageProcessorViewerBase):
     @Slot(float)
     def _slot_set_angle_value(self, value: float) -> None:
         self._change_parameter(BeamFinderParameters.ROTATION_ANGLE, value)
+        self.roi.set_angle(value, True, True)
 
     def _update_parameters(self):
         self.roi.setVisible(self._image_processor.enabled)
