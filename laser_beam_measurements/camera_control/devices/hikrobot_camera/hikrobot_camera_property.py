@@ -10,7 +10,7 @@
 
 
 from laser_beam_measurements.camera_control.camera_property_base import CameraPropertyBase
-from .MvImport import MvCameraControl_class as hik
+from .mv_import import MvCameraControl_class as hik
 from ctypes import Structure, memset, byref, sizeof
 
 

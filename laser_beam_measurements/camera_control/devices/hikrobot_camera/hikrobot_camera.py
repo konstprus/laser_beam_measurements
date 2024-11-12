@@ -8,16 +8,13 @@
 # Copyright 2024 Konstantin Prusakov <konstantin.prusakov@phystech.edu>
 #
 
-import sys
-import os
-
-sys.path.append(str(os.path.dirname(os.path.realpath(__file__))) + "/MvImport")
 
 from laser_beam_measurements.camera_control.camera_base import CameraBase
 import numpy
 from ctypes import *
-from .MvImport import MvCameraControl_class as hik
-from .MvImport import PixelType_header as PixelType
+
+from .mv_import import MvCameraControl_class as hik
+from .mv_import import PixelType_header as PixelType
 from .hikrobot_camera_property import HikRobotCameraProperty
 
 
