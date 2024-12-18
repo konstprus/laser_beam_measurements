@@ -14,6 +14,7 @@
 from PySide6.QtWidgets import QWidget, QTableWidgetItem
 from PySide6.QtCore import Slot, Signal
 from laser_beam_measurements.camera_control.camera_property_controller import CameraPropertyController
+from laser_beam_measurements.camera_control.camera_property_auto_controller import CameraPropertyAutoController
 from laser_beam_measurements.camera_control.camera_base import CameraBase
 from laser_beam_measurements.camera_control.camera_property_base import CameraPropertyBase
 
@@ -29,11 +30,12 @@ class CameraPropertyControllerWidget(QWidget):
         self.ui = Ui_Form()
         self.ui.setupUi(self)
         self._property_controller: CameraPropertyController | None = None
+        self._auto_controller: CameraPropertyAutoController | None = None
         self._connect_signals()
         if property_controller is not None:
             self.set_controller(property_controller)
-        self.ui.property_dialog_button.clicked.connect(self.show_property_dialog)
-        self.ui.property_dialog_button.setVisible(False)
+        # self.ui.property_dialog_button.clicked.connect(self.show_property_dialog)
+        # self.ui.property_dialog_button.setVisible(False)
 
     def set_controller(self, property_controller: CameraPropertyController) -> None:
         if self._property_controller:
@@ -46,20 +48,36 @@ class CameraPropertyControllerWidget(QWidget):
         self.signal_camera_property_changed.connect(self._property_controller.set_property_value)
         self._property_controller.signal_property_value_changed.connect(self.slot_update_property_value)
         self._property_controller.signal_camera_unset.connect(self.slot_camera_unset)
-        if self._property_controller.property_dialog_available:
-            self.ui.property_dialog_button.setEnabled(True)
-        else:
-            self.ui.property_dialog_button.setEnabled(False)
+        # if self._property_controller.property_dialog_available:
+        #     self.ui.property_dialog_button.setEnabled(True)
+        # else:
+        #     self.ui.property_dialog_button.setEnabled(False)
         self._update_properties()
+
+    def set_auto_controller(self, auto_controller: CameraPropertyAutoController) -> None:
+        if self._auto_controller:
+            self._auto_controller.set_active(False)
+            self._auto_controller.signal_check_result.disconnect(self.ui.status_label.show_status)
+            self.ui.auto_control_run_button.clicked.disconnect(self._auto_controller.slot_control_change)
+            # self.ui.auto_control_run_check_box.disconnect(self._auto_controller.slot_control_always_change)
+            self.ui.auto_control_run_check_box.checkStateChanged.disconnect(self._auto_controller.set_control_always)
+
+        self._auto_controller = auto_controller
+        self._auto_controller.signal_check_result.connect(self.ui.status_label.show_status)
+        self.ui.auto_control_run_button.clicked.connect(self._auto_controller.slot_control_change)
+        # self.ui.auto_control_run_check_box.clicked.connect(self._auto_controller.slot_control_always_change)
+        self.ui.auto_control_run_check_box.checkStateChanged.connect(self._auto_controller.set_control_always)
+        self._auto_controller.set_active(True)
+
 
     @Slot()
     def slot_camera_changed(self) -> None:
         self._update_properties()
-        if self._property_controller.property_dialog_available:
-            self.ui.property_dialog_button.setEnabled(True)
-            self.ui.property_dialog_button.clicked.connect(self._property_controller.show_property_dialog)
-        else:
-            self.ui.property_dialog_button.setEnabled(False)
+        # if self._property_controller.property_dialog_available:
+        #     self.ui.property_dialog_button.setEnabled(True)
+        #     self.ui.property_dialog_button.clicked.connect(self._property_controller.show_property_dialog)
+        # else:
+        #     self.ui.property_dialog_button.setEnabled(False)
 
     def _update_properties(self, disable_all: bool = False) -> None:
         if disable_all:

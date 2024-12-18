@@ -15,50 +15,30 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QAbstractScrollArea, QApplication, QGridLayout, QGroupBox,
-    QHBoxLayout, QHeaderView, QLabel, QPushButton,
-    QSizePolicy, QSpacerItem, QTableWidget, QTableWidgetItem,
-    QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QAbstractScrollArea, QApplication, QCheckBox, QGridLayout,
+    QGroupBox, QHBoxLayout, QHeaderView, QLabel,
+    QPushButton, QSizePolicy, QSpacerItem, QTableWidget,
+    QTableWidgetItem, QVBoxLayout, QWidget)
 
+from ..utils.camera_property_auto_controller_status_visualiser import ControllerStatusVisualiser
 from ..utils.slider_spin_box import SliderSpinBox
 
 class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(585, 265)
+        Form.resize(443, 263)
         self.verticalLayout = QVBoxLayout(Form)
         self.verticalLayout.setSpacing(2)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(2, 2, 2, 2)
-        self.horizontalLayout_2 = QHBoxLayout()
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.property_dialog_button = QPushButton(Form)
-        self.property_dialog_button.setObjectName(u"property_dialog_button")
-        sizePolicy = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.property_dialog_button.sizePolicy().hasHeightForWidth())
-        self.property_dialog_button.setSizePolicy(sizePolicy)
-        self.property_dialog_button.setMinimumSize(QSize(30, 30))
-        self.property_dialog_button.setMaximumSize(QSize(30, 30))
-
-        self.horizontalLayout_2.addWidget(self.property_dialog_button)
-
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.horizontalLayout_2.addItem(self.horizontalSpacer)
-
-
-        self.verticalLayout.addLayout(self.horizontalLayout_2)
-
         self.camera_info_group_box = QGroupBox(Form)
         self.camera_info_group_box.setObjectName(u"camera_info_group_box")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.camera_info_group_box.sizePolicy().hasHeightForWidth())
-        self.camera_info_group_box.setSizePolicy(sizePolicy1)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.camera_info_group_box.sizePolicy().hasHeightForWidth())
+        self.camera_info_group_box.setSizePolicy(sizePolicy)
         self.camera_info_group_box.setMinimumSize(QSize(0, 105))
         self.camera_info_group_box.setMaximumSize(QSize(16777215, 16777215))
         self.horizontalLayout = QHBoxLayout(self.camera_info_group_box)
@@ -107,6 +87,40 @@ class Ui_Form(object):
 
         self.verticalLayout.addWidget(self.camera_info_group_box)
 
+        self.groupBox = QGroupBox(Form)
+        self.groupBox.setObjectName(u"groupBox")
+        self.groupBox.setMinimumSize(QSize(0, 60))
+        self.groupBox.setMaximumSize(QSize(16777215, 60))
+        self.horizontalLayout_3 = QHBoxLayout(self.groupBox)
+        self.horizontalLayout_3.setSpacing(2)
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.horizontalLayout_3.setContentsMargins(2, 1, 2, 1)
+        self.status_label = ControllerStatusVisualiser(self.groupBox)
+        self.status_label.setObjectName(u"status_label")
+        self.status_label.setMinimumSize(QSize(60, 30))
+        self.status_label.setMaximumSize(QSize(60, 30))
+
+        self.horizontalLayout_3.addWidget(self.status_label)
+
+        self.auto_control_run_button = QPushButton(self.groupBox)
+        self.auto_control_run_button.setObjectName(u"auto_control_run_button")
+        self.auto_control_run_button.setMinimumSize(QSize(30, 30))
+        self.auto_control_run_button.setMaximumSize(QSize(30, 30))
+
+        self.horizontalLayout_3.addWidget(self.auto_control_run_button)
+
+        self.auto_control_run_check_box = QCheckBox(self.groupBox)
+        self.auto_control_run_check_box.setObjectName(u"auto_control_run_check_box")
+
+        self.horizontalLayout_3.addWidget(self.auto_control_run_check_box)
+
+        self.horizontalSpacer_2 = QSpacerItem(257, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_3.addItem(self.horizontalSpacer_2)
+
+
+        self.verticalLayout.addWidget(self.groupBox)
+
         self.camera_settings_group_box = QGroupBox(Form)
         self.camera_settings_group_box.setObjectName(u"camera_settings_group_box")
         self.camera_settings_group_box.setMinimumSize(QSize(0, 100))
@@ -117,11 +131,11 @@ class Ui_Form(object):
         self.gridLayout.setContentsMargins(2, 1, 2, 1)
         self.label_4 = QLabel(self.camera_settings_group_box)
         self.label_4.setObjectName(u"label_4")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.label_4.sizePolicy().hasHeightForWidth())
-        self.label_4.setSizePolicy(sizePolicy2)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.label_4.sizePolicy().hasHeightForWidth())
+        self.label_4.setSizePolicy(sizePolicy1)
         self.label_4.setMinimumSize(QSize(80, 20))
         self.label_4.setMaximumSize(QSize(80, 20))
 
@@ -129,8 +143,8 @@ class Ui_Form(object):
 
         self.gain_slider = SliderSpinBox(self.camera_settings_group_box)
         self.gain_slider.setObjectName(u"gain_slider")
-        sizePolicy2.setHeightForWidth(self.gain_slider.sizePolicy().hasHeightForWidth())
-        self.gain_slider.setSizePolicy(sizePolicy2)
+        sizePolicy1.setHeightForWidth(self.gain_slider.sizePolicy().hasHeightForWidth())
+        self.gain_slider.setSizePolicy(sizePolicy1)
         self.gain_slider.setMinimumSize(QSize(0, 20))
         self.gain_slider.setMaximumSize(QSize(500, 20))
 
@@ -138,8 +152,11 @@ class Ui_Form(object):
 
         self.label_2 = QLabel(self.camera_settings_group_box)
         self.label_2.setObjectName(u"label_2")
-        sizePolicy.setHeightForWidth(self.label_2.sizePolicy().hasHeightForWidth())
-        self.label_2.setSizePolicy(sizePolicy)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.label_2.sizePolicy().hasHeightForWidth())
+        self.label_2.setSizePolicy(sizePolicy2)
         self.label_2.setMinimumSize(QSize(80, 20))
         self.label_2.setMaximumSize(QSize(80, 20))
 
@@ -147,8 +164,8 @@ class Ui_Form(object):
 
         self.exposure_slider = SliderSpinBox(self.camera_settings_group_box)
         self.exposure_slider.setObjectName(u"exposure_slider")
-        sizePolicy2.setHeightForWidth(self.exposure_slider.sizePolicy().hasHeightForWidth())
-        self.exposure_slider.setSizePolicy(sizePolicy2)
+        sizePolicy1.setHeightForWidth(self.exposure_slider.sizePolicy().hasHeightForWidth())
+        self.exposure_slider.setSizePolicy(sizePolicy1)
         self.exposure_slider.setMinimumSize(QSize(180, 20))
         self.exposure_slider.setMaximumSize(QSize(500, 20))
 
@@ -156,8 +173,8 @@ class Ui_Form(object):
 
         self.label_3 = QLabel(self.camera_settings_group_box)
         self.label_3.setObjectName(u"label_3")
-        sizePolicy.setHeightForWidth(self.label_3.sizePolicy().hasHeightForWidth())
-        self.label_3.setSizePolicy(sizePolicy)
+        sizePolicy2.setHeightForWidth(self.label_3.sizePolicy().hasHeightForWidth())
+        self.label_3.setSizePolicy(sizePolicy2)
         self.label_3.setMinimumSize(QSize(80, 10))
         self.label_3.setMaximumSize(QSize(80, 20))
 
@@ -165,8 +182,8 @@ class Ui_Form(object):
 
         self.fps_slider = SliderSpinBox(self.camera_settings_group_box)
         self.fps_slider.setObjectName(u"fps_slider")
-        sizePolicy2.setHeightForWidth(self.fps_slider.sizePolicy().hasHeightForWidth())
-        self.fps_slider.setSizePolicy(sizePolicy2)
+        sizePolicy1.setHeightForWidth(self.fps_slider.sizePolicy().hasHeightForWidth())
+        self.fps_slider.setSizePolicy(sizePolicy1)
         self.fps_slider.setMinimumSize(QSize(180, 20))
         self.fps_slider.setMaximumSize(QSize(500, 20))
 
@@ -183,7 +200,6 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Property Controller", None))
-        self.property_dialog_button.setText("")
         self.camera_info_group_box.setTitle(QCoreApplication.translate("Form", u"Camera Info", None))
         ___qtablewidgetitem = self.camera_info.verticalHeaderItem(0)
         ___qtablewidgetitem.setText(QCoreApplication.translate("Form", u"Type:", None));
@@ -198,6 +214,10 @@ class Ui_Form(object):
         self.camera_info.setSortingEnabled(False)
         self.camera_info.setSortingEnabled(__sortingEnabled)
 
+        self.groupBox.setTitle(QCoreApplication.translate("Form", u"AutoControl", None))
+        self.status_label.setText("")
+        self.auto_control_run_button.setText("")
+        self.auto_control_run_check_box.setText(QCoreApplication.translate("Form", u"Always on", None))
         self.camera_settings_group_box.setTitle(QCoreApplication.translate("Form", u"Camera Settings", None))
         self.label_4.setText(QCoreApplication.translate("Form", u"Gain", None))
         self.label_2.setText(QCoreApplication.translate("Form", u"Exposure", None))
