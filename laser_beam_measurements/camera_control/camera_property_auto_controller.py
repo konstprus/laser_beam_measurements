@@ -99,17 +99,11 @@ class CameraPropertyAutoController(QObject):
         if not self._flag_active:
             self.signal_check_result.emit(ControllerStatus.STATUS_NONE)
 
-    # @Slot(bool)
-    # def set_control(self, value: bool) -> None:
-    #     self._flag_control_on = value
-
     @Slot()
     def slot_control_change(self) -> None:
-        print("CLIECKEWD")
         if self._flag_control_on:
             self.stop_control()
         else:
-            print("self.start_control()")
             self.start_control()
 
     @Slot(bool)
@@ -136,9 +130,7 @@ class CameraPropertyAutoController(QObject):
         check_result = ControllerStatus.STATUS_NONE
         if self._checker:
             check_result = self._checker.check(img)
-        print("self._flag_control_on", self._flag_control_on)
         if self._flag_control_on:
-            print("self._flag_control_on")
             result = self._correct(check_result)
             if result:
                 # if check_result != ControllerStatus.STATUS_OK:
@@ -201,8 +193,6 @@ class CameraPropertyAutoController(QObject):
         self._counter = 0
         self._controller.set_property_value(self._property_name, sum(self._current_bounds)/2)
         return False
-
-
 
     @Slot()
     def change_state(self) -> None:
