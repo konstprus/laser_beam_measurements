@@ -90,6 +90,7 @@ class CameraPropertyAutoController(QObject):
         self._step = 1e-1
         self._counter: int = 0
         self._max_counter: int = 3
+        self._number_of_steps_for_small_range = 10
 
     def set_controller(self, controller: CameraPropertyController) -> None:
         self._controller = controller
@@ -178,6 +179,12 @@ class CameraPropertyAutoController(QObject):
 
     def _correct(self, check_result: ControllerStatus) -> bool:
         value = self._controller.get_property_value(self._property_name)
+        if self._current_bounds[1] - self._current_bounds[0] < self._number_of_steps_for_small_range*self._step:
+            result = self._small_correct(check_result)
+            if result:
+                return self._check_counter()
+            else:
+                return False
         if check_result == ControllerStatus.STATUS_OK:
             return self._check_counter()
         elif check_result == ControllerStatus.STATUS_LOW:
