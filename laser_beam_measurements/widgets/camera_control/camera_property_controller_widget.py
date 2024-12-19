@@ -17,6 +17,7 @@ from laser_beam_measurements.camera_control.camera_property_controller import Ca
 from laser_beam_measurements.camera_control.camera_property_auto_controller import CameraPropertyAutoController
 from laser_beam_measurements.camera_control.camera_base import CameraBase
 from laser_beam_measurements.camera_control.camera_property_base import CameraPropertyBase
+from laser_beam_measurements.icons import Icon
 
 from .ui_camera_property_controller_widget import Ui_Form
 
@@ -34,6 +35,7 @@ class CameraPropertyControllerWidget(QWidget):
         self._connect_signals()
         if property_controller is not None:
             self.set_controller(property_controller)
+        self.ui.auto_control_run_button.setIcon(Icon('update.svg'))
         # self.ui.property_dialog_button.clicked.connect(self.show_property_dialog)
         # self.ui.property_dialog_button.setVisible(False)
 
