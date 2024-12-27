@@ -28,6 +28,8 @@ class FloatSlider(QSlider):
         self._max_value = 1.0
         self._min_value = 0.0
         self.valueChanged.connect(self._emit_value_changed)
+        self._number_of_steps = 100
+        self.setSingleStep(int(self._max_int_value/self._number_of_steps))
 
     @Slot()
     def _emit_value_changed(self):
