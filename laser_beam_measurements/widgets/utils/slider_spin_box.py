@@ -70,15 +70,15 @@ class SliderSpinBox(QWidget):
     def setMinimum(self, value) -> None:
         self._slider.setMinimum(value)
         self._spinBox.setMinimum(value)
-        self._labelMinValue.setText(str(value))
-        self._spinBox.setSingleStep(self._slider.get_range()/10.0)
+        self._labelMinValue.setText(str(round(value, 2)))
+        # self._spinBox.setSingleStep(self._slider.get_range()/10.0)
         self._update_single_step()
 
     def setMaximum(self, value):
         self._slider.setMaximum(value)
         self._spinBox.setMaximum(value)
-        self._labelMaxValue.setText(str(value))
-        self._spinBox.setSingleStep(self._slider.get_range()/10.0)
+        self._labelMaxValue.setText(str(round(value, 2)))
+        # self._spinBox.setSingleStep(self._slider.get_range()/10.0)
         self._update_single_step()
 
     def setRange(self, values: tuple) -> None:
