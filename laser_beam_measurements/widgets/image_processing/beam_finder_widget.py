@@ -13,7 +13,7 @@
 from laser_beam_measurements.image_processing.image_processor_viewer_base import ImageProcessorViewerBase
 from laser_beam_measurements.image_processing.beam_finder import BeamFinder, BeamFinderParameters
 from .ui_beam_finder_widget import Ui_Form
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Slot, QSettings
 from laser_beam_measurements.widgets.utils.ROI import ROI
 
 from laser_beam_measurements.utils.colormap import COLORMAPS
@@ -113,3 +113,9 @@ class BeamFinderWidget(ImageProcessorViewerBase):
             not self._image_processor.get_parameter_value(BeamFinderParameters.MANUAL_ROTATION_ENABLE))
         self.ui.angle_value_spin_box.setValue(
             self._image_processor.get_parameter_value(BeamFinderParameters.ROTATION_ANGLE))
+
+    def load_widget_settings(self, settings: QSettings) -> None:
+        if settings.contains("InputColormap"):
+            colormap_name = str(settings.value("InputColormap"))
+            self.ui.colormap_combo_box.setCurrentText(colormap_name)
+        super().load_widget_settings(settings)

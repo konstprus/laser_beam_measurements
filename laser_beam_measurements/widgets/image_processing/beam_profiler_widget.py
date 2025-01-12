@@ -12,7 +12,7 @@
 
 
 from laser_beam_measurements.image_processing.image_processor_viewer_base import ImageProcessorViewerBase
-from PySide6.QtCore import Slot, Qt
+from PySide6.QtCore import Slot, Qt, QSettings
 from PySide6.QtGui import QPen, QFont
 from PySide6.QtWidgets import QTableWidgetItem, QTableWidget
 from .ui_beam_profiler_widget import Ui_Form
@@ -362,3 +362,9 @@ class BeamProfilerWidget(ImageProcessorViewerBase):
             self.ui.tableWidget.item(row, column).setText(value_)
         else:
             self.ui.tableWidget.setItem(row, column, QTableWidgetItem(value_))
+
+    def load_widget_settings(self, settings: QSettings) -> None:
+        if settings.contains("OutputColormap"):
+            colormap_name = str(settings.value("OutputColormap"))
+            self.ui.colormap_combo_box.setCurrentText(colormap_name)
+        super().load_widget_settings(settings)

@@ -12,7 +12,7 @@
 
 import numpy
 from laser_beam_measurements.camera_control.camera_capture_widget_base import CameraCaptureWidgetBase
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Slot, QSettings
 from .ui_camera_capture_widget import Ui_Form
 from laser_beam_measurements.widgets.utils.custom_graphics_scene import CustomGraphicsScene
 from laser_beam_measurements.utils.colormap import COLORMAPS
@@ -31,6 +31,7 @@ class CameraCaptureWidget(CameraCaptureWidgetBase):
         self.setObjectName("Camera Capture")
 
         self._scene = CustomGraphicsScene(self)
+        self._set_colormap_name: str | None = None
         self.ui.graphicsView.setScene(self._scene)
 
         self.ui.fps_slider.setTitle("fps")
@@ -80,6 +81,7 @@ class CameraCaptureWidget(CameraCaptureWidgetBase):
 
     @Slot(str)
     def set_colormap(self, name: str) -> None:
+        self._set_colormap_name = name
         self._scene.set_colormap(COLORMAPS.get_colormap(name))
 
     @Slot()
@@ -155,3 +157,12 @@ class CameraCaptureWidget(CameraCaptureWidgetBase):
         camera_select_dialog = CameraSelectDialog(self)
         camera_select_dialog.set_selector(selector)
         camera_select_dialog.exec()
+
+    def save_widget_settings(self, settings: QSettings) -> None:
+        settings.setValue("SetColormap", self._set_colormap_name)
+
+    def load_widget_settings(self, settings: QSettings) -> None:
+        if settings.contains("SetColormap"):
+            colormap_name = str(settings.value("SetColormap"))
+            self.set_colormap(colormap_name)
+            self.ui.colormap_combo_box.setCurrentText(colormap_name)
