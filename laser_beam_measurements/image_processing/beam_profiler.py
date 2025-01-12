@@ -49,7 +49,7 @@ OTHER_PARAMETERS = "Other Parameters"
 
 class BeamProfiler(ImageProcessorBase):
 
-    signal_cross_section_updated = Signal(numpy.ndarray, numpy.ndarray)
+    signal_cross_section_updated = Signal(numpy.ndarray, numpy.ndarray, numpy.ndarray, numpy.ndarray)
     signal_gauss_approximation_updated = Signal(numpy.ndarray, numpy.ndarray, numpy.ndarray, numpy.ndarray)
     signal_beam_parameters_updated = Signal(dict)
     signal_beam_center_updated = Signal(float, float)
@@ -102,14 +102,16 @@ class BeamProfiler(ImageProcessorBase):
                 self.signal_beam_center_updated.emit(self._center[1], self._center[0])
 
         im_x, im_y = get_cross_section(denoised_image, self._center[0], self._center[1])
-        self.signal_cross_section_updated.emit(im_x, im_y)
+        xx = numpy.arange(-len(im_x) / 2, len(im_x) / 2, dtype=numpy.float64) * ps
+        yy = numpy.arange(-len(im_y) / 2, len(im_y) / 2, dtype=numpy.float64) * ps
+        self.signal_cross_section_updated.emit(xx, im_x, yy, im_y)
 
         if self._calculation_flags[BeamWidthMethods.GAUSS_APPR]:
             d0_x, d0_y = beam_parameters.get(BeamWidthMethods.FOUR_SIGMA, (len(im_x)/2, len(im_y)/2))
-            d_gauss_x, xx, model_x = bm.width_by_gauss_approximation(im_x, d0_x)
-            d_gauss_y, yy, model_y = bm.width_by_gauss_approximation(im_y, d0_y)
+            d_gauss_x, model_x = bm.width_by_gauss_approximation(im_x, xx, d0_x)
+            d_gauss_y, model_y = bm.width_by_gauss_approximation(im_y, yy, d0_y)
             # beam_parameters.update({BeamWidthMethods.GAUSS_APPR: (d_gauss_x, d_gauss_y)})
-            beam_width.update({BeamWidthMethods.GAUSS_APPR: (d_gauss_x*ps, d_gauss_y*ps)})
+            beam_width.update({BeamWidthMethods.GAUSS_APPR: (d_gauss_x, d_gauss_y)})
             self.signal_gauss_approximation_updated.emit(xx, model_x, yy, model_y)
 
         if self._calculation_flags[BeamWidthMethods.LEVELED_135]:
