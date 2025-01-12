@@ -87,8 +87,8 @@ def _func_gauss(x: numpy.ndarray, a: float, b: float, c: float) -> numpy.ndarray
     return 2*c/(pi*a*a)*numpy.exp(-2*(x - b) ** 2 / a ** 2)
 
 
-def width_by_gauss_approximation(img: numpy.ndarray, d0: float = None) -> tuple[float, numpy.ndarray, numpy.ndarray]:
-    x = numpy.arange(-len(img) / 2, len(img) / 2)
+def width_by_gauss_approximation(img: numpy.ndarray, xx: numpy.ndarray, d0: float = None) -> tuple[float, numpy.ndarray]:
+    # x = numpy.arange(-len(img) / 2, len(img) / 2)
     if d0 is not None:
         p0 = (d0 / 2.0, 0.0, pi * d0 * d0 / 32.0)
     else:
@@ -96,16 +96,16 @@ def width_by_gauss_approximation(img: numpy.ndarray, d0: float = None) -> tuple[
     try:
         # max_im = float(numpy.max(img))
         # im = img / max_im if max_im > 0 else img
-        res, _ = curve_fit(_func_gauss, x, img, p0=p0, maxfev=100)
+        res, _ = curve_fit(_func_gauss, xx, img, p0=p0, maxfev=100)
     except (RuntimeError, ValueError, RuntimeWarning):
         if d0 is not None:
             res = p0
         else:
             res = (img.shape[0] / 4, img.shape[0] / 2, 1.0)
 
-    model = _func_gauss(x, res[0], res[1], res[2])
+    model = _func_gauss(xx, res[0], res[1], res[2])
     d = abs(2 * res[0])
-    return d, x, model
+    return d, model
 
 
 def power_area(img: numpy.ndarray) -> tuple[float, float]:

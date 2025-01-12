@@ -8,7 +8,7 @@
 # Copyright 2024 Konstantin Prusakov <konstantin.prusakov@phystech.edu>
 #
 
-from PySide6.QtCore import Slot, Signal
+from PySide6.QtCore import Slot, Signal, QSettings
 from PySide6.QtWidgets import QWidget
 from .image_processor_base import ImageProcessorBase
 from laser_beam_measurements.widgets.utils.custom_graphics_scene import CustomGraphicsScene
@@ -28,7 +28,9 @@ class ImageProcessorViewerBase(QWidget):
         self._flag_show_input_image: bool = False
         self._flag_show_processed_image: bool = False
         self._input_image_scene: CustomGraphicsScene | None = None
+        self._input_colormap_name: str | None = None
         self._output_image_scene: CustomGraphicsScene | None = None
+        self._output_colormap_name: str | None = None
         self._image_saver = ImageSaver(self)
 
         configure_input_scene = kwargs.get("configure_input_scene", False)
@@ -90,11 +92,13 @@ class ImageProcessorViewerBase(QWidget):
     @Slot(str)
     def slot_set_colormap_for_input(self, name: str) -> None:
         if self._input_image_scene is not None:
+            self._input_colormap_name = name
             self._input_image_scene.set_colormap(COLORMAPS.get_colormap(name))
 
     @Slot(str)
     def slot_set_colormap_for_output(self, name: str) -> None:
         if self._output_image_scene is not None:
+            self._output_colormap_name = name
             self._output_image_scene.set_colormap(COLORMAPS.get_colormap(name))
 
     @Slot()
@@ -110,3 +114,17 @@ class ImageProcessorViewerBase(QWidget):
             self._image_saver.set_image(self._output_image_scene.image_item.raw_image)
             self._image_saver.set_colormap(self._output_image_scene.image_item.colormap)
             self._image_saver.show_save_dialog()
+
+    def save_widget_settings(self, settings: QSettings) -> None:
+        if self._output_image_scene is not None:
+            settings.setValue("OutputColormap", self._output_colormap_name)
+        if self._input_image_scene is not None:
+            settings.setValue("InputColormap", self._input_colormap_name)
+
+    def load_widget_settings(self, settings: QSettings) -> None:
+        if self._output_image_scene is not None and settings.contains("OutputColormap"):
+            colormap_name = str(settings.value("OutputColormap"))
+            self.slot_set_colormap_for_output(colormap_name)
+        if self._input_image_scene is not None and settings.contains("InputColormap"):
+            colormap_name = str(settings.value("InputColormap"))
+            self.slot_set_colormap_for_input(colormap_name)

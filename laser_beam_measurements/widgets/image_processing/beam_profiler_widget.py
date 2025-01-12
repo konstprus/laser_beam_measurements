@@ -12,7 +12,7 @@
 
 
 from laser_beam_measurements.image_processing.image_processor_viewer_base import ImageProcessorViewerBase
-from PySide6.QtCore import Slot, Qt
+from PySide6.QtCore import Slot, Qt, QSettings
 from PySide6.QtGui import QPen, QFont
 from PySide6.QtWidgets import QTableWidgetItem, QTableWidget
 from .ui_beam_profiler_widget import Ui_Form
@@ -62,6 +62,16 @@ def _create_table_header(
     return table_widget.rowCount()
 
 
+def _configure_plot(plot_widget: pg.PlotWidget) -> None:
+    styles = {'color': 'b', }#'font-size': '8px'}
+    plot_widget.setBackground("w")
+    plot_widget.setYRange(0, 250)
+    plot_widget.setLabel("left", "Intensity", "a.u.", **styles)
+    plot_widget.setLabel("bottom", "Dimension", "mkm", **styles)
+    plot_widget.showGrid(x=True, y=True)
+    plot_widget.addLegend(offset=(1, 1), labelTextColor=[0, 0, 0], labelTextSize='8pt')
+
+
 class BeamProfilerWidget(ImageProcessorViewerBase):
 
     DEFAULT_COLORMAP = "Seismic"
@@ -79,6 +89,7 @@ class BeamProfilerWidget(ImageProcessorViewerBase):
         self.curve_line_x: pg.PlotDataItem | None = None
         self.curve_line_y: pg.PlotDataItem | None = None
         self.flag_gauss_apr: bool = True
+        self._configure_plots()
         self._configure_curves()
         self.table_widget_items: dict[str, QTableWidgetItem | tuple[QTableWidgetItem, QTableWidgetItem]] = dict()
         self._fill_colormap_combobox()
@@ -104,6 +115,10 @@ class BeamProfilerWidget(ImageProcessorViewerBase):
         self.curve_line_y.setPen(pg.mkPen(color='#000080', width=2))
         self.ui.cs_plot_y.addItem(self.curve_line_y)
 
+    def _configure_plots(self):
+        _configure_plot(self.ui.cs_plot_x)
+        _configure_plot(self.ui.cs_plot_y)
+
     def _update_parameters(self) -> None:
         pass
 
@@ -126,10 +141,8 @@ class BeamProfilerWidget(ImageProcessorViewerBase):
             self._image_processor.signal_gauss_approximation_updated.disconnect(self.show_gauss_approximation)
             self._image_processor.signal_beam_parameters_updated.disconnect(self.show_beam_parameters)
 
-    @Slot(numpy.ndarray, numpy.ndarray)
-    def show_cross_sections(self, im_x: numpy.ndarray, im_y: numpy.ndarray) -> None:
-        xx = numpy.arange(-len(im_x) / 2, len(im_x) / 2)
-        yy = numpy.arange(-len(im_y) / 2, len(im_y) / 2)
+    @Slot(numpy.ndarray, numpy.ndarray, numpy.ndarray, numpy.ndarray)
+    def show_cross_sections(self, xx: numpy.ndarray, im_x: numpy.ndarray, yy: numpy.ndarray, im_y: numpy.ndarray) -> None:
         self._update_curves(xx, im_x, yy, im_y)
 
     def _update_curves(self,
@@ -349,3 +362,9 @@ class BeamProfilerWidget(ImageProcessorViewerBase):
             self.ui.tableWidget.item(row, column).setText(value_)
         else:
             self.ui.tableWidget.setItem(row, column, QTableWidgetItem(value_))
+
+    def load_widget_settings(self, settings: QSettings) -> None:
+        if settings.contains("OutputColormap"):
+            colormap_name = str(settings.value("OutputColormap"))
+            self.ui.colormap_combo_box.setCurrentText(colormap_name)
+        super().load_widget_settings(settings)
