@@ -31,7 +31,6 @@ class ControllerStatusVisualiserBase(QLabel):
 
     @Slot(ControllerStatus)
     def show_status(self, status: ControllerStatus) -> None:
-        print(status)
         if status in self._status_styles.keys() and status in self._status_text.keys():
             status_style = self._status_styles.get(status)
             status_text = self._status_text.get(status)
