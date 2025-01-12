@@ -29,7 +29,7 @@ class SliderSpinBox(QWidget):
         self._outerLayout.setContentsMargins(0, 0, 0, 0)
 
         self._slider = FloatSlider(self)
-        self._slider.setOrientation(Qt.Horizontal)
+        self._slider.setOrientation(Qt.Orientation.Horizontal)
         self._spinBox = QDoubleSpinBox(self)
         self._labelMinValue = QLabel(self)
         self._labelMaxValue = QLabel(self)
@@ -43,13 +43,16 @@ class SliderSpinBox(QWidget):
 
         self.setMinimum(self._slider.minimum())
         self.setMaximum(self._slider.maximum())
-        self._spinBox.setSingleStep(self._slider.get_range()/10.0)
+        self._spinBox.setSingleStep(self._slider.get_range()/100.0)
         self._connect()
 
     def _connect(self) -> None:
         self._slider.signal_value_changed.connect(self._on_slider_value_changed)
         self._spinBox.valueChanged.connect(self._on_spin_box_value_changed)
         self._spinBox.valueChanged.connect(self.value_changed)
+
+    def _update_single_step(self):
+        self._spinBox.setSingleStep(self._slider.get_range() / 100.0)
 
     @Slot(float)
     def _on_slider_value_changed(self, value: float) -> None:
@@ -67,14 +70,16 @@ class SliderSpinBox(QWidget):
     def setMinimum(self, value) -> None:
         self._slider.setMinimum(value)
         self._spinBox.setMinimum(value)
-        self._labelMinValue.setText(str(value))
-        self._spinBox.setSingleStep(self._slider.get_range()/10.0)
+        self._labelMinValue.setText(str(round(value, 2)))
+        # self._spinBox.setSingleStep(self._slider.get_range()/10.0)
+        self._update_single_step()
 
     def setMaximum(self, value):
         self._slider.setMaximum(value)
         self._spinBox.setMaximum(value)
-        self._labelMaxValue.setText(str(value))
-        self._spinBox.setSingleStep(self._slider.get_range()/10.0)
+        self._labelMaxValue.setText(str(round(value, 2)))
+        # self._spinBox.setSingleStep(self._slider.get_range()/10.0)
+        self._update_single_step()
 
     def setRange(self, values: tuple) -> None:
         self.setMinimum(values[0])

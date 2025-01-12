@@ -188,6 +188,7 @@ class MainWindow(QMainWindow):
         if self._property_controller_widget is None:
             self._property_controller_widget = CameraPropertyControllerWidget(self)
             self._main_object.set_widget_for_property_controller(self._property_controller_widget)
+            self._main_object.set_widget_for_camera_control_status(self._property_controller_widget)
             self._property_controller_widget.setWindowIcon(self._icons.settings)
         return self._create_sub_window(self._property_controller_widget, False)
 

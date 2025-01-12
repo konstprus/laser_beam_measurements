@@ -71,6 +71,12 @@ class MainObject(QObject):
             return True
         return False
 
+    def set_widget_for_camera_control_status(self, widget: QWidget) -> bool:
+        if hasattr(widget, "set_auto_controller"):
+            widget.set_auto_controller(self._camera_grabber.auto_controller)
+            return True
+        return False
+
     def closeEvent(self, event) -> None:
         self._camera_grabber.run_status_changed(False)
         self._save_settings()

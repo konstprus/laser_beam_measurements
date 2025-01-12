@@ -15,6 +15,7 @@ from .camera_listener_base import CameraListenerBase, CameraState
 from .camera_listener import CameraListener
 from .camera_base import CameraBase
 from .camera_property_controller import CameraPropertyController
+from .camera_property_auto_controller import CameraPropertyAutoController
 
 __all__ = ["CameraGrabber"]
 
@@ -34,6 +35,8 @@ class CameraGrabber(QObject):
         self._update_fps: bool = False
         self._auto_grabbing_enabled: bool = True
         self._property_controller: CameraPropertyController = CameraPropertyController(self)
+        self._property_auto_controller: CameraPropertyAutoController = CameraPropertyAutoController(self)
+        self._property_auto_controller.set_controller(self._property_controller)
 
         if self._thread is None:
             self._thread = QThread()
@@ -87,6 +90,11 @@ class CameraGrabber(QObject):
     def property_controller(self) -> CameraPropertyController:
         with QMutexLocker(self._mutex):
             return self._property_controller
+
+    @property
+    def auto_controller(self) -> CameraPropertyAutoController:
+        with QMutexLocker(self._mutex):
+            return self._property_auto_controller
 
     @Slot(bool)
     def set_auto_grabbing_flag(self, value: bool) -> None:
@@ -164,5 +172,6 @@ class CameraGrabber(QObject):
             img = self._camera.query_frame()
             if img is not None:
                 self._listener.on_new_image(img)
+                self._property_auto_controller.check_image(img)
         except Exception as ex:
             self._listener.on_error(str(ex))
