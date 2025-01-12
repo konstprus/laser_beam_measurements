@@ -12,7 +12,7 @@
 
 import numpy
 from PySide6.QtWidgets import QWidget
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Slot, QSettings
 from laser_beam_measurements.camera_control.camera_listener import CameraListener
 from laser_beam_measurements.camera_control.camera_listener_base import CameraState
 from laser_beam_measurements.widgets.utils.custom_graphics_scene import CustomGraphicsScene
@@ -32,6 +32,7 @@ class CameraDisplay(QWidget):
         self.ui.setupUi(self)
         self.setWindowTitle("Display")
         self._scene = CustomGraphicsScene(self)
+        self._set_colormap_name: str | None = None
         self.ui.graphicsView.setScene(self._scene)
         self._listener: CameraListener | None = None
         self._fill_colormap_combobox()
@@ -65,6 +66,7 @@ class CameraDisplay(QWidget):
 
     @Slot(str)
     def set_colormap(self, name: str) -> None:
+        self._set_colormap_name = name
         self._scene.set_colormap(COLORMAPS.get_colormap(name))
 
     @Slot(bool)
@@ -83,3 +85,12 @@ class CameraDisplay(QWidget):
         self._listener.signal_new_image_received.connect(self.on_new_image)
         self._listener.signal_camera_state_changed.connect(self.on_camera_state_changed)
         self._listener.signal_statistic_collected.connect(self.on_statistic_got)
+
+    def save_widget_settings(self, settings: QSettings) -> None:
+        settings.setValue("SetColormap", self._set_colormap_name)
+
+    def load_widget_settings(self, settings: QSettings) -> None:
+        if settings.contains("SetColormap"):
+            colormap_name = str(settings.value("SetColormap"))
+            self.set_colormap(colormap_name)
+            self.ui.colormap_combo_box.setCurrentText(colormap_name)

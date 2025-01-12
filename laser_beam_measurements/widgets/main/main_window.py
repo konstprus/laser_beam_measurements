@@ -237,6 +237,8 @@ class MainWindow(QMainWindow):
         size = sub_window.size()
         settings.setValue("Width", size.width())
         settings.setValue("Height", size.height())
+        if hasattr(widget, "save_widget_settings"):
+            widget.save_widget_settings(settings)
         settings.endGroup()
 
     def save_settings(self, settings: QSettings) -> None:
@@ -269,6 +271,9 @@ class MainWindow(QMainWindow):
             width = int(settings.value("Width"))
             height = int(settings.value("Height"))
             sub_window.resize(width, height)
+        widget = sub_window.widget()
+        if hasattr(widget, "load_widget_settings"):
+            widget.load_widget_settings(settings)
 
     def _load_settings(self):
         settings = self._main_object.settings_file
