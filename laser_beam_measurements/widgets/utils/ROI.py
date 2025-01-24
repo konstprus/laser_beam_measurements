@@ -211,7 +211,7 @@ class ROI(QGraphicsObject):
         if state is None:
             state = self.state
         size: QSizeF = state[BeamState.SIZE]
-        r = QRectF(-size.width() / 2, -size.height() / 2, size.width(), size.height()).normalized()
+        r = QRectF(-size.width() / 2, -size.height() / 2, size.width(), size.height())
         if centered:
             r.moveCenter(state[BeamState.POS])
         return r
