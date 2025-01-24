@@ -278,7 +278,7 @@ class ROI(QGraphicsObject):
             new_state.update({BeamState.POS: new_pos})
 
         elif self.active_zone == self.SelectorZone.RESIZE_TOP_LEFT_ZONE:
-            bounding_rect = self.inner_rect()
+            bounding_rect = self.inner_rect(centered=False)
             # bounding_rect.moveCenter(self.state[BeamState.POS])
             bounding_rect.setTopLeft(pos)
             new_size = bounding_rect.size()
