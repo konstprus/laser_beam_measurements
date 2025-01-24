@@ -21,8 +21,8 @@ __all__ = ["ROI"]
 
 class ROI(QGraphicsObject):
 
-    RESIZE_ZONE_SIZE = 20
-    MIN_AREA_SIZE = 20
+    RESIZE_ZONE_SIZE = 40
+    MIN_AREA_SIZE = 40
 
     class SelectorZone(Enum):
         NONE = 1
