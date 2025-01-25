@@ -21,8 +21,8 @@ __all__ = ["ROI"]
 
 class ROI(QGraphicsObject):
 
-    RESIZE_ZONE_SIZE = 20
-    MIN_AREA_SIZE = 20
+    RESIZE_ZONE_SIZE = 40
+    MIN_AREA_SIZE = 40
 
     class SelectorZone(Enum):
         NONE = 1
@@ -211,7 +211,7 @@ class ROI(QGraphicsObject):
         if state is None:
             state = self.state
         size: QSizeF = state[BeamState.SIZE]
-        r = QRectF(-size.width() / 2, -size.height() / 2, size.width(), size.height()).normalized()
+        r = QRectF(-size.width() / 2, -size.height() / 2, size.width(), size.height())
         if centered:
             r.moveCenter(state[BeamState.POS])
         return r
@@ -278,7 +278,7 @@ class ROI(QGraphicsObject):
             new_state.update({BeamState.POS: new_pos})
 
         elif self.active_zone == self.SelectorZone.RESIZE_TOP_LEFT_ZONE:
-            bounding_rect = self.inner_rect()
+            bounding_rect = self.inner_rect(centered=False)
             # bounding_rect.moveCenter(self.state[BeamState.POS])
             bounding_rect.setTopLeft(pos)
             new_size = bounding_rect.size()
