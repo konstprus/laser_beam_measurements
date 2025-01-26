@@ -11,7 +11,7 @@
 
 import numpy
 
-from PySide6.QtCore import Signal, QSettings
+from PySide6.QtCore import Signal, QSettings, Slot, QPointF
 from .image_processor_base import ImageProcessorBase
 from .beam_finder import BeamState
 from enum import StrEnum
@@ -19,6 +19,9 @@ from .utils.denoising import find_noise_level_from_histogram, threshold
 from .utils import beam_width as bm
 from .utils.sub_image import get_cross_section
 
+
+CROSS_SECTION_AUTO = "Cross section auto"
+CROSS_SECTION_CENTER = "Cross section center"
 
 class BeamWidthMethods(StrEnum):
     FOUR_SIGMA = "4 Sigma"
@@ -218,3 +221,19 @@ class BeamProfiler(ImageProcessorBase):
 
     def _set_init_parameters(self, parameters: dict) -> None:
         self._pixel_size = float(parameters.get("pixel_size", 1.0))
+
+
+    def _set_parameter_value(self, parameter: str, value: object) -> None:
+        if parameter == CROSS_SECTION_AUTO:
+            self._flag_cross_sections_auto = bool(value)
+        super()._set_parameter_value(parameter, value)
+
+    def get_parameter_value(self, parameter: str) -> object | None:
+        if parameter == CROSS_SECTION_AUTO:
+            return self._flag_cross_sections_auto
+        return super().get_parameter_value(parameter)
+
+    @Slot(QPointF)
+    def slot_set_center(self, center: QPointF) -> None:
+        if not self._flag_cross_sections_auto:
+            self._center = (center.x(), center.y())
