@@ -11,7 +11,7 @@
 
 import numpy
 
-from PySide6.QtCore import Signal, QSettings, Slot, QPointF
+from PySide6.QtCore import Signal, QSettings, Slot, QPointF, QMutexLocker
 from .image_processor_base import ImageProcessorBase
 from .beam_finder import BeamState
 from enum import StrEnum
@@ -224,16 +224,29 @@ class BeamProfiler(ImageProcessorBase):
 
 
     def _set_parameter_value(self, parameter: str, value: object) -> None:
-        if parameter == CROSS_SECTION_AUTO:
-            self._flag_cross_sections_auto = bool(value)
+        with QMutexLocker(self._mutex):
+            if parameter == CROSS_SECTION_CENTER and not self._flag_cross_sections_auto:
+                if isinstance(value, tuple):
+                    self._center = value
+                elif isinstance(value, QPointF):
+                    self._center = (value.x(), value.y())
+            elif parameter == CROSS_SECTION_AUTO:
+                self._flag_cross_sections_auto = bool(value)
         super()._set_parameter_value(parameter, value)
 
     def get_parameter_value(self, parameter: str) -> object | None:
-        if parameter == CROSS_SECTION_AUTO:
-            return self._flag_cross_sections_auto
+        with QMutexLocker(self._mutex):
+            if parameter == CROSS_SECTION_CENTER:
+                return self._center
+            elif parameter == CROSS_SECTION_AUTO:
+                return self._flag_cross_sections_auto
         return super().get_parameter_value(parameter)
 
     @Slot(QPointF)
-    def slot_set_center(self, center: QPointF) -> None:
+    @Slot(tuple)
+    def slot_set_center(self, center: QPointF | tuple) -> None:
         if not self._flag_cross_sections_auto:
-            self._center = (center.x(), center.y())
+            if isinstance(center, tuple):
+                self._center = center
+            elif isinstance(center, QPointF):
+                self._center = (center.x(), center.y())
