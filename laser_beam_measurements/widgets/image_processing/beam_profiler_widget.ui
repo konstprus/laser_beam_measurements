@@ -72,6 +72,20 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="show_cross_check_box">
+        <property name="text">
+         <string>Show cross</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="auto_cross_check_box">
+        <property name="text">
+         <string>Auto cross</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Orientation::Vertical</enum>
