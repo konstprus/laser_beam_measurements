@@ -12,6 +12,7 @@ from PySide6.QtCore import QObject, Signal, Slot, Qt
 from enum import Enum
 import numpy
 from .camera_property_controller import CameraPropertyController
+from typing import Optional, Union, List, Tuple
 
 
 class ControllerStatus(Enum):
@@ -72,6 +73,78 @@ class NumpyImageMaxPixelChecker(NumpyImageBaseChecker):
         return numpy.max(img)
 
 
+Parameter = Union[int, float]
+ParameterRange = Tuple[Parameter, Parameter]
+
+
+class RangeAnalyzer:
+
+    def __init__(self):
+        self._number_of_ranges: int = 6
+        self._control_points: List[Parameter] = list()
+        self._current_range: Optional[Tuple] = None
+        self._range_found: bool = False
+        self._starting_bound_indexes: Optional[tuple] = None
+        self._right_candidate: Optional[Parameter] = None
+        self._left_candidate: Optional[Parameter] = None
+        self._candidate: Optional[Parameter] = None
+
+    @property
+    def current_range(self) -> Optional[Tuple]:
+        return self._current_range
+
+    def init_analyzer(self, property_range: ParameterRange, property_value: Parameter) -> None:
+        self._fill_ranges(property_range)
+        self._find_starting_range(property_value)
+        self._left_candidate = None
+        self._right_candidate = None
+        self._candidate = None
+        self._range_found = False
+
+    def _fill_ranges(self, property_range: ParameterRange) -> None:
+        self._control_points.clear()
+        self._control_points = numpy.linspace(property_range[0], property_range[1], self._number_of_ranges, True).tolist()
+
+    def _find_starting_range(self, property_value: Parameter) -> None:
+        for i in range(self._number_of_ranges - 1):
+            if self._control_points[i] <= property_value <= self._control_points[i+1]:
+                self._starting_bound_indexes = (i, i+1)
+                return
+        self._starting_bound_indexes = (self._number_of_ranges - 2, self._number_of_ranges - 1)
+
+    @property
+    def candidate(self) -> Optional[Parameter]:
+        return self._candidate
+
+    def find_range(self, property_value: Parameter, status: ControllerStatus) -> bool:
+        if self._left_candidate and self._right_candidate:
+            self._current_range = (self._left_candidate, self._right_candidate)
+            self._range_found = True
+            return True
+        i0, i1 = self._starting_bound_indexes
+        if status == ControllerStatus.STATUS_OK:
+            self._range_found = True
+            self._current_range = (self._control_points[i0], self._control_points[i1])
+
+        elif status == ControllerStatus.STATUS_LOW:
+            self._left_candidate = property_value
+            self._candidate = self._control_points[i1]
+            if i1 == self._number_of_ranges - 1:
+                self._current_range = (self._left_candidate, self._candidate)
+                self._range_found = True
+            self._starting_bound_indexes = (i1, i1 + 1)
+
+        elif status == ControllerStatus.STATUS_HIGH:
+            self._right_candidate = property_value
+            # self._left_candidate = self._control_points[i0]
+            self._candidate = self._control_points[i0]
+            if i0 == 0:
+                self._current_range = (self.candidate, self._right_candidate)
+                self._range_found = True
+            self._starting_bound_indexes = (i0 - 1, i0)
+        return self._range_found
+
+
 class CameraPropertyAutoController(QObject):
 
     signal_check_result = Signal(ControllerStatus)
@@ -79,6 +152,7 @@ class CameraPropertyAutoController(QObject):
     def __init__(self, parent=None, controller: CameraPropertyController | None=None):
         super(CameraPropertyAutoController, self).__init__(parent)
         self._checker: NumpyImageBaseChecker | None = NumpyImageMaxPixelChecker()
+        self._range_analyzer: RangeAnalyzer = RangeAnalyzer()
         self._controller: CameraPropertyController | None = controller
         self._flag_active: bool = True
         self._flag_control_on: bool = False
@@ -91,7 +165,8 @@ class CameraPropertyAutoController(QObject):
         self._prop_range: tuple = (0.0, 1.0)
         self._counter: int = 0
         self._max_counter: int = 3
-        self._number_of_steps_for_small_range = 10
+        self._number_of_steps_for_small_range: int = 10
+        self._range_analyzer_available: bool = True
 
     def set_controller(self, controller: CameraPropertyController) -> None:
         self._controller = controller
@@ -182,7 +257,13 @@ class CameraPropertyAutoController(QObject):
 
     def _correct(self, check_result: ControllerStatus) -> bool:
         value = self._controller.get_property_value(self._property_name)
-        if self._current_bounds[1] - self._current_bounds[0] < self._number_of_steps_for_small_range*self._step:
+        if self._range_analyzer_available and (self._current_bounds is None or len(self._current_bounds) == 0):
+            range_found = self._range_analyzer.find_range(value, check_result)
+            self._controller.set_property_value(self._property_name, self._range_analyzer.candidate)
+            if range_found:
+                self._current_bounds = list(self._range_analyzer.current_range)
+            return False
+        if abs(self._current_bounds[1] - self._current_bounds[0]) < self._number_of_steps_for_small_range*self._step:
             result = self._small_correct(check_result)
             if result:
                 return self._check_counter()
@@ -217,7 +298,11 @@ class CameraPropertyAutoController(QObject):
             return
         prop = self._controller.get_property(self._property_name)
         self._prop_range = tuple(prop.range)
-        self._current_bounds = list(prop.range)
+        if self._range_analyzer_available:
+            self._current_bounds = None
+            self._range_analyzer.init_analyzer(prop.range, prop.value)
+        else:
+            self._current_bounds = list(prop.range)
         self._step = float(prop.step)
         self._flag_bad_signal = False
         self._flag_control_on = True
@@ -235,3 +320,4 @@ class CameraPropertyAutoController(QObject):
             if self._controller.has_property(self._property_name):
                 return self._controller.get_property(self._property_name).available
             return False
+        return False
