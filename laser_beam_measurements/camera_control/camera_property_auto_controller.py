@@ -259,9 +259,11 @@ class CameraPropertyAutoController(QObject):
         value = self._controller.get_property_value(self._property_name)
         if self._range_analyzer_available and (self._current_bounds is None or len(self._current_bounds) == 0):
             range_found = self._range_analyzer.find_range(value, check_result)
-            self._controller.set_property_value(self._property_name, self._range_analyzer.candidate)
             if range_found:
                 self._current_bounds = list(self._range_analyzer.current_range)
+                self._controller.set_property_value(self._property_name, sum(self._current_bounds)/2.0)
+            else:
+                self._controller.set_property_value(self._property_name, self._range_analyzer.candidate)
             return False
         if abs(self._current_bounds[1] - self._current_bounds[0]) < self._number_of_steps_for_small_range*self._step:
             result = self._small_correct(check_result)
