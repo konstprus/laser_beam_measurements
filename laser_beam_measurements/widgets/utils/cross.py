@@ -25,9 +25,11 @@ class Cross(QGraphicsObject):
         super(Cross, self).__init__(parent)
         self._pos = pos
         self._size = size
+        self._offset = 10.0
         self._pen: QPen | None = None
         self.set_pen(pen)
         self._flag_move_enabled: bool = False
+        self.setPos(0.0, 0.0)
 
 
     def set_pen(self, pen: QPen | None) -> None:
@@ -41,7 +43,7 @@ class Cross(QGraphicsObject):
 
     def set_pos(self, pos: QPointF) -> None:
         self._pos = pos
-        self.setPos(0.0, 0.0)
+        # self.setPos(0.0, 0.0)
         self.update()
 
     def set_size(self, size: QSizeF | tuple) -> None:
@@ -57,10 +59,10 @@ class Cross(QGraphicsObject):
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.setPen(self._pen)
         x, y = self._pos.toTuple()
-        left_h_line = QLineF(x - 10.0, y, 10.0, y)
-        right_h_line = QLineF(x + 10.0, y, self._size.width() - 10.0, y)
-        top_v_line = QLineF(x, y - 10.0, x, 10.0)
-        down_v_line = QLineF(x, y+10.0, x, self._size.height() - 10.0)
+        left_h_line = QLineF(x - 10.0, y, self._offset, y)
+        right_h_line = QLineF(x + 10.0, y, self._size.width() - self._offset, y)
+        top_v_line = QLineF(x, y - 10.0, x, self._offset)
+        down_v_line = QLineF(x, y + 10.0, x, self._size.height() - self._offset)
         for line in [left_h_line, right_h_line, top_v_line, down_v_line]:
             painter.drawLine(line)
 
@@ -71,7 +73,10 @@ class Cross(QGraphicsObject):
 
     def boundingRect(self) -> QRectF:
         return QRectF(
-            0.0, 0.0, self._size.width(), self._size.height()
+            self._offset,
+            self._offset,
+            self._size.width() - self._offset,
+            self._size.height() - self._offset
         )
 
     @Slot(float, float)
