@@ -62,7 +62,7 @@ class CameraPropertyController(QObject):
     def set_property_value(self, name: str, value: object) -> None:
         if self._camera.has_property(name):
             last_value = self._camera.get_property_value(name)
-            # print(last_value, value)
+            print(last_value, value)
             if last_value is None:
                 return
             if last_value != value:
