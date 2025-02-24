@@ -183,7 +183,7 @@ class BeamProfiler(ImageProcessorBase):
                 beam_position_and_orientation.update({
                     BeamPositionAndOrientation.GLOBAL:
                         (self._extra_context[BeamState.POS][0]*ps,
-                         self._extra_context[BeamState.POS][0]*ps)
+                         self._extra_context[BeamState.POS][1]*ps)
                 })
 
         if self._calculation_flags[BeamPositionAndOrientation.LOCAL]:
