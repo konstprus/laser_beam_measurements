@@ -50,21 +50,16 @@ class SliderSpinBox(QWidget):
     def _connect(self) -> None:
         self._slider.signal_value_changed.connect(self._on_slider_value_changed)
         self._spinBox.valueChanged.connect(self._on_spin_box_value_changed)
-        # self._spinBox.valueChanged.connect(self.value_changed)
 
     def _update_single_step(self):
         self._spinBox.setSingleStep(self._slider.get_range() / 100.0)
 
     @Slot(float)
     def _on_slider_value_changed(self, value: float) -> None:
-        # pass
         if abs(self._spinBox.value() - value) > sys.float_info.epsilon:
-            # self._spinBox.setValue(value)
-            
             with QSignalBlocker(self._spinBox):
                 self._spinBox.setValue(value)
             self.value_changed.emit(value)
-            #     print('Signals blocked')
 
     @Slot(float)
     def _on_spin_box_value_changed(self, value: float) -> None:
