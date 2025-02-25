@@ -29,5 +29,3 @@ class CustomGraphicsScene(QGraphicsScene):
     def set_colormap(self, colormap: list | None) -> None:
         self.image_item.set_colormap(colormap)
         self.update()
-
-

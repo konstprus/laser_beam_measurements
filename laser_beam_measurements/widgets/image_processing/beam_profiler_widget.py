@@ -83,6 +83,7 @@ class BeamProfilerWidget(ImageProcessorViewerBase):
         self.ui.setupUi(self)
         self._output_image_scene = CustomGraphicsSceneWithCross(self)
         self.ui.output_beam_view.setScene(self._output_image_scene)
+        self._output_image_scene.sceneRectChanged.connect(self.ui.output_beam_view.slot_scene_rect_changed)
         self.setWindowTitle("Beam Profiler")
         self.setObjectName("Beam Profiler")
         self.ui.colormap_combo_box.currentTextChanged.connect(self.slot_set_colormap_for_output)
