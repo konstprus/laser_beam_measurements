@@ -10,19 +10,28 @@
 
 
 from PySide6.QtWidgets import QGraphicsView
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Slot, QRectF
+from typing import Optional
 
 __all__ = ["CustomGraphicsView"]
 
 
 class CustomGraphicsView(QGraphicsView):
 
-    def fit(self):
-        if self.scene():
-            rect = self.scene().itemsBoundingRect()
-            self.resetTransform()
-            self.fitInView(rect, Qt.KeepAspectRatio)
-            self.centerOn(rect.center())
+    @Slot(QRectF)
+    def slot_scene_rect_changed(self, rect: QRectF) -> None:
+        self.fit(rect)
+
+    def fit(self, rect: Optional[QRectF] = None):
+        _rect = rect
+        if _rect is None:
+            if self.scene():
+                _rect = self.scene().itemsBoundingRect()
+            else:
+                return
+        self.resetTransform()
+        self.fitInView(_rect, Qt.AspectRatioMode.KeepAspectRatio)
+        self.centerOn(_rect.center())
 
     def resizeEvent(self, event):
         self.fit()

@@ -59,6 +59,16 @@ class Ui_Form(object):
 
         self.verticalLayout.addWidget(self.colormap_groub_box)
 
+        self.show_cross_check_box = QCheckBox(self.groupBox)
+        self.show_cross_check_box.setObjectName(u"show_cross_check_box")
+
+        self.verticalLayout.addWidget(self.show_cross_check_box)
+
+        self.auto_cross_check_box = QCheckBox(self.groupBox)
+        self.auto_cross_check_box.setObjectName(u"auto_cross_check_box")
+
+        self.verticalLayout.addWidget(self.auto_cross_check_box)
+
         self.verticalSpacer = QSpacerItem(20, 210, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout.addItem(self.verticalSpacer)
@@ -124,5 +134,7 @@ class Ui_Form(object):
         self.groupBox.setTitle(QCoreApplication.translate("Form", u"Controls", None))
         self.enable_check_box.setText(QCoreApplication.translate("Form", u"Enable", None))
         self.colormap_groub_box.setTitle(QCoreApplication.translate("Form", u"Colormap", None))
+        self.show_cross_check_box.setText(QCoreApplication.translate("Form", u"Show cross", None))
+        self.auto_cross_check_box.setText(QCoreApplication.translate("Form", u"Auto cross", None))
     # retranslateUi
 

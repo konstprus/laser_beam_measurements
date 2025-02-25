@@ -64,9 +64,11 @@ class HikRobotCameraProperty(CameraPropertyBase):
     @property
     def max(self):
         if self._read_parameter():
-            if self.name == 'exposure':
-                return 1000.0
-            elif self.name == 'fps':
+            # if self.name == 'exposure':
+            #     return 1000.0
+            # elif self.name == 'fps':
+            #     return 30.0
+            if self.name == 'fps':
                 return 30.0
             return self._get_values()[2]
         return None
