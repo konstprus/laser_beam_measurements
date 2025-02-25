@@ -16,11 +16,12 @@ from PySide6.QtCore import Slot, Qt, QSettings
 from PySide6.QtGui import QPen, QFont
 from PySide6.QtWidgets import QTableWidgetItem, QTableWidget
 from .ui_beam_profiler_widget import Ui_Form
-from laser_beam_measurements.image_processing.beam_profiler import BeamProfiler
+from laser_beam_measurements.image_processing.beam_profiler import BeamProfiler, CROSS_SECTION_AUTO
 from laser_beam_measurements.image_processing import beam_profiler
 import numpy
 import pyqtgraph as pg
 from laser_beam_measurements.utils.colormap import COLORMAPS
+from laser_beam_measurements.widgets.utils.custom_graphics_scene_with_cross import CustomGraphicsSceneWithCross
 
 
 __all__ = ["BeamProfilerWidget"]
@@ -80,7 +81,9 @@ class BeamProfilerWidget(ImageProcessorViewerBase):
         super(BeamProfilerWidget, self).__init__(parent, configure_output_scene=True)
         self.ui = Ui_Form()
         self.ui.setupUi(self)
+        self._output_image_scene = CustomGraphicsSceneWithCross(self)
         self.ui.output_beam_view.setScene(self._output_image_scene)
+        self._output_image_scene.sceneRectChanged.connect(self.ui.output_beam_view.slot_scene_rect_changed)
         self.setWindowTitle("Beam Profiler")
         self.setObjectName("Beam Profiler")
         self.ui.colormap_combo_box.currentTextChanged.connect(self.slot_set_colormap_for_output)
@@ -93,6 +96,11 @@ class BeamProfilerWidget(ImageProcessorViewerBase):
         self._configure_curves()
         self.table_widget_items: dict[str, QTableWidgetItem | tuple[QTableWidgetItem, QTableWidgetItem]] = dict()
         self._fill_colormap_combobox()
+
+        self.ui.show_cross_check_box.toggled.connect(self._slot_show_cross)
+        self.ui.auto_cross_check_box.toggled.connect(self._slot_set_cross_auto)
+        self.ui.show_cross_check_box.setChecked(True)
+        self.ui.auto_cross_check_box.setChecked(True)
 
     def _configure_curves(self):
         self.curve_x = pg.ScatterPlotItem(name="X cross section")
@@ -133,6 +141,8 @@ class BeamProfilerWidget(ImageProcessorViewerBase):
             self._image_processor.signal_cross_section_updated.connect(self.show_cross_sections)
             self._image_processor.signal_gauss_approximation_updated.connect(self.show_gauss_approximation)
             self._image_processor.signal_beam_parameters_updated.connect(self.show_beam_parameters)
+            self._image_processor.signal_beam_center_updated.connect(self._output_image_scene.cross.slot_set_pos)
+            self._output_image_scene.cross.signal_point_changed.connect(self._image_processor.slot_set_center)
 
     def _disconnect_processor_signal(self):
         super(BeamProfilerWidget, self)._connect_processor_signal()
@@ -140,6 +150,8 @@ class BeamProfilerWidget(ImageProcessorViewerBase):
             self._image_processor.signal_cross_section_updated.disconnect(self.show_cross_sections)
             self._image_processor.signal_gauss_approximation_updated.disconnect(self.show_gauss_approximation)
             self._image_processor.signal_beam_parameters_updated.disconnect(self.show_beam_parameters)
+            self._image_processor.signal_beam_center_updated.disconnect(self._output_image_scene.cross.slot_set_pos)
+            self._output_image_scene.cross.signal_point_changed.disconnect(self._image_processor.slot_set_center)
 
     @Slot(numpy.ndarray, numpy.ndarray, numpy.ndarray, numpy.ndarray)
     def show_cross_sections(self, xx: numpy.ndarray, im_x: numpy.ndarray, yy: numpy.ndarray, im_y: numpy.ndarray) -> None:
@@ -368,3 +380,12 @@ class BeamProfilerWidget(ImageProcessorViewerBase):
             colormap_name = str(settings.value("OutputColormap"))
             self.ui.colormap_combo_box.setCurrentText(colormap_name)
         super().load_widget_settings(settings)
+
+    @Slot(bool)
+    def _slot_show_cross(self, value: bool) -> None:
+        self._output_image_scene.set_cross_visible(value)
+
+    @Slot(bool)
+    def _slot_set_cross_auto(self, value: bool) -> None:
+        self.signal_parameter_changed.emit(CROSS_SECTION_AUTO, value)
+        self._output_image_scene.cross.slot_set_flag_move_enabled(not value)

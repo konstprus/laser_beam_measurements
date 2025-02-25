@@ -32,11 +32,11 @@ class ImageItem(QGraphicsObject):
         self.set_image(image)
 
     @property
-    def raw_image(self):
+    def raw_image(self) -> numpy.ndarray | None:
         return self.image
 
     @property
-    def colormap(self):
+    def colormap(self) -> list | None:
         return self._colormap
 
     def set_image(self, image: numpy.ndarray) -> None:
@@ -55,7 +55,7 @@ class ImageItem(QGraphicsObject):
             shape = self.image.shape[:2]
             painter.drawImage(QRectF(0, 0, shape[1], shape[0]), self.qimage)
 
-    def render(self):
+    def render(self) -> None:
         self._unrenderable = True
         if self.image is None or self.image.size == 0:
             return
@@ -71,7 +71,7 @@ class ImageItem(QGraphicsObject):
     def set_colormap(self, colormap: list | None) -> None:
         self._colormap = colormap
 
-    def boundingRect(self):
+    def boundingRect(self) -> QRectF:
         if self.image is None:
             return QRectF(0., 0., 0., 0.)
         shape = self.image.shape[:2]
