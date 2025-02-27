@@ -10,3 +10,7 @@ class ROIControl(QWidget):
 
     def set_label_text(self, text: str) -> None:
         self.ui.label.setText(text)
+
+    @property
+    def doubleSpinBox(self) -> None:
+        return self.ui.doubleSpinBox
