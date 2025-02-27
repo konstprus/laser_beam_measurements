@@ -13,13 +13,14 @@
 from laser_beam_measurements.image_processing.image_processor_viewer_base import ImageProcessorViewerBase
 from laser_beam_measurements.image_processing.beam_finder import BeamFinder, BeamFinderParameters
 from .ui_beam_finder_widget import Ui_Form
-from PySide6.QtCore import Slot, QSettings, QSignalBlocker
+from PySide6.QtCore import Signal, Slot, QSettings, QSignalBlocker
 from laser_beam_measurements.widgets.utils.ROI import ROI
 
 from laser_beam_measurements.utils.colormap import COLORMAPS
 
 
 class BeamFinderWidget(ImageProcessorViewerBase):
+    signal_roi_control_changed = Signal(dict)
 
     def __init__(self, parent=None):
         super(BeamFinderWidget, self).__init__(parent, configure_input_scene=True, configure_output_scene=False)
@@ -40,17 +41,41 @@ class BeamFinderWidget(ImageProcessorViewerBase):
         self.ui.roi_w.set_label_text('Width:')
         self.ui.roi_h.set_label_text('Height:')
         self.ui.roi_a.set_label_text('Angle:')
+        self.ui.roi_a.doubleSpinBox.setMaximum(45.0)
+        self.ui.roi_a.doubleSpinBox.setMinimum(-45.0)
+        self.ui.roi_x.doubleSpinBox.valueChanged.connect(self._on_roi_control_change)
+        self.ui.roi_y.doubleSpinBox.valueChanged.connect(self._on_roi_control_change)
+        self.ui.roi_w.doubleSpinBox.valueChanged.connect(self._on_roi_control_change)
+        self.ui.roi_h.doubleSpinBox.valueChanged.connect(self._on_roi_control_change)
+        self.ui.roi_a.doubleSpinBox.valueChanged.connect(self._on_roi_control_change)
 
+    @Slot(float)
+    def _on_roi_control_change(self, value: float) -> None:
+        state = {
+            'pos': (
+                self.ui.roi_x.doubleSpinBox.value(),
+                self.ui.roi_y.doubleSpinBox.value()
+            ),
+            'size': (
+                self.ui.roi_w.doubleSpinBox.value(),
+                self.ui.roi_h.doubleSpinBox.value()
+            ),
+            'angle': self.ui.roi_a.doubleSpinBox.value()
+        }
+        self.signal_roi_control_changed.emit(state)
+
+    @Slot(dict)
     def _slot_update_roi_controls(self, roi_state: dict) -> None:
-        print(f'{roi_state = }')
+        x, y = roi_state['pos'].toTuple()
+        width, height = roi_state['size'].toTuple()
         with QSignalBlocker(self.ui.roi_x):
-            self.ui.roi_x.doubleSpinBox.setValue(roi_state['pos'].x())
+            self.ui.roi_x.doubleSpinBox.setValue(x)
         with QSignalBlocker(self.ui.roi_y):
-            self.ui.roi_y.doubleSpinBox.setValue(roi_state['pos'].y())
+            self.ui.roi_y.doubleSpinBox.setValue(y)
         with QSignalBlocker(self.ui.roi_w):
-            self.ui.roi_w.doubleSpinBox.setValue(roi_state['size'].width())
+            self.ui.roi_w.doubleSpinBox.setValue(width)
         with QSignalBlocker(self.ui.roi_h):
-            self.ui.roi_h.doubleSpinBox.setValue(roi_state['size'].height())
+            self.ui.roi_h.doubleSpinBox.setValue(height)
         with QSignalBlocker(self.ui.roi_a):
             self.ui.roi_a.doubleSpinBox.setValue(roi_state['angle'])
 
@@ -71,6 +96,7 @@ class BeamFinderWidget(ImageProcessorViewerBase):
             self._image_processor.signal_beam_state_updated.connect(self.roi.slot_set_state)
             self.roi.signal_region_changed.connect(self._image_processor.slot_set_beam_state)
             self.roi.signal_region_changed.connect(self._slot_update_roi_controls)
+            self.signal_roi_control_changed.connect(self.roi.slot_set_state_from_roi_controls)
 
 
     def _disconnect_processor_signal(self) -> None:
@@ -79,6 +105,7 @@ class BeamFinderWidget(ImageProcessorViewerBase):
             self._image_processor.signal_beam_state_updated.disconnect(self.roi.slot_set_state)
             self.roi.signal_region_changed.disconnect(self._image_processor.slot_set_beam_state)
             self.roi.signal_region_changed.disconnect(self._slot_update_roi_controls)
+            self.signal_roi_control_changed.disconnect(self.roi.slot_set_state_from_roi_controls)
 
     def _change_parameter(self, name: str | BeamFinderParameters, value: object) -> None:
         self.signal_parameter_changed.emit(name, value)

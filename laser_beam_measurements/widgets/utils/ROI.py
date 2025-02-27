@@ -97,6 +97,15 @@ class ROI(QGraphicsObject):
             BeamState.ANGLE: state.get(BeamState.ANGLE, 0.0)
         }
         self.set_state(_state, True)
+    
+    @Slot(dict)
+    def slot_set_state_from_roi_controls(self, state: dict) -> None:
+        _state = {
+            BeamState.POS: QPointF(state[BeamState.POS][0], state[BeamState.POS][1]),
+            BeamState.SIZE: QSizeF(state[BeamState.SIZE][0], state[BeamState.SIZE][1]),
+            BeamState.ANGLE: state.get(BeamState.ANGLE, 0.0)
+        }
+        self.set_state(_state, True)
 
     def set_state(self, state: dict, update: bool = True) -> None:
         self.set_pos(state[BeamState.POS], update=False)
