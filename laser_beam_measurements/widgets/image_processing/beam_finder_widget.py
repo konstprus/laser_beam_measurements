@@ -32,6 +32,15 @@ class BeamFinderWidget(ImageProcessorViewerBase):
         self._input_image_scene.addItem(self.roi)
         self._connect_signals()
         self._fill_colormap_combobox()
+        self._configure_roi_controls()
+
+    def _configure_roi_controls(self):
+        self.ui.roi_x.set_label_text('X:')
+        self.ui.roi_y.set_label_text('Y:')
+        self.ui.roi_w.set_label_text('Width:')
+        self.ui.roi_h.set_label_text('Height:')
+        self.ui.roi_a.set_label_text('Angle:')
+
 
     def _connect_signals(self) -> None:
         self.ui.enable_check_box.toggled.connect(self._slot_enabled_changed)

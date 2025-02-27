@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'beam_finder_widget.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.7.0
+## Created by: Qt User Interface Compiler version 6.8.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -20,6 +20,7 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDoubleSpinBo
     QSpacerItem, QSplitter, QVBoxLayout, QWidget)
 
 from ..utils.custom_graphics_view import CustomGraphicsView
+from ..utils.roi_control_widget import ROIControl
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -127,6 +128,59 @@ class Ui_Form(object):
 
         self.verticalLayout.addWidget(self.colormap_groub_box)
 
+        self.roi_controls_group_box = QGroupBox(self.groupBox)
+        self.roi_controls_group_box.setObjectName(u"roi_controls_group_box")
+        sizePolicy.setHeightForWidth(self.roi_controls_group_box.sizePolicy().hasHeightForWidth())
+        self.roi_controls_group_box.setSizePolicy(sizePolicy)
+        self.roi_controls_group_box.setMinimumSize(QSize(120, 160))
+        self.roi_controls_group_box.setMaximumSize(QSize(120, 160))
+        self.roi_controls_group_box.setCheckable(True)
+        self.roi_controls_group_box.setChecked(False)
+        self.verticalLayout_2 = QVBoxLayout(self.roi_controls_group_box)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.roi_x = ROIControl(self.roi_controls_group_box)
+        self.roi_x.setObjectName(u"roi_x")
+        sizePolicy.setHeightForWidth(self.roi_x.sizePolicy().hasHeightForWidth())
+        self.roi_x.setSizePolicy(sizePolicy)
+        self.roi_x.setMinimumSize(QSize(102, 20))
+
+        self.verticalLayout_2.addWidget(self.roi_x)
+
+        self.roi_y = ROIControl(self.roi_controls_group_box)
+        self.roi_y.setObjectName(u"roi_y")
+        sizePolicy.setHeightForWidth(self.roi_y.sizePolicy().hasHeightForWidth())
+        self.roi_y.setSizePolicy(sizePolicy)
+        self.roi_y.setMinimumSize(QSize(102, 20))
+
+        self.verticalLayout_2.addWidget(self.roi_y)
+
+        self.roi_w = ROIControl(self.roi_controls_group_box)
+        self.roi_w.setObjectName(u"roi_w")
+        sizePolicy.setHeightForWidth(self.roi_w.sizePolicy().hasHeightForWidth())
+        self.roi_w.setSizePolicy(sizePolicy)
+        self.roi_w.setMinimumSize(QSize(102, 20))
+
+        self.verticalLayout_2.addWidget(self.roi_w)
+
+        self.roi_h = ROIControl(self.roi_controls_group_box)
+        self.roi_h.setObjectName(u"roi_h")
+        sizePolicy.setHeightForWidth(self.roi_h.sizePolicy().hasHeightForWidth())
+        self.roi_h.setSizePolicy(sizePolicy)
+        self.roi_h.setMinimumSize(QSize(102, 20))
+
+        self.verticalLayout_2.addWidget(self.roi_h)
+
+        self.roi_a = ROIControl(self.roi_controls_group_box)
+        self.roi_a.setObjectName(u"roi_a")
+        sizePolicy.setHeightForWidth(self.roi_a.sizePolicy().hasHeightForWidth())
+        self.roi_a.setSizePolicy(sizePolicy)
+        self.roi_a.setMinimumSize(QSize(102, 20))
+
+        self.verticalLayout_2.addWidget(self.roi_a)
+
+
+        self.verticalLayout.addWidget(self.roi_controls_group_box)
+
         self.verticalSpacer = QSpacerItem(20, 210, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout.addItem(self.verticalSpacer)
@@ -163,5 +217,6 @@ class Ui_Form(object):
         self.rotation_auto_check_box.setText(QCoreApplication.translate("Form", u"Auto", None))
         self.angle_label.setText(QCoreApplication.translate("Form", u"Angle:", None))
         self.colormap_groub_box.setTitle(QCoreApplication.translate("Form", u"Colormap", None))
+        self.roi_controls_group_box.setTitle(QCoreApplication.translate("Form", u"ROI Controls", None))
     # retranslateUi
 
