@@ -81,10 +81,12 @@ class BeamFinderWidget(ImageProcessorViewerBase):
 
 
     def _connect_signals(self) -> None:
-        self.ui.enable_check_box.toggled.connect(self._slot_enabled_changed)
+        # self.ui.enable_check_box.toggled.connect(self._slot_enabled_changed)
+        self.ui.controls_group_box.toggled.connect(self._slot_enabled_changed)
         self.ui.find_auto_check_box.toggled.connect(self._slot_set_find_auto)
         self.ui.noise_group_box.toggled.connect(self._slot_set_delete_noise)
-        self.ui.rotation_group_box.toggled.connect(self._slot_set_rotation_enable)
+        # self.ui.rotation_group_box.toggled.connect(self._slot_set_rotation_enable)
+        self.ui.rotation_check_box.toggled.connect(self._slot_set_rotation_enable)
         self.ui.rotation_auto_check_box.toggled.connect(self._slot_set_manual_rotation)
         self.ui.noise_value_spin_box.valueChanged.connect(self._slot_set_noise_level)
         self.ui.angle_value_spin_box.valueChanged.connect(self._slot_set_angle_value)
@@ -116,9 +118,10 @@ class BeamFinderWidget(ImageProcessorViewerBase):
 
     @Slot(bool)
     def _slot_enabled_changed(self, value: bool) -> None:
-        self.ui.find_auto_check_box.setEnabled(value)
-        self.ui.noise_group_box.setEnabled(value)
-        self.ui.rotation_group_box.setEnabled(value)
+        # self.ui.find_auto_check_box.setEnabled(value)
+        # self.ui.noise_group_box.setEnabled(value)
+        # self.ui.rotation_group_box.setEnabled(value)
+        # self.ui.colormap_groub_box.setEnabled(value)
         self.signal_enable_changed.emit(value)
         self.roi.setVisible(value)
 
@@ -152,14 +155,16 @@ class BeamFinderWidget(ImageProcessorViewerBase):
 
     def _update_parameters(self):
         self.roi.setVisible(self._image_processor.enabled)
-        self.ui.enable_check_box.setChecked(self._image_processor.enabled)
+        self.ui.controls_group_box.setChecked(self._image_processor.enabled)
+        # self.ui.enable_check_box.setChecked(self._image_processor.enabled)
         self.ui.find_auto_check_box.setChecked(
             self._image_processor.get_parameter_value(BeamFinderParameters.FIND_AUTO))
         self.ui.noise_group_box.setChecked(
             self._image_processor.get_parameter_value(BeamFinderParameters.DELETE_NOISE_ENABLE))
         self.ui.noise_value_spin_box.setValue(
             self._image_processor.get_parameter_value(BeamFinderParameters.NOISE_LEVEL))
-        self.ui.rotation_group_box.setChecked(
+        # self.ui.rotation_group_box.setChecked(
+        self.ui.rotation_check_box.setChecked(
             self._image_processor.get_parameter_value(BeamFinderParameters.ROTATION_ENABLE))
         self.ui.rotation_auto_check_box.setChecked(
             not self._image_processor.get_parameter_value(BeamFinderParameters.MANUAL_ROTATION_ENABLE))

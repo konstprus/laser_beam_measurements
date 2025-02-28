@@ -31,18 +31,18 @@ class Ui_Form(object):
         self.horizontalLayout.setSpacing(5)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalLayout.setContentsMargins(5, 5, 5, 5)
-        self.groupBox = QGroupBox(Form)
-        self.groupBox.setObjectName(u"groupBox")
-        self.groupBox.setFlat(False)
-        self.groupBox.setCheckable(True)
-        self.verticalLayout = QVBoxLayout(self.groupBox)
+        self.controls_group_box = QGroupBox(Form)
+        self.controls_group_box.setObjectName(u"controls_group_box")
+        self.controls_group_box.setFlat(False)
+        self.controls_group_box.setCheckable(True)
+        self.verticalLayout = QVBoxLayout(self.controls_group_box)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.enable_check_box = QCheckBox(self.groupBox)
+        self.enable_check_box = QCheckBox(self.controls_group_box)
         self.enable_check_box.setObjectName(u"enable_check_box")
 
         self.verticalLayout.addWidget(self.enable_check_box)
 
-        self.rotation_group_box = QGroupBox(self.groupBox)
+        self.rotation_group_box = QGroupBox(self.controls_group_box)
         self.rotation_group_box.setObjectName(u"rotation_group_box")
         self.rotation_group_box.setEnabled(True)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
@@ -74,7 +74,7 @@ class Ui_Form(object):
 
         self.verticalLayout.addWidget(self.rotation_group_box)
 
-        self.roi_controls_group_box = QGroupBox(self.groupBox)
+        self.roi_controls_group_box = QGroupBox(self.controls_group_box)
         self.roi_controls_group_box.setObjectName(u"roi_controls_group_box")
         sizePolicy.setHeightForWidth(self.roi_controls_group_box.sizePolicy().hasHeightForWidth())
         self.roi_controls_group_box.setSizePolicy(sizePolicy)
@@ -90,15 +90,17 @@ class Ui_Form(object):
         self.find_auto_check_box.setObjectName(u"find_auto_check_box")
         self.find_auto_check_box.setMinimumSize(QSize(0, 20))
         self.find_auto_check_box.setMaximumSize(QSize(16777215, 20))
+        self.find_auto_check_box.setContextMenuPolicy(Qt.ContextMenuPolicy.DefaultContextMenu)
+        self.find_auto_check_box.setTristate(False)
 
         self.verticalLayout_2.addWidget(self.find_auto_check_box)
 
-        self.checkBox = QCheckBox(self.roi_controls_group_box)
-        self.checkBox.setObjectName(u"checkBox")
-        self.checkBox.setMinimumSize(QSize(0, 20))
-        self.checkBox.setMaximumSize(QSize(16777215, 20))
+        self.rotation_check_box = QCheckBox(self.roi_controls_group_box)
+        self.rotation_check_box.setObjectName(u"rotation_check_box")
+        self.rotation_check_box.setMinimumSize(QSize(0, 20))
+        self.rotation_check_box.setMaximumSize(QSize(16777215, 20))
 
-        self.verticalLayout_2.addWidget(self.checkBox)
+        self.verticalLayout_2.addWidget(self.rotation_check_box)
 
         self.rotation_auto_check_box = QCheckBox(self.roi_controls_group_box)
         self.rotation_auto_check_box.setObjectName(u"rotation_auto_check_box")
@@ -150,7 +152,7 @@ class Ui_Form(object):
 
         self.verticalLayout.addWidget(self.roi_controls_group_box)
 
-        self.noise_group_box = QGroupBox(self.groupBox)
+        self.noise_group_box = QGroupBox(self.controls_group_box)
         self.noise_group_box.setObjectName(u"noise_group_box")
         self.noise_group_box.setEnabled(True)
         sizePolicy.setHeightForWidth(self.noise_group_box.sizePolicy().hasHeightForWidth())
@@ -185,7 +187,7 @@ class Ui_Form(object):
 
         self.verticalLayout.addWidget(self.noise_group_box)
 
-        self.colormap_groub_box = QGroupBox(self.groupBox)
+        self.colormap_groub_box = QGroupBox(self.controls_group_box)
         self.colormap_groub_box.setObjectName(u"colormap_groub_box")
         sizePolicy.setHeightForWidth(self.colormap_groub_box.sizePolicy().hasHeightForWidth())
         self.colormap_groub_box.setSizePolicy(sizePolicy)
@@ -202,7 +204,7 @@ class Ui_Form(object):
         self.verticalLayout.addItem(self.verticalSpacer)
 
 
-        self.horizontalLayout.addWidget(self.groupBox)
+        self.horizontalLayout.addWidget(self.controls_group_box)
 
         self.splitter = QSplitter(Form)
         self.splitter.setObjectName(u"splitter")
@@ -221,13 +223,13 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
-        self.groupBox.setTitle(QCoreApplication.translate("Form", u"Controls", None))
+        self.controls_group_box.setTitle(QCoreApplication.translate("Form", u"Controls", None))
         self.enable_check_box.setText(QCoreApplication.translate("Form", u"Enable", None))
         self.rotation_group_box.setTitle(QCoreApplication.translate("Form", u"Rotation", None))
         self.angle_label.setText(QCoreApplication.translate("Form", u"Angle:", None))
         self.roi_controls_group_box.setTitle(QCoreApplication.translate("Form", u"ROI", None))
         self.find_auto_check_box.setText(QCoreApplication.translate("Form", u"Find Auto", None))
-        self.checkBox.setText(QCoreApplication.translate("Form", u"Rotation", None))
+        self.rotation_check_box.setText(QCoreApplication.translate("Form", u"Rotation", None))
         self.rotation_auto_check_box.setText(QCoreApplication.translate("Form", u"Rotation Auto", None))
 #if QT_CONFIG(tooltip)
         self.noise_group_box.setToolTip("")
