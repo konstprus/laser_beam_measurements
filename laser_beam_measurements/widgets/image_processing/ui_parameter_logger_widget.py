@@ -92,7 +92,7 @@ class Ui_Form(object):
     # setupUi
 
     def retranslateUi(self, Form):
-        Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
+        Form.setWindowTitle(QCoreApplication.translate("Form", u"Parameter Logger", None))
         self.groupBox.setTitle(QCoreApplication.translate("Form", u"Controls", None))
         self.start_stop_button.setText(QCoreApplication.translate("Form", u"Start", None))
         self.time_unit.setItemText(0, QCoreApplication.translate("Form", u"sec", None))

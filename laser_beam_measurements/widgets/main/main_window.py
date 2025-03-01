@@ -22,12 +22,14 @@ from laser_beam_measurements.widgets.camera_control.camera_property_controller_w
     CameraPropertyControllerWidget)
 from laser_beam_measurements.widgets.image_processing.beam_finder_widget import BeamFinderWidget
 from laser_beam_measurements.widgets.image_processing.beam_profiler_widget import BeamProfilerWidget
+from laser_beam_measurements.widgets.image_processing.parameter_logger_widget import ParameterLoggerWidget
 from laser_beam_measurements.main.main_object import MainObject
 from laser_beam_measurements.camera_control.camera_listener import CameraListener
 from laser_beam_measurements.camera_control.camera_listener_base import CameraState
 from laser_beam_measurements.utils.settings_bool_reader import read_boolean_value
 
 from laser_beam_measurements.icons import Icon
+from typing import Optional
 
 
 class Icons:
@@ -42,6 +44,7 @@ class Icons:
     beam_analyze = Icon("beam_analyze.svg")
     beam_profiler = Icon("beam_profiler.svg")
     main = Icon("main.svg")
+    clock = Icon("clock.svg")
 
 
 class MainWindow(QMainWindow):
@@ -61,6 +64,7 @@ class MainWindow(QMainWindow):
         self._beam_finder_widget: BeamFinderWidget | None = None
         self._beam_profiler_widget: BeamProfilerWidget | None = None
         self._property_controller_widget: CameraPropertyControllerWidget | None = None
+        self._parameter_logger_widget: Optional[ParameterLoggerWidget] = None
 
         self._set_icons()
         self._connect_signals()
@@ -80,6 +84,7 @@ class MainWindow(QMainWindow):
         self.ui.show_beam_profiler.setIcon(self._icons.beam_profiler)
         self.ui.beam_analyzing_section_label.setPixmap(
             self._icons.beam_analyze.pixmap(25, 25, QIcon.Mode.Normal, QIcon.State.On))
+        self.ui.logger_buttton.setIcon(self._icons.clock)
         self.setWindowIcon(self._icons.main)
 
     def _connect_signals(self) -> None:
@@ -96,6 +101,7 @@ class MainWindow(QMainWindow):
         self.ui.show_beam_finder.clicked.connect(self.show_beam_finder_widget)
         self.ui.show_beam_profiler.clicked.connect(self.show_beam_profiler_widget)
         self.ui.show_settings_button.clicked.connect(self.show_property_controller_widget)
+        self.ui.logger_buttton.clicked.connect(self.show_parameter_logger_widget)
 
     @Slot(bool)
     def _slot_camera_state_changed(self, state: CameraState) -> None:
@@ -191,6 +197,18 @@ class MainWindow(QMainWindow):
             self._main_object.set_widget_for_camera_control_status(self._property_controller_widget)
             self._property_controller_widget.setWindowIcon(self._icons.settings)
         return self._create_sub_window(self._property_controller_widget, False)
+
+    @Slot()
+    def show_parameter_logger_widget(self) -> None:
+        sub = self._create_parameter_logger_widget_sub_window()
+        self._show_sub_window(sub)
+
+    def _create_parameter_logger_widget_sub_window(self) -> QMdiSubWindow:
+        if self._parameter_logger_widget is None:
+            self._parameter_logger_widget = ParameterLoggerWidget(self)
+            self._parameter_logger_widget.setWindowIcon(self._icons.clock)
+            self._main_object.set_widget_for_parameter_logger(self._parameter_logger_widget)
+        return self._create_sub_window(self._parameter_logger_widget, False)
 
     def _show_camera_select_dialog(self) -> None:
         camera_select_dialog = CameraSelectDialog(self)

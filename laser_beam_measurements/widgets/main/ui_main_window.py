@@ -173,6 +173,14 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.save_processed_image_button)
 
+        self.logger_buttton = QPushButton(self.buttonsGroupBox)
+        self.logger_buttton.setObjectName(u"logger_buttton")
+        sizePolicy1.setHeightForWidth(self.logger_buttton.sizePolicy().hasHeightForWidth())
+        self.logger_buttton.setSizePolicy(sizePolicy1)
+        self.logger_buttton.setMaximumSize(QSize(30, 30))
+
+        self.horizontalLayout.addWidget(self.logger_buttton)
+
         self.line_2 = QFrame(self.buttonsGroupBox)
         self.line_2.setObjectName(u"line_2")
         sizePolicy2.setHeightForWidth(self.line_2.sizePolicy().hasHeightForWidth())
@@ -262,5 +270,6 @@ class Ui_MainWindow(object):
         self.save_processed_image_button.setToolTip(QCoreApplication.translate("MainWindow", u"Save Processed Image", None))
 #endif // QT_CONFIG(tooltip)
         self.save_processed_image_button.setText("")
+        self.logger_buttton.setText("")
     # retranslateUi
 

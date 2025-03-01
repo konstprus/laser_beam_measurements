@@ -9,32 +9,139 @@
 #
 
 from PySide6.QtCore import QObject, QThread, QCoreApplication, Signal, Slot, QMutex
-from typing import Dict, Tuple, Union, Optional
+from typing import Dict, Tuple, Union, Optional, Iterable, Sized, List
 from time import time
 from datetime import datetime
-from dataclasses import dataclass
+
 
 __all__ = ["ParameterLogger"]
 
-@dataclass
-class LoggingData:
 
-    time: list[float]
-    data: Dict[str, list[Union[int, float]]]
-    counter: int
+class ParameterLoggingStorage:
+
+    def __init__(self, parameter_name: str, dim: int = 1):
+        self._name: str = parameter_name
+        self._dimension: int = dim
+        self._storage: dict[str, list] = dict()
+        self._loggable_name: tuple = tuple()
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def loggable_names(self) -> tuple:
+        return self._loggable_name
+
+    @property
+    def storage(self) -> dict:
+        return self._storage
+
+    def generate_loggable_names(self) -> None:
+        if self._dimension == 1:
+            self._loggable_name = (self._name, )
+        elif self._dimension == 2:
+            self._loggable_name = (f"{self._name}_X", f"{self._name}_Y")
+        elif self._dimension > 2:
+            names_list = list()
+            for i in range(self._dimension):
+                names_list.append(f"{self._name}_{i}")
+            self._loggable_name = tuple(names_list)
+        self._storage = {n: list() for n in self._loggable_name}
+
+    def add_value(self, data: dict) -> Optional[tuple]:
+        if self._name in data.keys():
+            param_value = data[self._name]
+            if isinstance(param_value, (tuple, list)):
+                if len(self._loggable_name) != len(param_value):
+                    return None
+                [self._storage[self._loggable_name[i]].append(param_value[i]) for i in range(len(param_value))]
+                return tuple(param_value)
+            else:
+                if len(self._loggable_name) != 1:
+                    return None
+                self._storage[self._loggable_name[0]].append(param_value)
+                return (param_value, )
+        else:
+            return None
+
+
+class LoggingStorage:
 
     def __init__(self):
-        self.time = []
-        self.data = {}
-        self.counter = 0
+        self._time: list[float] = list()
+        self._data: list[ParameterLoggingStorage] = list()
+        self._counter: int = 0
+        self._data_to_write = list()
+        self._selected_storage: Optional[ParameterLoggingStorage] = None
 
-    def clear(self):
-        self.time.clear()
-        self.data.clear()
-        self.counter = 0
+    def clear(self) -> None:
+        self._time.clear()
+        self._data.clear()
+        self._counter = 0
+        self._data_to_write.clear()
 
-    def prepare(self, parameter_list: list[str]):
-        [self.data.update({parameter: list()}) for parameter in parameter_list]
+    @property
+    def data_to_write(self) -> list:
+        return self._data_to_write
+
+    @property
+    def parameter_names(self) -> list:
+        result = list()
+        for parameter in self._data:
+            result += list(parameter.loggable_names)
+        return result
+
+    @property
+    def logging_time(self) -> list:
+        return self._time
+
+    @property
+    def selected_storage(self) -> Optional[ParameterLoggingStorage]:
+        return self._selected_storage
+
+    def prepare(self, selected_parameters: list, data: dict) -> None:
+        for param in selected_parameters:
+            if param in data.keys():
+                value = data[param]
+                if isinstance(value, (tuple, list)):
+                    self._data.append(ParameterLoggingStorage(param, len(value)))
+                else:
+                    self._data.append(ParameterLoggingStorage(param))
+        [storage.generate_loggable_names() for storage in self._data]
+
+    def add_values(self, t: float, data: dict) -> bool:
+        self._data_to_write.clear()
+        self._time.append(t)
+        self._data_to_write.append(t)
+        for storage in self._data:
+            added = storage.add_value(data)
+            if added is None:
+                return False
+            # if storage.add_value(data) is None:
+            #     return False
+            self._data_to_write = [*self._data_to_write, *added]
+        self._counter += 1
+        return True
+
+    def select_storage(self, name: str) -> None:
+        for storage in self._data:
+            if storage.name == name:
+                self._selected_storage = storage
+                return
+
+
+def adapt_data(data: Dict[str, Dict[str, Union[Tuple[float, float], float]]]) -> Dict[str, Union[int, float]]:
+    if len(data) == 0:
+        return dict()
+    result = dict()
+    for key, value in data.items():
+        if isinstance(value, dict):
+            for key2, value2 in value.items():
+                result.update({f"{key}: {key2}": value2})
+        elif isinstance(value, Union[int, float]):
+            result.update({key: value})
+    return result
 
 
 class ParameterLogger(QObject):
@@ -52,8 +159,8 @@ class ParameterLogger(QObject):
         self._mutex = QMutex()
         self._available_parameters: list = list()
         self._selected_parameters: list = list()
-        self._current_data: Dict[str, Union[int, float]] = dict() # Dict[str, Dict[str, Union[Tuple[float, float], float]]] = dict()
-        self._logging_data: LoggingData = LoggingData()
+        self._current_data: Dict[str, Dict[str, Union[Tuple[float, float], float]]] = dict()
+        self._logging_data: LoggingStorage = LoggingStorage()
         self._timer_interval: int = 100
         self._timer_id: int = -1
         self._filename: Optional[str] = ""
@@ -65,6 +172,10 @@ class ParameterLogger(QObject):
     @property
     def available(self) -> bool:
         return len(self._available_parameters) > 0
+
+    @property
+    def available_parameters(self) -> list:
+        return self._available_parameters
 
     @Slot(list)
     def slot_update_available_parameters(self, parameters_list: list[str]) -> None:
@@ -152,34 +263,32 @@ class ParameterLogger(QObject):
             self._show_parameters()
         super().timerEvent(*args, **kwargs)
 
+    @Slot(dict)
+    def slot_set_data(self, data: dict) -> None:
+        self._current_data = data
+
     def _save_data(self) -> None:
         data = self._current_data.copy()
-        keys = data.keys()
+        data = adapt_data(data)
+        # keys = data.keys()
         current_time = time()
         elapsed_time = current_time - self._start_time
-        self._logging_data.time.append(elapsed_time)
-        data_to_write: list[Union[float, int]] = [self._logging_data.time[-1]]
-        for param in self._selected_parameters:
-            if param in keys:
-                data_to_write.append(data[param])
-                self._logging_data.data[param].append(data[param])
-            else:
-                self.stop()
-                return
+        result = self._logging_data.add_values(elapsed_time, data)
+        if not result:
+            self.stop()
+            return
+        data_to_write = self._logging_data.data_to_write
         if self._filename is None:
             return
         with open(self._filename, 'a') as file:
             str_to_write = "\t".join([str(data) for data in data_to_write])
             file.write(f"{str_to_write}\n")
-        self._logging_data.counter += 1
 
     def _prepare_data_for_logging(self) -> None:
         self._logging_data.clear()
-        self._logging_data.prepare(self._selected_parameters)
-
-    # def select_parameters(self, parameter_list: list) -> None:
-    #     self._selected_parameters.clear()
-    #     self._selected_parameters = parameter_list
+        data = self._current_data.copy()
+        data = adapt_data(data)
+        self._logging_data.prepare(self._selected_parameters, data)
 
     @Slot(str)
     def set_filename(self, filename: str) -> None:
@@ -187,16 +296,19 @@ class ParameterLogger(QObject):
         self._validate_filename()
 
     def _validate_filename(self) -> None:
-        if self._filename is None:
-            self._filename = datetime.now().strftime('%Y_%m_%d__%H%M') + ".txt"
+        default_name: str = datetime.now().strftime('%Y_%m_%d__%H%M') + ".txt"
+        if self._filename is None or (isinstance(self._filename, str) and len(self._filename) == 0):
+            self._filename = default_name
         #TODO: check existence of the file
 
     def _prepare_file(self):
         self._validate_filename()
+        str_to_write: str = "Elapsed Time\t"
+        str_to_write += "\t".join(self._logging_data.parameter_names)
         with open(self._filename, 'a') as file:
-            str_to_write: str = "Elapsed Time\t" + "\t".join(self._selected_parameters)
             file.write(f"{str_to_write}\n")
 
     def _show_parameters(self):
-        if self._selected_parameter in self._selected_parameters:
-            self.signal_selected_parameter_updated.emit(self._logging_data.time, self._logging_data.data[self._selected_parameter])
+        pass
+        # if self._selected_parameter in self._selected_parameters:
+        #     self.signal_selected_parameter_updated.emit(self._logging_data.time, self._logging_data.data[self._selected_parameter])

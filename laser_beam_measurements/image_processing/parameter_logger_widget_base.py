@@ -35,6 +35,7 @@ class ParameterLoggingWidgetBase(QWidget):
         self.signal_change_state.connect(self._logger.slot_change_state)
         self._logger.signal_state_changed.connect(self.slot_logger_state_changed)
         self._logger.signal_available_parameters_updated.connect(self.slot_show_available_parameters)
+        self._show_available_parameters(self._logger.available_parameters)
 
     @Slot(bool)
     def slot_logger_state_changed(self, state: bool) -> None:
