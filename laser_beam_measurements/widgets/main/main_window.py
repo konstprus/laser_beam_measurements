@@ -275,6 +275,7 @@ class MainWindow(QMainWindow):
         self._save_widget_settings(self._beam_finder_widget, settings, "BeamFinderWidget")
         self._save_widget_settings(self._beam_profiler_widget, settings, "BeamProfilerWidget")
         self._save_widget_settings(self._property_controller_widget, settings, "PropertyControllerWidget")
+        self._save_widget_settings(self._parameter_logger_widget, settings, "ParameterLoggerWidget")
 
     def _load_setting_for_sub_window(self, sub_window: QMdiSubWindow, settings: QSettings) -> None:
         if settings.contains("IsHidden"):
@@ -334,5 +335,11 @@ class MainWindow(QMainWindow):
             if group == "PropertyControllerWidget":
                 settings.beginGroup(group)
                 sub = self._create_property_controller_widget_sub_window()
+                self._load_setting_for_sub_window(sub, settings)
+                settings.endGroup()
+
+            if group == "ParameterLoggerWidget":
+                settings.beginGroup(group)
+                sub = self._create_parameter_logger_widget_sub_window()
                 self._load_setting_for_sub_window(sub, settings)
                 settings.endGroup()

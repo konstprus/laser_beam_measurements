@@ -79,7 +79,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>1</string>
+       <string>100</string>
       </property>
      </widget>
      <widget class="QComboBox" name="time_unit">
@@ -91,6 +91,11 @@
         <height>22</height>
        </rect>
       </property>
+      <item>
+       <property name="text">
+        <string>ms</string>
+       </property>
+      </item>
       <item>
        <property name="text">
         <string>sec</string>

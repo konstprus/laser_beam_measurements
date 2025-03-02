@@ -47,6 +47,7 @@ class Ui_Form(object):
         self.time_unit = QComboBox(self.groupBox)
         self.time_unit.addItem("")
         self.time_unit.addItem("")
+        self.time_unit.addItem("")
         self.time_unit.setObjectName(u"time_unit")
         self.time_unit.setGeometry(QRect(100, 250, 69, 22))
 
@@ -95,8 +96,10 @@ class Ui_Form(object):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Parameter Logger", None))
         self.groupBox.setTitle(QCoreApplication.translate("Form", u"Controls", None))
         self.start_stop_button.setText(QCoreApplication.translate("Form", u"Start", None))
-        self.time_unit.setItemText(0, QCoreApplication.translate("Form", u"sec", None))
-        self.time_unit.setItemText(1, QCoreApplication.translate("Form", u"min", None))
+        self.time_step.setText(QCoreApplication.translate("Form", u"100", None))
+        self.time_unit.setItemText(0, QCoreApplication.translate("Form", u"ms", None))
+        self.time_unit.setItemText(1, QCoreApplication.translate("Form", u"sec", None))
+        self.time_unit.setItemText(2, QCoreApplication.translate("Form", u"min", None))
 
         self.status_label.setText(QCoreApplication.translate("Form", u"Counts:", None))
     # retranslateUi

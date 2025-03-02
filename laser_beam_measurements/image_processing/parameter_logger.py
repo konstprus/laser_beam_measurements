@@ -65,15 +65,36 @@ class ParameterLoggingStorage:
         else:
             return None
 
+    def __str__(self) -> str:
+        return f"ParameterLoggingStorage: '{self._name}'. Loggable names: {self._loggable_name}"
 
-class LoggingStorage:
+
+class IntervalCalculator:
+
+    def __init__(self):
+        self._t0: float = 0.0
+        self._t1: float = 0.0
+
+    def start(self):
+        self._t0 = time()
+        self._t1 = self._t0
+
+    def elapsed(self) -> float:
+        self._t1 = time()
+        current_interval = self._t1 - self._t0
+        self._t0 = self._t1
+        return current_interval
+
+
+
+class LoggingDataStorage:
 
     def __init__(self):
         self._time: list[float] = list()
         self._data: list[ParameterLoggingStorage] = list()
         self._counter: int = 0
         self._data_to_write = list()
-        self._selected_storage: Optional[ParameterLoggingStorage] = None
+        self._storage_to_show: Optional[ParameterLoggingStorage] = None
 
     def clear(self) -> None:
         self._time.clear()
@@ -97,8 +118,12 @@ class LoggingStorage:
         return self._time
 
     @property
-    def selected_storage(self) -> Optional[ParameterLoggingStorage]:
-        return self._selected_storage
+    def storage_to_show(self) -> Optional[ParameterLoggingStorage]:
+        return self._storage_to_show
+
+    @property
+    def counter(self) -> int:
+        return self._counter
 
     def prepare(self, selected_parameters: list, data: dict) -> None:
         for param in selected_parameters:
@@ -124,11 +149,18 @@ class LoggingStorage:
         self._counter += 1
         return True
 
-    def select_storage(self, name: str) -> None:
+    def set_storage_to_show(self, name: Optional[str] = None) -> True:
+        if name is None:
+            self._storage_to_show = None
+            return True
+        if self._storage_to_show is not None:
+            if self._storage_to_show.name == name:
+                return False
         for storage in self._data:
             if storage.name == name:
-                self._selected_storage = storage
-                return
+                self._storage_to_show = storage
+                return True
+        return False
 
 
 def adapt_data(data: Dict[str, Dict[str, Union[Tuple[float, float], float]]]) -> Dict[str, Union[int, float]]:
@@ -147,10 +179,10 @@ def adapt_data(data: Dict[str, Dict[str, Union[Tuple[float, float], float]]]) ->
 class ParameterLogger(QObject):
 
     signal_state_changed = Signal(bool)
-    signal_selected_parameter_updated = Signal(list, list)
+    signal_show_selected_parameter = Signal(str, list, dict)
     signal_selected_parameters_updated = Signal(list)
     signal_available_parameters_updated = Signal(list)
-    signal_timeout = Signal(int, int)
+    signal_timeout = Signal(int, float)
 
     MIN_TIMER_INTERVAL = 10
 
@@ -160,14 +192,15 @@ class ParameterLogger(QObject):
         self._available_parameters: list = list()
         self._selected_parameters: list = list()
         self._current_data: Dict[str, Dict[str, Union[Tuple[float, float], float]]] = dict()
-        self._logging_data: LoggingStorage = LoggingStorage()
+        self._logging_data: LoggingDataStorage = LoggingDataStorage()
+        self._interval_calculator: IntervalCalculator = IntervalCalculator()
         self._timer_interval: int = 100
         self._timer_id: int = -1
         self._filename: Optional[str] = ""
-        self._selected_parameter: Optional[str] = ""
+        # self._selected_parameter: Optional[str] = ""
         self._start_time: float = 0.0
         self._flag_show_parameters: bool = True
-        self._flag_available: bool = False
+        self._flag_available: bool = True
 
     @property
     def available(self) -> bool:
@@ -230,6 +263,10 @@ class ParameterLogger(QObject):
         else:
             self.stop()
 
+    @Slot(str)
+    def slot_set_parameter_to_show(self, parameter_name: str) -> None:
+        self._logging_data.set_storage_to_show(parameter_name)
+
     def set_all_parameters(self, parameters_list: list, timer_interval: int) -> None:
         if self.is_active:
             return
@@ -237,7 +274,11 @@ class ParameterLogger(QObject):
         self.timer_interval = timer_interval
 
     def start(self, interval: Optional[int] = None) -> None:
+        if not self._flag_available:
+            return
         if len(self._selected_parameters) == 0:
+            return
+        if len(self._current_data) == 0:
             return
         if interval:
             self._timer_interval = interval
@@ -247,6 +288,7 @@ class ParameterLogger(QObject):
         self._prepare_data_for_logging()
         self._prepare_file()
         self._timer_id = self.startTimer(self._timer_interval)
+        self._interval_calculator.start()
         self.signal_state_changed.emit(True)
 
 
@@ -259,6 +301,9 @@ class ParameterLogger(QObject):
     def timerEvent(self, *args, **kwargs) -> None:
         QCoreApplication.sendPostedEvents(self, 0)
         self._save_data()
+        interval = self._interval_calculator.elapsed()
+        counter = self._logging_data.counter
+        self.signal_timeout.emit(counter, interval)
         if self._flag_show_parameters:
             self._show_parameters()
         super().timerEvent(*args, **kwargs)
@@ -309,6 +354,7 @@ class ParameterLogger(QObject):
             file.write(f"{str_to_write}\n")
 
     def _show_parameters(self):
-        pass
-        # if self._selected_parameter in self._selected_parameters:
-        #     self.signal_selected_parameter_updated.emit(self._logging_data.time, self._logging_data.data[self._selected_parameter])
+        storage = self._logging_data.storage_to_show
+        if storage is None:
+            return
+        self.signal_show_selected_parameter.emit(storage.name, self._logging_data.logging_time, storage.storage)
