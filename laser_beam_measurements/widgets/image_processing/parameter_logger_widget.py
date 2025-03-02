@@ -151,7 +151,8 @@ class ParameterLoggerWidget(ParameterLoggingWidgetBase):
             set_curves_visibility(visible_curves, True)
             for key, value in parameters.items():
                 curve = visible_curves[key]
-                self.ui.plot.addItem(curve)
+                if curve not in self.ui.plot.items():
+                    self.ui.plot.addItem(curve)
                 curve.setData(logging_time, value)
 
     def _create_curves_group(self, group_name: str, parameters: dict[str, list]) -> None:

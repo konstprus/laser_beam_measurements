@@ -98,6 +98,7 @@ class LoggingDataStorage:
 
     def clear(self) -> None:
         self._time.clear()
+        self._storage_to_show = None
         self._data.clear()
         self._counter = 0
         self._data_to_write.clear()
