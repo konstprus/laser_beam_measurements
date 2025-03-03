@@ -60,10 +60,10 @@ class MainWindow(QMainWindow):
 
         self._main_object: MainObject = main_object
         self._icons = Icons()
-        self._camera_display: CameraDisplay | None = None
-        self._beam_finder_widget: BeamFinderWidget | None = None
-        self._beam_profiler_widget: BeamProfilerWidget | None = None
-        self._property_controller_widget: CameraPropertyControllerWidget | None = None
+        self._camera_display: Optional[CameraDisplay] = None
+        self._beam_finder_widget: Optional[BeamFinderWidget] = None
+        self._beam_profiler_widget: Optional[BeamProfilerWidget] = None
+        self._property_controller_widget: Optional[CameraPropertyControllerWidget] = None
         self._parameter_logger_widget: Optional[ParameterLoggerWidget] = None
 
         self._set_icons()
