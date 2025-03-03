@@ -81,7 +81,7 @@ class Ui_Form(object):
         self.roi_controls_group_box.setMinimumSize(QSize(120, 200))
         self.roi_controls_group_box.setMaximumSize(QSize(120, 200))
         self.roi_controls_group_box.setCheckable(True)
-        self.roi_controls_group_box.setChecked(False)
+        self.roi_controls_group_box.setChecked(True)
         self.verticalLayout_2 = QVBoxLayout(self.roi_controls_group_box)
         self.verticalLayout_2.setSpacing(4)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
@@ -91,6 +91,7 @@ class Ui_Form(object):
         self.find_auto_check_box.setMinimumSize(QSize(0, 20))
         self.find_auto_check_box.setMaximumSize(QSize(16777215, 20))
         self.find_auto_check_box.setContextMenuPolicy(Qt.ContextMenuPolicy.DefaultContextMenu)
+        self.find_auto_check_box.setChecked(True)
         self.find_auto_check_box.setTristate(False)
 
         self.verticalLayout_2.addWidget(self.find_auto_check_box)
@@ -104,6 +105,7 @@ class Ui_Form(object):
 
         self.rotation_auto_check_box = QCheckBox(self.roi_controls_group_box)
         self.rotation_auto_check_box.setObjectName(u"rotation_auto_check_box")
+        self.rotation_auto_check_box.setEnabled(False)
         self.rotation_auto_check_box.setMinimumSize(QSize(0, 20))
         self.rotation_auto_check_box.setMaximumSize(QSize(16777215, 20))
 

@@ -159,7 +159,7 @@
          <bool>true</bool>
         </property>
         <property name="checked">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <property name="spacing">
@@ -197,6 +197,9 @@
            <property name="text">
             <string>Find Auto</string>
            </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
            <property name="tristate">
             <bool>false</bool>
            </property>
@@ -223,6 +226,9 @@
          </item>
          <item>
           <widget class="QCheckBox" name="rotation_auto_check_box">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>

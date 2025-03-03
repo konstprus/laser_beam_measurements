@@ -129,6 +129,8 @@ class BeamFinderWidget(ImageProcessorViewerBase):
     def _slot_set_find_auto(self, value: bool) -> None:
         self._change_parameter(BeamFinderParameters.FIND_AUTO, value)
         self.roi.set_manual_movable(not value)
+        self.ui.rotation_auto_check_box.setEnabled(value)
+        self.ui.rotation_auto_check_box.setChecked(value)
 
     @Slot(bool)
     def _slot_set_delete_noise(self, value: bool) -> None:
@@ -137,10 +139,13 @@ class BeamFinderWidget(ImageProcessorViewerBase):
     @Slot(bool)
     def _slot_set_rotation_enable(self, value: bool) -> None:
         self._change_parameter(BeamFinderParameters.ROTATION_ENABLE, value)
+        if self.ui.find_auto_check_box.isChecked():
+            self.ui.rotation_auto_check_box.setEnabled(value)
 
     @Slot(bool)
     def _slot_set_manual_rotation(self, value: bool) -> None:
-        self.ui.angle_value_spin_box.setEnabled(not value)
+        # self.ui.angle_value_spin_box.setEnabled(not value)
+        self.ui.roi_a.setEnabled(not value)
         self._change_parameter(BeamFinderParameters.MANUAL_ROTATION_ENABLE, not value)
         self.roi.set_manual_rotation(not value)
 
