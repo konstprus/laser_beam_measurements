@@ -89,7 +89,7 @@ class BeamFinderWidget(ImageProcessorViewerBase):
         self.ui.rotation_check_box.toggled.connect(self._slot_set_rotation_enable)
         self.ui.rotation_auto_check_box.toggled.connect(self._slot_set_manual_rotation)
         self.ui.noise_value_spin_box.valueChanged.connect(self._slot_set_noise_level)
-        self.ui.angle_value_spin_box.valueChanged.connect(self._slot_set_angle_value)
+        # self.ui.angle_value_spin_box.valueChanged.connect(self._slot_set_angle_value)
         self.ui.colormap_combo_box.currentTextChanged.connect(self.slot_set_colormap_for_input)
 
     def _connect_processor_signal(self) -> None:
@@ -173,7 +173,8 @@ class BeamFinderWidget(ImageProcessorViewerBase):
             self._image_processor.get_parameter_value(BeamFinderParameters.ROTATION_ENABLE))
         self.ui.rotation_auto_check_box.setChecked(
             not self._image_processor.get_parameter_value(BeamFinderParameters.MANUAL_ROTATION_ENABLE))
-        self.ui.angle_value_spin_box.setValue(
+        # self.ui.angle_value_spin_box.setValue(
+        self.ui.roi_a.doubleSpinBox.setValue(
             self._image_processor.get_parameter_value(BeamFinderParameters.ROTATION_ANGLE))
 
     def load_widget_settings(self, settings: QSettings) -> None:
