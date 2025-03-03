@@ -11,7 +11,7 @@
 # pyside6-uic laser_beam_measurements/widgets/main/main_window.ui -o laser_beam_measurements/widgets/main/ui_main_window.py
 
 from PySide6.QtWidgets import QMainWindow, QWidget, QMdiSubWindow
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QAction
 from PySide6.QtCore import Signal, Slot, QSettings
 
 from .ui_main_window import Ui_MainWindow
@@ -68,6 +68,7 @@ class MainWindow(QMainWindow):
 
         self._set_icons()
         self._connect_signals()
+        self._create_menu()
 
         self._load_settings()
 
@@ -343,3 +344,24 @@ class MainWindow(QMainWindow):
                 sub = self._create_parameter_logger_widget_sub_window()
                 self._load_setting_for_sub_window(sub, settings)
                 settings.endGroup()
+
+    def _create_menu(self):
+        bar = self.menuBar()
+        file = bar.addMenu("SubWindows")
+
+        cascade_action = QAction("Cascade", self)
+        cascade_action.triggered.connect(self._slot_set_cascade)
+        file.addAction(cascade_action)
+
+        tiled_action = QAction("Tiled", self)
+        tiled_action.triggered.connect(self._slot_set_tiled)
+        file.addAction(tiled_action)
+
+
+    @Slot()
+    def _slot_set_cascade(self, q):
+        self.ui.mdiArea.cascadeSubWindows()
+
+    @Slot()
+    def _slot_set_tiled(self, q):
+        self.ui.mdiArea.tileSubWindows()
