@@ -17,6 +17,7 @@ from PySide6.QtCore import Signal, Slot, QSettings, QSignalBlocker
 from laser_beam_measurements.widgets.utils.ROI import ROI
 
 from laser_beam_measurements.utils.colormap import COLORMAPS
+from laser_beam_measurements.widgets.utils.custom_graphics_scene_with_roi import CustomGraphicsSceneWithROI
 
 
 class BeamFinderWidget(ImageProcessorViewerBase):
@@ -26,9 +27,10 @@ class BeamFinderWidget(ImageProcessorViewerBase):
         super(BeamFinderWidget, self).__init__(parent, configure_input_scene=True, configure_output_scene=False)
         self.ui = Ui_Form()
         self.ui.setupUi(self)
+        self._input_image_scene = CustomGraphicsSceneWithROI(self)
         self.ui.input_beam_view.setScene(self._input_image_scene)
         self.setWindowTitle("Beam Finder")
-        self.roi = ROI()
+        self.roi = self._input_image_scene.roi
         self.roi.setVisible(False)
         self._input_image_scene.addItem(self.roi)
         self._configure_roi_controls()
@@ -131,6 +133,10 @@ class BeamFinderWidget(ImageProcessorViewerBase):
         self.roi.set_manual_movable(not value)
         self.ui.rotation_auto_check_box.setEnabled(value)
         self.ui.rotation_auto_check_box.setChecked(value)
+        self.ui.roi_x.setEnabled(not value)
+        self.ui.roi_y.setEnabled(not value)
+        self.ui.roi_w.setEnabled(not value)
+        self.ui.roi_h.setEnabled(not value)
 
     @Slot(bool)
     def _slot_set_delete_noise(self, value: bool) -> None:
