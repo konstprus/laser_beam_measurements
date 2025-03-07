@@ -12,6 +12,7 @@ import numpy
 from .custom_graphics_scene import CustomGraphicsScene
 from PySide6.QtCore import Slot, Qt, QPointF, QSizeF
 from .ROI import ROI
+from laser_beam_measurements.image_processing.beam_finder import BeamState
 
 __all__ = ["CustomGraphicsSceneWithROI"]
 
@@ -35,59 +36,50 @@ class CustomGraphicsSceneWithROI(CustomGraphicsScene):
     #     self.image_item.set_image(image)
     #     self.update()
 
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event) -> None:
+        if event.key() not in [Qt.Key_Left, Qt.Key_Up, Qt.Key_Right, Qt.Key_Down]:
+            return
+        roi_state = self._roi.get_state()
         if event.modifiers() == Qt.ControlModifier:
             if event.key() == Qt.Key_Left:
-                roi_state = self._roi.get_state()
-                x, y = roi_state['size'].toTuple()
-                roi_state['size'] = QSizeF(x - 10, y)
-                self._roi.set_state(roi_state)
+                roi_state[BeamState.SIZE].setWidth(
+                    roi_state[BeamState.SIZE].width() - self._roi.size_step
+                )
             if event.key() == Qt.Key_Right:
-                roi_state = self._roi.get_state()
-                x, y = roi_state['size'].toTuple()
-                roi_state['size'] = QSizeF(x + 10, y)
-                self._roi.set_state(roi_state)
+                roi_state[BeamState.SIZE].setWidth(
+                    roi_state[BeamState.SIZE].width() + self._roi.size_step
+                )
             if event.key() == Qt.Key_Up:
-                roi_state = self._roi.get_state()
-                x, y = roi_state['size'].toTuple()
-                roi_state['size'] = QSizeF(x, y + 10)
-                self._roi.set_state(roi_state)
+                roi_state[BeamState.SIZE].setHeight(
+                    roi_state[BeamState.SIZE].height() + self._roi.size_step
+                )
             if event.key() == Qt.Key_Down:
-                roi_state = self._roi.get_state()
-                x, y = roi_state['size'].toTuple()
-                roi_state['size'] = QSizeF(x, y - 10)
-                self._roi.set_state(roi_state)
-        if event.modifiers() == Qt.ShiftModifier:
+                roi_state[BeamState.SIZE].setHeight(
+                    roi_state[BeamState.SIZE].height() - self._roi.size_step
+                )
+        elif event.modifiers() == Qt.ShiftModifier:
             if event.key() == Qt.Key_Up:
-                roi_state = self._roi.get_state()
-                angle = roi_state['angle']
-                roi_state['angle'] = angle + 1
-                self._roi.set_state(roi_state)
+                roi_state[BeamState.ANGLE] += 1
             if event.key() == Qt.Key_Down:
-                roi_state = self._roi.get_state()
-                angle = roi_state['angle']
-                roi_state['angle'] = angle - 1
-                self._roi.set_state(roi_state)
+                roi_state[BeamState.ANGLE] -= 1
         else:
+            print(event)
             if event.key() == Qt.Key_Left:
-                roi_state = self._roi.get_state()
-                x, y = roi_state['pos'].toTuple()
-                roi_state['pos'] = QPointF(x - 10, y)
-                self._roi.set_state(roi_state)
+                roi_state[BeamState.POS].setX(
+                    roi_state[BeamState.POS].x() - self._roi.pos_step
+                )
             elif event.key() == Qt.Key_Right:
-                roi_state = self._roi.get_state()
-                x, y = roi_state['pos'].toTuple()
-                roi_state['pos'] = QPointF(x + 10, y)
-                self._roi.set_state(roi_state)
+                roi_state[BeamState.POS].setX(
+                    roi_state[BeamState.POS].x() + self._roi.pos_step
+                )
             elif event.key() == Qt.Key_Up:
-                roi_state = self._roi.get_state()
-                x, y = roi_state['pos'].toTuple()
-                roi_state['pos'] = QPointF(x, y - 10)
-                self._roi.set_state(roi_state)
+                roi_state[BeamState.POS].setY(
+                    roi_state[BeamState.POS].y() - self._roi.pos_step
+                )
             elif event.key() == Qt.Key_Down:
-                roi_state = self._roi.get_state()
-                x, y = roi_state['pos'].toTuple()
-                roi_state['pos'] = QPointF(x, y + 10)
-                self._roi.set_state(roi_state)
-        print(f'{event} from qgraphicsscene')
+                roi_state[BeamState.POS].setY(
+                    roi_state[BeamState.POS].y() + self._roi.pos_step
+                )
+        self._roi.slot_set_state_new(roi_state)
+        # print(f'{event} from qgraphicsscene')
         super().keyPressEvent(event)

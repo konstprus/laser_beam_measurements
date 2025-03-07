@@ -63,6 +63,10 @@ class ROI(QGraphicsObject):
         self.set_pos(self.state[BeamState.POS])
         self.setAcceptHoverEvents(True)
 
+        self.pos_step = 5
+        self.angle_step = 5
+        self.size_step = 5
+
     def set_pen(self, pen: QPen | None) -> None:
         if pen is None:
             pen = QPen(Qt.GlobalColor.yellow, 1)
@@ -98,6 +102,18 @@ class ROI(QGraphicsObject):
         }
         self.set_state(_state, True)
     
+    @Slot(dict)
+    def slot_set_state_new(self, state: dict) -> None:
+        if self.move_enabled:
+            return
+        # _state = {
+        #     BeamState.POS: QPointF(state[BeamState.POS][0], state[BeamState.POS][1]),
+        #     BeamState.SIZE: QSizeF(state[BeamState.SIZE][0], state[BeamState.SIZE][1]),
+        #     BeamState.ANGLE: state.get(BeamState.ANGLE, 0.0)
+        # }
+        # self.set_state(_state, True)
+        self.set_state(state, True)
+
     @Slot(dict)
     def slot_set_state_from_roi_controls(self, state: dict) -> None:
         _state = {
