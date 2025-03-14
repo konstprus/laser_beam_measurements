@@ -13,11 +13,12 @@
 from laser_beam_measurements.image_processing.image_processor_viewer_base import ImageProcessorViewerBase
 from laser_beam_measurements.image_processing.beam_finder import BeamFinder, BeamFinderParameters
 from .ui_beam_finder_widget import Ui_Form
-from PySide6.QtCore import Signal, Slot, QSettings, QSignalBlocker
+from PySide6.QtCore import Signal, QPointF, QSizeF, Slot, QSettings, QSignalBlocker
 from laser_beam_measurements.widgets.utils.ROI import ROI
 
 from laser_beam_measurements.utils.colormap import COLORMAPS
 from laser_beam_measurements.widgets.utils.custom_graphics_scene_with_roi import CustomGraphicsSceneWithROI
+from laser_beam_measurements.image_processing.beam_finder import BeamState
 
 
 class BeamFinderWidget(ImageProcessorViewerBase):
@@ -45,24 +46,29 @@ class BeamFinderWidget(ImageProcessorViewerBase):
         self.ui.roi_a.set_label_text('Angle:')
         self.ui.roi_a.doubleSpinBox.setMaximum(45.0)
         self.ui.roi_a.doubleSpinBox.setMinimum(-45.0)
+        self.ui.roi_w.doubleSpinBox.setMinimum(self.roi.MIN_AREA_SIZE)
+        self.ui.roi_h.doubleSpinBox.setMinimum(self.roi.MIN_AREA_SIZE)
         self.ui.roi_x.doubleSpinBox.valueChanged.connect(self._on_roi_control_change)
         self.ui.roi_y.doubleSpinBox.valueChanged.connect(self._on_roi_control_change)
         self.ui.roi_w.doubleSpinBox.valueChanged.connect(self._on_roi_control_change)
         self.ui.roi_h.doubleSpinBox.valueChanged.connect(self._on_roi_control_change)
         self.ui.roi_a.doubleSpinBox.valueChanged.connect(self._on_roi_control_change)
 
+
     @Slot(float)
     def _on_roi_control_change(self, value: float) -> None:
         state = {
-            'pos': (
+            BeamState.POS: QPointF(
+            # BeamState.POS: (
                 self.ui.roi_x.doubleSpinBox.value(),
                 self.ui.roi_y.doubleSpinBox.value()
             ),
-            'size': (
+            BeamState.SIZE: QSizeF(
+            # BeamState.SIZE: (
                 self.ui.roi_w.doubleSpinBox.value(),
                 self.ui.roi_h.doubleSpinBox.value()
             ),
-            'angle': self.ui.roi_a.doubleSpinBox.value()
+            BeamState.ANGLE: self.ui.roi_a.doubleSpinBox.value()
         }
         self.signal_roi_control_changed.emit(state)
 
@@ -86,6 +92,7 @@ class BeamFinderWidget(ImageProcessorViewerBase):
         # self.ui.enable_check_box.toggled.connect(self._slot_enabled_changed)
         self.ui.controls_group_box.toggled.connect(self._slot_enabled_changed)
         self.ui.find_auto_check_box.toggled.connect(self._slot_set_find_auto)
+        self.ui.roi_controls_group_box.toggled.connect(self._input_image_scene.set_roi_visible)
         self.ui.noise_group_box.toggled.connect(self._slot_set_delete_noise)
         # self.ui.rotation_group_box.toggled.connect(self._slot_set_rotation_enable)
         self.ui.rotation_check_box.toggled.connect(self._slot_set_rotation_enable)
@@ -131,12 +138,16 @@ class BeamFinderWidget(ImageProcessorViewerBase):
     def _slot_set_find_auto(self, value: bool) -> None:
         self._change_parameter(BeamFinderParameters.FIND_AUTO, value)
         self.roi.set_manual_movable(not value)
-        self.ui.rotation_auto_check_box.setEnabled(value)
-        self.ui.rotation_auto_check_box.setChecked(value)
+        if self.ui.rotation_check_box.isChecked():
+            self.ui.rotation_auto_check_box.setEnabled(value)
         self.ui.roi_x.setEnabled(not value)
         self.ui.roi_y.setEnabled(not value)
         self.ui.roi_w.setEnabled(not value)
         self.ui.roi_h.setEnabled(not value)
+        if self.ui.rotation_check_box.isChecked():
+            self.ui.roi_a.setEnabled(not value)
+        else:
+            self.ui.roi_a.setEnabled(False)
 
     @Slot(bool)
     def _slot_set_delete_noise(self, value: bool) -> None:
@@ -145,13 +156,14 @@ class BeamFinderWidget(ImageProcessorViewerBase):
     @Slot(bool)
     def _slot_set_rotation_enable(self, value: bool) -> None:
         self._change_parameter(BeamFinderParameters.ROTATION_ENABLE, value)
-        if self.ui.find_auto_check_box.isChecked():
-            self.ui.rotation_auto_check_box.setEnabled(value)
+        if not self.ui.find_auto_check_box.isChecked():
+            self.ui.roi_a.setEnabled(value)
+        self.ui.rotation_auto_check_box.setEnabled(value)
 
     @Slot(bool)
     def _slot_set_manual_rotation(self, value: bool) -> None:
-        # self.ui.angle_value_spin_box.setEnabled(not value)
-        self.ui.roi_a.setEnabled(not value)
+        if not self.ui.find_auto_check_box.isChecked():
+            self.ui.roi_a.setEnabled(not value)
         self._change_parameter(BeamFinderParameters.MANUAL_ROTATION_ENABLE, not value)
         self.roi.set_manual_rotation(not value)
 

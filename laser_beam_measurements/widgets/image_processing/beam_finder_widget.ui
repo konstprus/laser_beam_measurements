@@ -157,6 +157,9 @@
          </item>
          <item>
           <widget class="ROIControl" name="roi_x" native="true">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -173,6 +176,9 @@
          </item>
          <item>
           <widget class="ROIControl" name="roi_y" native="true">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -189,6 +195,9 @@
          </item>
          <item>
           <widget class="ROIControl" name="roi_w" native="true">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -205,6 +214,9 @@
          </item>
          <item>
           <widget class="ROIControl" name="roi_h" native="true">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -221,6 +233,9 @@
          </item>
          <item>
           <widget class="ROIControl" name="roi_a" native="true">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>

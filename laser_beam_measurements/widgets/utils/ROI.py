@@ -23,6 +23,7 @@ class ROI(QGraphicsObject):
 
     RESIZE_ZONE_SIZE = 40
     MIN_AREA_SIZE = 40
+    MAX_ROTATION_ANGLE = 45
 
     class SelectorZone(Enum):
         NONE = 1
@@ -101,27 +102,22 @@ class ROI(QGraphicsObject):
             BeamState.ANGLE: state.get(BeamState.ANGLE, 0.0)
         }
         self.set_state(_state, True)
-    
-    @Slot(dict)
-    def slot_set_state_new(self, state: dict) -> None:
-        if self.move_enabled:
-            return
-        # _state = {
-        #     BeamState.POS: QPointF(state[BeamState.POS][0], state[BeamState.POS][1]),
-        #     BeamState.SIZE: QSizeF(state[BeamState.SIZE][0], state[BeamState.SIZE][1]),
-        #     BeamState.ANGLE: state.get(BeamState.ANGLE, 0.0)
-        # }
-        # self.set_state(_state, True)
-        self.set_state(state, True)
 
     @Slot(dict)
     def slot_set_state_from_roi_controls(self, state: dict) -> None:
-        _state = {
-            BeamState.POS: QPointF(state[BeamState.POS][0], state[BeamState.POS][1]),
-            BeamState.SIZE: QSizeF(state[BeamState.SIZE][0], state[BeamState.SIZE][1]),
-            BeamState.ANGLE: state.get(BeamState.ANGLE, 0.0)
-        }
-        self.set_state(_state, True)
+        if not self.move_enabled:
+            return
+        
+        if state[BeamState.ANGLE] > self.MAX_ROTATION_ANGLE:
+            state[BeamState.ANGLE] = self.MAX_ROTATION_ANGLE
+        if state[BeamState.ANGLE] < -self.MAX_ROTATION_ANGLE:
+            state[BeamState.ANGLE] = -self.MAX_ROTATION_ANGLE
+        size = state[BeamState.SIZE]
+        if size.width() < self.MIN_AREA_SIZE:
+            size.setWidth(self.MIN_AREA_SIZE)
+        if size.height() < self.MIN_AREA_SIZE:
+            size.setHeight(self.MIN_AREA_SIZE)
+        self.set_state(state, True)
 
     def set_state(self, state: dict, update: bool = True) -> None:
         self.set_pos(state[BeamState.POS], update=False)
@@ -342,10 +338,10 @@ class ROI(QGraphicsObject):
             # diff_angle = 0.5*(event.scenePos() - event.buttonDownScenePos(self.press_rotate_button)).x()
             new_angle = angle + diff_angle
 
-            if new_angle > 45:
-                new_angle = 45
-            elif new_angle < -45:
-                new_angle = -45
+            if new_angle > self.MAX_ROTATION_ANGLE:
+                new_angle = self.MAX_ROTATION_ANGLE
+            elif new_angle < -self.MAX_ROTATION_ANGLE:
+                new_angle = -self.MAX_ROTATION_ANGLE
             new_state.update({BeamState.ANGLE: new_angle})
 
         # bounding_rect = self.boundingRect()

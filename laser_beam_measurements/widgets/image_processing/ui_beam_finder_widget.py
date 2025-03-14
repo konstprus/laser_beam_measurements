@@ -79,6 +79,7 @@ class Ui_Form(object):
 
         self.roi_x = ROIControl(self.roi_controls_group_box)
         self.roi_x.setObjectName(u"roi_x")
+        self.roi_x.setEnabled(False)
         sizePolicy.setHeightForWidth(self.roi_x.sizePolicy().hasHeightForWidth())
         self.roi_x.setSizePolicy(sizePolicy)
         self.roi_x.setMinimumSize(QSize(102, 20))
@@ -87,6 +88,7 @@ class Ui_Form(object):
 
         self.roi_y = ROIControl(self.roi_controls_group_box)
         self.roi_y.setObjectName(u"roi_y")
+        self.roi_y.setEnabled(False)
         sizePolicy.setHeightForWidth(self.roi_y.sizePolicy().hasHeightForWidth())
         self.roi_y.setSizePolicy(sizePolicy)
         self.roi_y.setMinimumSize(QSize(102, 20))
@@ -95,6 +97,7 @@ class Ui_Form(object):
 
         self.roi_w = ROIControl(self.roi_controls_group_box)
         self.roi_w.setObjectName(u"roi_w")
+        self.roi_w.setEnabled(False)
         sizePolicy.setHeightForWidth(self.roi_w.sizePolicy().hasHeightForWidth())
         self.roi_w.setSizePolicy(sizePolicy)
         self.roi_w.setMinimumSize(QSize(102, 20))
@@ -103,6 +106,7 @@ class Ui_Form(object):
 
         self.roi_h = ROIControl(self.roi_controls_group_box)
         self.roi_h.setObjectName(u"roi_h")
+        self.roi_h.setEnabled(False)
         sizePolicy.setHeightForWidth(self.roi_h.sizePolicy().hasHeightForWidth())
         self.roi_h.setSizePolicy(sizePolicy)
         self.roi_h.setMinimumSize(QSize(102, 20))
@@ -111,6 +115,7 @@ class Ui_Form(object):
 
         self.roi_a = ROIControl(self.roi_controls_group_box)
         self.roi_a.setObjectName(u"roi_a")
+        self.roi_a.setEnabled(False)
         sizePolicy.setHeightForWidth(self.roi_a.sizePolicy().hasHeightForWidth())
         self.roi_a.setSizePolicy(sizePolicy)
         self.roi_a.setMinimumSize(QSize(102, 20))

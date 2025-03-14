@@ -32,54 +32,47 @@ class CustomGraphicsSceneWithROI(CustomGraphicsScene):
     def set_roi_visible(self, value: bool) -> None:
         self._roi.setVisible(value)
 
-    # def update_image(self, image: numpy.ndarray) -> None:
-    #     self.image_item.set_image(image)
-    #     self.update()
-
     def keyPressEvent(self, event) -> None:
-        if event.key() not in [Qt.Key_Left, Qt.Key_Up, Qt.Key_Right, Qt.Key_Down]:
+        if not self._roi.move_enabled:
             return
+        
+        pressed_key = event.key()
+        if pressed_key not in [Qt.Key_Left, Qt.Key_Up, Qt.Key_Right, Qt.Key_Down]:
+            return
+        
+        modifiers = event.modifiers()
         roi_state = self._roi.get_state()
-        if event.modifiers() == Qt.ControlModifier:
-            if event.key() == Qt.Key_Left:
-                roi_state[BeamState.SIZE].setWidth(
-                    roi_state[BeamState.SIZE].width() - self._roi.size_step
-                )
-            if event.key() == Qt.Key_Right:
-                roi_state[BeamState.SIZE].setWidth(
-                    roi_state[BeamState.SIZE].width() + self._roi.size_step
-                )
-            if event.key() == Qt.Key_Up:
-                roi_state[BeamState.SIZE].setHeight(
-                    roi_state[BeamState.SIZE].height() + self._roi.size_step
-                )
-            if event.key() == Qt.Key_Down:
-                roi_state[BeamState.SIZE].setHeight(
-                    roi_state[BeamState.SIZE].height() - self._roi.size_step
-                )
-        elif event.modifiers() == Qt.ShiftModifier:
-            if event.key() == Qt.Key_Up:
-                roi_state[BeamState.ANGLE] += 1
-            if event.key() == Qt.Key_Down:
-                roi_state[BeamState.ANGLE] -= 1
+        
+        if modifiers == Qt.ControlModifier:
+            size = roi_state[BeamState.SIZE]
+            if pressed_key == Qt.Key_Left:
+                size.setWidth(size.width() - self._roi.size_step)
+            elif pressed_key == Qt.Key_Right:
+                size.setWidth(size.width() + self._roi.size_step)
+            elif pressed_key == Qt.Key_Up:
+                size.setHeight(size.height() + self._roi.size_step)
+            elif pressed_key == Qt.Key_Down:
+                size.setHeight(size.height() - self._roi.size_step)
+            roi_state[BeamState.SIZE] = size
+
+        elif modifiers == Qt.ShiftModifier:
+            if not self._roi.rotate_enabled:
+                return
+            if pressed_key == Qt.Key_Up:
+                roi_state[BeamState.ANGLE] += self._roi.angle_step
+            elif pressed_key == Qt.Key_Down:
+                roi_state[BeamState.ANGLE] -= self._roi.angle_step
         else:
-            print(event)
-            if event.key() == Qt.Key_Left:
-                roi_state[BeamState.POS].setX(
-                    roi_state[BeamState.POS].x() - self._roi.pos_step
-                )
-            elif event.key() == Qt.Key_Right:
-                roi_state[BeamState.POS].setX(
-                    roi_state[BeamState.POS].x() + self._roi.pos_step
-                )
-            elif event.key() == Qt.Key_Up:
-                roi_state[BeamState.POS].setY(
-                    roi_state[BeamState.POS].y() - self._roi.pos_step
-                )
-            elif event.key() == Qt.Key_Down:
-                roi_state[BeamState.POS].setY(
-                    roi_state[BeamState.POS].y() + self._roi.pos_step
-                )
-        self._roi.slot_set_state_new(roi_state)
-        # print(f'{event} from qgraphicsscene')
+            pos = roi_state[BeamState.POS]
+            if pressed_key == Qt.Key_Left:
+                pos.setX(pos.x() - self._roi.pos_step)
+            elif pressed_key == Qt.Key_Right:
+                pos.setX(pos.x() + self._roi.pos_step)
+            elif pressed_key == Qt.Key_Up:
+                pos.setY(pos.y() - self._roi.pos_step)
+            elif pressed_key == Qt.Key_Down:
+                pos.setY(pos.y() + self._roi.pos_step)
+            roi_state[BeamState.POS] = pos
+
+        self._roi.slot_set_state_from_roi_controls(roi_state)
         super().keyPressEvent(event)
