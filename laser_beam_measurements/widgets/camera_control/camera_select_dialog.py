@@ -9,9 +9,16 @@
 #
 
 # pyside6-uic laser_beam_measurements/widgets/camera_control/camera_select_dialog.ui -o laser_beam_measurements/widgets/camera_control/ui_camera_select_dialog.py
+from PySide6.QtCore import QRegularExpression
+from PySide6.QtGui import QRegularExpressionValidator
 
 from laser_beam_measurements.camera_control.camera_selector_dialog_base import CameraSelectorDialogBase
 from .ui_camera_select_dialog import Ui_Dialog
+
+class PixelSizeValidator(QRegularExpressionValidator):
+    def __init__(self, parent=None):
+        rx = QRegularExpression(r'^[0-9]*[,.]?[0-9]*$')
+        super().__init__(rx, parent)
 
 
 class CameraSelectDialog(CameraSelectorDialogBase):
@@ -20,6 +27,9 @@ class CameraSelectDialog(CameraSelectorDialogBase):
         super(CameraSelectDialog, self).__init__(parent,  *args, **kwargs)
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
+        val = PixelSizeValidator()
+        self.ui.pixel_size_line_edit.setValidator(val)
+
 
     def _fill_available_camera_types(self, camera_types: list) -> None:
         self.ui.camera_types_list_widget.clear()
@@ -38,7 +48,7 @@ class CameraSelectDialog(CameraSelectorDialogBase):
         return self.ui.available_cameras_list_widget.currentItem().text()
 
     def _get_pixel_size(self) -> str:
-        return self.ui.pixel_size_line_edit.text()
+        return self.ui.pixel_size_line_edit.text().replace(',', '.')
 
     def _disconnect_signals(self):
         self.ui.camera_types_list_widget.currentTextChanged.disconnect(self._selector.slot_select_factory)
