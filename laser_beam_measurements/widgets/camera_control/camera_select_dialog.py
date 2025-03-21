@@ -11,6 +11,7 @@
 # pyside6-uic laser_beam_measurements/widgets/camera_control/camera_select_dialog.ui -o laser_beam_measurements/widgets/camera_control/ui_camera_select_dialog.py
 from PySide6.QtCore import QRegularExpression
 from PySide6.QtGui import QRegularExpressionValidator
+from PySide6.QtWidgets import QDialogButtonBox
 
 from laser_beam_measurements.camera_control.camera_selector_dialog_base import CameraSelectorDialogBase
 from .ui_camera_select_dialog import Ui_Dialog
@@ -29,6 +30,8 @@ class CameraSelectDialog(CameraSelectorDialogBase):
         self.ui.setupUi(self)
         val = PixelSizeValidator()
         self.ui.pixel_size_line_edit.setValidator(val)
+        self.ui.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setEnabled(False)
+        self.ui.available_cameras_list_widget.currentItemChanged.connect(self._check_selection)
 
 
     def _fill_available_camera_types(self, camera_types: list) -> None:
@@ -55,3 +58,12 @@ class CameraSelectDialog(CameraSelectorDialogBase):
 
     def _connect_signals(self):
         self.ui.camera_types_list_widget.currentTextChanged.connect(self._selector.slot_select_factory)
+
+    # def _check_selection(self, value):
+    def _check_selection(self):
+        current_item = self.ui.available_cameras_list_widget.currentItem()
+        if current_item:
+            self.ui.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setEnabled(True)
+        else:
+            self.ui.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setEnabled(False)
+            
