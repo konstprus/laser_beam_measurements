@@ -343,8 +343,9 @@ class ParameterLogger(QObject):
 
     def _validate_filename(self) -> None:
         default_name: str = datetime.now().strftime('%Y_%m_%d__%H%M') + ".txt"
-        if self._filename is None or (isinstance(self._filename, str) and len(self._filename) == 0):
-            self._filename = default_name
+        # if self._filename is None or (isinstance(self._filename, str) and len(self._filename) == 0):
+        #     self._filename = default_name
+        self._filename = default_name
         #TODO: check existence of the file
 
     def _prepare_file(self):
