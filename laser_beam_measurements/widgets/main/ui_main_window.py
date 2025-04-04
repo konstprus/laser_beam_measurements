@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'main_window.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.7.0
+## Created by: Qt User Interface Compiler version 6.8.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -56,27 +56,16 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.camera_section_label)
 
-        self.start_button = QPushButton(self.buttonsGroupBox)
-        self.start_button.setObjectName(u"start_button")
-        sizePolicy1.setHeightForWidth(self.start_button.sizePolicy().hasHeightForWidth())
-        self.start_button.setSizePolicy(sizePolicy1)
-        self.start_button.setMaximumSize(QSize(30, 30))
-        self.start_button.setIconSize(QSize(16, 16))
-        self.start_button.setCheckable(True)
-        self.start_button.setChecked(False)
+        self.start_pause_button = QPushButton(self.buttonsGroupBox)
+        self.start_pause_button.setObjectName(u"start_pause_button")
+        sizePolicy1.setHeightForWidth(self.start_pause_button.sizePolicy().hasHeightForWidth())
+        self.start_pause_button.setSizePolicy(sizePolicy1)
+        self.start_pause_button.setMaximumSize(QSize(30, 30))
+        self.start_pause_button.setIconSize(QSize(16, 16))
+        self.start_pause_button.setCheckable(True)
+        self.start_pause_button.setChecked(False)
 
-        self.horizontalLayout.addWidget(self.start_button)
-
-        self.pause_button = QPushButton(self.buttonsGroupBox)
-        self.pause_button.setObjectName(u"pause_button")
-        sizePolicy1.setHeightForWidth(self.pause_button.sizePolicy().hasHeightForWidth())
-        self.pause_button.setSizePolicy(sizePolicy1)
-        self.pause_button.setMaximumSize(QSize(30, 30))
-        self.pause_button.setIconSize(QSize(16, 16))
-        self.pause_button.setCheckable(True)
-        self.pause_button.setChecked(False)
-
-        self.horizontalLayout.addWidget(self.pause_button)
+        self.horizontalLayout.addWidget(self.start_pause_button)
 
         self.stop_button = QPushButton(self.buttonsGroupBox)
         self.stop_button.setObjectName(u"stop_button")
@@ -88,6 +77,17 @@ class Ui_MainWindow(object):
         self.stop_button.setCheckable(False)
 
         self.horizontalLayout.addWidget(self.stop_button)
+
+        self.group_subwindows_button = QPushButton(self.buttonsGroupBox)
+        self.group_subwindows_button.setObjectName(u"group_subwindows_button")
+        sizePolicy1.setHeightForWidth(self.group_subwindows_button.sizePolicy().hasHeightForWidth())
+        self.group_subwindows_button.setSizePolicy(sizePolicy1)
+        self.group_subwindows_button.setMaximumSize(QSize(30, 30))
+        self.group_subwindows_button.setIconSize(QSize(16, 16))
+        self.group_subwindows_button.setCheckable(True)
+        self.group_subwindows_button.setChecked(False)
+
+        self.horizontalLayout.addWidget(self.group_subwindows_button)
 
         self.show_display_button = QPushButton(self.buttonsGroupBox)
         self.show_display_button.setObjectName(u"show_display_button")
@@ -220,17 +220,17 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(whatsthis)
         self.camera_section_label.setText("")
 #if QT_CONFIG(tooltip)
-        self.start_button.setToolTip(QCoreApplication.translate("MainWindow", u"Start", None))
+        self.start_pause_button.setToolTip(QCoreApplication.translate("MainWindow", u"Start", None))
 #endif // QT_CONFIG(tooltip)
-        self.start_button.setText("")
-#if QT_CONFIG(tooltip)
-        self.pause_button.setToolTip(QCoreApplication.translate("MainWindow", u"Pause", None))
-#endif // QT_CONFIG(tooltip)
-        self.pause_button.setText("")
+        self.start_pause_button.setText("")
 #if QT_CONFIG(tooltip)
         self.stop_button.setToolTip(QCoreApplication.translate("MainWindow", u"Stop", None))
 #endif // QT_CONFIG(tooltip)
         self.stop_button.setText("")
+#if QT_CONFIG(tooltip)
+        self.group_subwindows_button.setToolTip(QCoreApplication.translate("MainWindow", u"Pause", None))
+#endif // QT_CONFIG(tooltip)
+        self.group_subwindows_button.setText("")
 #if QT_CONFIG(tooltip)
         self.show_display_button.setToolTip(QCoreApplication.translate("MainWindow", u"Show Display", None))
 #endif // QT_CONFIG(tooltip)

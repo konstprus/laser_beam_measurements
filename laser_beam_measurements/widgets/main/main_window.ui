@@ -101,7 +101,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="start_button">
+        <widget class="QPushButton" name="start_pause_button">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -116,40 +116,6 @@
          </property>
          <property name="toolTip">
           <string>Start</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>16</width>
-           <height>16</height>
-          </size>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pause_button">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>30</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string>Pause</string>
          </property>
          <property name="text">
           <string/>
@@ -198,6 +164,40 @@
           </size>
          </property>
          <property name="checkable">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="group_subwindows_button">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Pause</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>16</width>
+           <height>16</height>
+          </size>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
           <bool>false</bool>
          </property>
         </widget>
