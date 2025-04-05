@@ -34,13 +34,16 @@ class Icons:
     start = Icon("play.svg")
     stop = Icon("stop.svg")
     pause = Icon("pause.svg")
+    return_subwindows = Icon("return_subwindows.svg")
     camera = Icon("camera.svg")
     display = Icon("display.svg")
     save = Icon("save.svg")
     settings = Icon("settings.svg")
     beam_find = Icon("beam_find.svg")
+    # beam_find = Icon("beam_finder_4.svg")
     beam_analyze = Icon("beam_analyze.svg")
     beam_profiler = Icon("beam_profiler.svg")
+    # beam_profiler = Icon("beam_profiler_4.svg")
     main = Icon("main.svg")
 
 
@@ -61,6 +64,7 @@ class MainWindow(QMainWindow):
         self._beam_finder_widget: BeamFinderWidget | None = None
         self._beam_profiler_widget: BeamProfilerWidget | None = None
         self._property_controller_widget: CameraPropertyControllerWidget | None = None
+        self._camera_state: CameraState | None = None
 
         self._set_icons()
         self._connect_signals()
@@ -69,9 +73,9 @@ class MainWindow(QMainWindow):
 
     def _set_icons(self) -> None:
         self.ui.camera_section_label.setPixmap(self._icons.camera.pixmap(25, 25, QIcon.Mode.Normal, QIcon.State.On))
-        self.ui.start_button.setIcon(self._icons.start)
+        self.ui.start_pause_button.setIcon(self._icons.start)
         self.ui.stop_button.setIcon(self._icons.stop)
-        self.ui.pause_button.setIcon(self._icons.pause)
+        self.ui.group_subwindows_button.setIcon(self._icons.return_subwindows)
         self.ui.show_display_button.setIcon(self._icons.display)
         self.ui.show_settings_button.setIcon(self._icons.settings)
         self.ui.save_image_button.setIcon(self._icons.save)
@@ -89,9 +93,9 @@ class MainWindow(QMainWindow):
         if isinstance(listener, CameraListener):
             listener.signal_camera_state_changed.connect(self._slot_camera_state_changed)
 
-        self.ui.start_button.clicked.connect(self.start_button_clicked)
+        self.ui.start_pause_button.clicked.connect(self.start_pause_button_clicked)
         self.ui.stop_button.clicked.connect(self.stop_button_clicked)
-        self.ui.pause_button.clicked.connect(self.pause_button_clicked)
+        self.ui.group_subwindows_button.clicked.connect(self.group_subwindows_button_clicked)
         self.ui.show_display_button.clicked.connect(self.show_camera_display)
         self.ui.show_beam_finder.clicked.connect(self.show_beam_finder_widget)
         self.ui.show_beam_profiler.clicked.connect(self.show_beam_profiler_widget)
@@ -99,10 +103,13 @@ class MainWindow(QMainWindow):
 
     @Slot(bool)
     def _slot_camera_state_changed(self, state: CameraState) -> None:
+        self._camera_state = state
         if state == CameraState.STARTED:
-            self.ui.start_button.setEnabled(False)
-            self.ui.pause_button.setEnabled(True)
+
+            # self.ui.start_button.setEnabled(False)
+            # self.ui.pause_button.setEnabled(True)
             self.ui.stop_button.setEnabled(True)
+            self.ui.start_pause_button.setIcon(self._icons.pause)
 
             self.ui.statusbar.showMessage("Active", -1)
 
@@ -114,32 +121,36 @@ class MainWindow(QMainWindow):
                 sub = self._create_property_controller_widget_sub_window()
                 sub.setHidden(True)
         elif state == CameraState.STOPPED:
-            self.ui.start_button.setEnabled(True)
-            self.ui.pause_button.setEnabled(False)
+            # self.ui.start_button.setEnabled(True)
+            # self.ui.pause_button.setEnabled(False)
             self.ui.stop_button.setEnabled(True)
-
+            self.ui.start_pause_button.setIcon(self._icons.start)
             self.ui.statusbar.showMessage("Paused", -1)
 
         elif state == CameraState.CLOSED:
-            self.ui.start_button.setEnabled(True)
-            self.ui.pause_button.setEnabled(False)
+            self.ui.start_pause_button.setEnabled(True)
+            # self.ui.pause_button.setEnabled(False)
             self.ui.stop_button.setEnabled(False)
 
             self.ui.statusbar.showMessage("Stopped", -1)
 
     @Slot()
-    def start_button_clicked(self) -> None:
-        if not self._main_object.camera_grabber.is_camera_opened:
-            self._show_camera_select_dialog()
-        self.signal_camera_grabber_status.emit(True)
+    def start_pause_button_clicked(self) -> None:
+        if self._camera_state == CameraState.STARTED:
+            self.signal_camera_grabber_status.emit(False)
+        else:
+            if not self._main_object.camera_grabber.is_camera_opened:
+                self._show_camera_select_dialog()
+            self.signal_camera_grabber_status.emit(True)
 
     @Slot()
     def stop_button_clicked(self) -> None:
         self.signal_camera_close.emit()
 
     @Slot()
-    def pause_button_clicked(self) -> None:
-        self.signal_camera_grabber_status.emit(False)
+    def group_subwindows_button_clicked(self) -> None:
+        for subwindow in self.ui.mdiArea.subWindowList():
+            subwindow.move(0,0)
 
     @Slot()
     def show_camera_display(self) -> None:
@@ -217,8 +228,10 @@ class MainWindow(QMainWindow):
         if sub_window.isHidden() and sub_window.widget() is not None:
             sub_window.show()
             sub_window.widget().show()
-        else:
+        elif sub_window == self.ui.mdiArea.activeSubWindow():
             sub_window.setHidden(True)
+        else:
+            self.ui.mdiArea.setActiveSubWindow(sub_window)
 
     def closeEvent(self, event) -> None:
         self._main_object.closeEvent(event)
