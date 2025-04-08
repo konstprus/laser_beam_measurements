@@ -58,7 +58,6 @@ def _func_linear_interp(x1, x2, y1, y2, y):
 
 def width_by_level(img: numpy.ndarray | list, level: float = 0.135) -> float:
     assert len(img.shape) == 1
-    # print(f'{len(img)}')
     if len(img) > 0:
         max_value = numpy.max(img)
         indexes = numpy.argwhere(img >= max_value * level).transpose()[0]
