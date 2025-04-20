@@ -347,16 +347,59 @@ class MainWindow(QMainWindow):
 
     def _create_menu(self):
         bar = self.menuBar()
-        file = bar.addMenu("SubWindows")
+
+        file = bar.addMenu("File")
+
+        save_setting_action = QAction("Save setting", self)
+        save_setting_action.setIcon(self._icons.save)
+        save_setting_action.triggered.connect(self._slot_save_settings)
+        file.addAction(save_setting_action)
+
+        exit_action = QAction("Exit", self)
+        exit_action.triggered.connect(self.close)
+        file.addAction(exit_action)
+
+        windows = bar.addMenu("Windows")
+        camera_windows = windows.addMenu("Camera Control")
+        camera_windows.setIcon(self._icons.camera)
+
+        camera_display_action = QAction("Camera Display", self)
+        camera_display_action.setIcon(self._icons.display)
+        camera_display_action.triggered.connect(self.show_camera_display)
+        camera_windows.addAction(camera_display_action)
+
+        property_controller_action = QAction("Property Controller", self)
+        property_controller_action.setIcon(self._icons.settings)
+        property_controller_action.triggered.connect(self.show_property_controller_widget)
+        camera_windows.addAction(property_controller_action)
+
+        image_processing = windows.addMenu("Image Processing")
+        image_processing.setIcon(self._icons.beam_analyze)
+
+        beam_finder_action = QAction("Camera Display", self)
+        beam_finder_action.setIcon(self._icons.beam_find)
+        beam_finder_action.triggered.connect(self.show_beam_finder_widget)
+        image_processing.addAction(beam_finder_action)
+
+        beam_profiler_action = QAction("Camera Display", self)
+        beam_profiler_action.setIcon(self._icons.beam_profiler)
+        beam_profiler_action.triggered.connect(self.show_beam_profiler_widget)
+        image_processing.addAction(beam_profiler_action)
+
+        parameter_logger_action = QAction("Parameters Logger", self)
+        parameter_logger_action.setIcon(self._icons.clock)
+        parameter_logger_action.triggered.connect(self.show_parameter_logger_widget)
+        image_processing.addAction(parameter_logger_action)
+
+        views = bar.addMenu("Views")
 
         cascade_action = QAction("Cascade", self)
         cascade_action.triggered.connect(self._slot_set_cascade)
-        file.addAction(cascade_action)
+        views.addAction(cascade_action)
 
         tiled_action = QAction("Tiled", self)
         tiled_action.triggered.connect(self._slot_set_tiled)
-        file.addAction(tiled_action)
-
+        views.addAction(tiled_action)
 
     @Slot()
     def _slot_set_cascade(self, q):
@@ -365,3 +408,8 @@ class MainWindow(QMainWindow):
     @Slot()
     def _slot_set_tiled(self, q):
         self.ui.mdiArea.tileSubWindows()
+
+    @Slot()
+    def _slot_save_settings(self):
+        self._main_object.save_settings()
+        self.save_settings(self._main_object.settings_file)

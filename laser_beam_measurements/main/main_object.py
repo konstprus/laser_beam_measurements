@@ -103,3 +103,6 @@ class MainObject(QObject):
         settings = QSettings(self._settings_name, QSettings.Format.IniFormat)
         self._camera_selector.load_settings(settings)
         self._beam_analyzer.load_settings(settings)
+
+    def save_settings(self):
+        self._save_settings()
