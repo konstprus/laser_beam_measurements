@@ -12,7 +12,7 @@
 
 from PySide6.QtWidgets import QMainWindow, QWidget, QMdiSubWindow
 from PySide6.QtGui import QIcon, QAction
-from PySide6.QtCore import Signal, Slot, QSettings
+from PySide6.QtCore import Signal, Slot, QSettings, QTimer
 
 from .ui_main_window import Ui_MainWindow
 
@@ -66,11 +66,16 @@ class MainWindow(QMainWindow):
         self._property_controller_widget: Optional[CameraPropertyControllerWidget] = None
         self._parameter_logger_widget: Optional[ParameterLoggerWidget] = None
 
+        self._flag_save_on_time: bool = False
+        self._saving_timer = QTimer()
+        self._saving_timer_interval: int = 180 # in sec
+
         self._set_icons()
         self._connect_signals()
         self._create_menu()
 
         self._load_settings()
+        self._init_timer()
 
     def _set_icons(self) -> None:
         self.ui.camera_section_label.setPixmap(self._icons.camera.pixmap(25, 25, QIcon.Mode.Normal, QIcon.State.On))
@@ -240,6 +245,8 @@ class MainWindow(QMainWindow):
             sub_window.setHidden(True)
 
     def closeEvent(self, event) -> None:
+        if self._saving_timer.isActive():
+            self._saving_timer.stop()
         self._main_object.closeEvent(event)
         self.save_settings(self._main_object.settings_file)
         super().closeEvent(event)
@@ -271,6 +278,9 @@ class MainWindow(QMainWindow):
             size = self.size()
             settings.setValue("Width", size.width())
             settings.setValue("Height", size.height())
+        settings.setValue("SavOnTime", self._flag_save_on_time)
+        if self._flag_save_on_time:
+            settings.setValue("SaveTimerInterval", self._saving_timer_interval)
         settings.endGroup()
         self._save_widget_settings(self._camera_display, settings, "CameraDisplayWidget")
         self._save_widget_settings(self._beam_finder_widget, settings, "BeamFinderWidget")
@@ -313,6 +323,13 @@ class MainWindow(QMainWindow):
                         width = int(settings.value("Width"))
                         height = int(settings.value("Height"))
                         self.resize(width, height)
+                save_setting_on_time = read_boolean_value(settings, "SaveOnTime", True)
+                self._flag_save_on_time = save_setting_on_time
+                if self._flag_save_on_time:
+                    if settings.contains("SaveTimerInterval"):
+                        self._saving_timer_interval = int(settings.value("SaveTimerInterval"))
+                    else:
+                        self._saving_timer_interval = 180
                 settings.endGroup()
 
             if group == "CameraDisplayWidget":
@@ -413,3 +430,12 @@ class MainWindow(QMainWindow):
     def _slot_save_settings(self):
         self._main_object.save_settings()
         self.save_settings(self._main_object.settings_file)
+
+    def _init_timer(self):
+        if not self._saving_timer:
+            if self._saving_timer.isActive():
+                self._saving_timer.stop()
+        else:
+            self._saving_timer.setInterval(self._saving_timer_interval*1000)
+            self._saving_timer.timeout.connect(self._slot_save_settings)
+            self._saving_timer.start()
