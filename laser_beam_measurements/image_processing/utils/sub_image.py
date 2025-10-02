@@ -14,7 +14,7 @@ import numpy
 from math import cos, sin
 
 
-MIN_ANGLE = 0.05
+MIN_ANGLE = 0.001
 
 
 def sub_image(
