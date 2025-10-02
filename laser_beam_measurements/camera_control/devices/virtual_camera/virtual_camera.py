@@ -14,7 +14,7 @@ from time import time, sleep
 
 from laser_beam_measurements.camera_control.camera_base import CameraBase
 from laser_beam_measurements.camera_control.camera_property_base import CameraPropertyBase
-from .helper_functions import generate_gauss
+from .helper_functions import generate_gauss, generate_line
 
 __all__ = ['VirtualCamera', 'VirtualProperty']
 
@@ -64,6 +64,8 @@ class VirtualCamera(CameraBase):
         if self._id == "zero":
             img = (self.t_ms * 0.01 * random([self._resolution[1],
                                               self._resolution[0]]))
+        elif self._id == "line":
+            img = generate_line(xx, yy, x0, y0, sigma, power)
         else:
             img = generate_gauss(yy, xx, y0, x0, sigma, power)
         if self._id == "perpendicular":
