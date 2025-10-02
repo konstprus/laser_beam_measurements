@@ -58,32 +58,35 @@ def _func_linear_interp(x1, x2, y1, y2, y):
 
 def width_by_level(img: numpy.ndarray | list, level: float = 0.135) -> float:
     assert len(img.shape) == 1
-    max_value = numpy.max(img)
-    indexes = numpy.argwhere(img >= max_value * level).transpose()[0]
-    if indexes[0] <= 0:
-        left_index = indexes[0]
-    else:
-        left_index = _func_linear_interp(
-            indexes[0] - 1,
-            indexes[0],
-            img[indexes[0] - 1],
-            img[indexes[0]],
-            max_value*level)
+    if len(img) > 0:
+        max_value = numpy.max(img)
+        indexes = numpy.argwhere(img >= max_value * level).transpose()[0]
+        if indexes[0] <= 0:
+            left_index = indexes[0]
+        else:
+            left_index = _func_linear_interp(
+                indexes[0] - 1,
+                indexes[0],
+                img[indexes[0] - 1],
+                img[indexes[0]],
+                max_value*level)
 
-    if indexes[-1] >= img.shape[0] - 1:
-        right_index = indexes[-1]
-    else:
-        right_index = _func_linear_interp(
-            indexes[-1],
-            indexes[-1] + 1,
-            img[indexes[-1]],
-            img[indexes[-1] + 1],
-            max_value*level)
+        if indexes[-1] >= img.shape[0] - 1:
+            right_index = indexes[-1]
+        else:
+            right_index = _func_linear_interp(
+                indexes[-1],
+                indexes[-1] + 1,
+                img[indexes[-1]],
+                img[indexes[-1] + 1],
+                max_value*level)
 
-    return right_index - left_index
-
+        return right_index - left_index
+    return 0
 
 def _func_gauss(x: numpy.ndarray, a: float, b: float, c: float) -> numpy.ndarray:
+    if a == 0.0:
+        return x
     return 2*c/(pi*a*a)*numpy.exp(-2*(x - b) ** 2 / a ** 2)
 
 

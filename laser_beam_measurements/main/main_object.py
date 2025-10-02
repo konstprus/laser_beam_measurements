@@ -15,6 +15,7 @@ from laser_beam_measurements.camera_control.camera_grabber import CameraGrabber
 from laser_beam_measurements.camera_control.camera_selector import CameraSelector
 from laser_beam_measurements.image_processing.beam_analyzer import BeamAnalyzer
 from laser_beam_measurements.image_processing.image_processor_sink import ImageProcessorSink
+from laser_beam_measurements.image_processing.parameter_logger import ParameterLogger
 
 
 class MainObject(QObject):
@@ -29,6 +30,9 @@ class MainObject(QObject):
         # self._camera_grabber.listener.signal_new_image_received.connect(self._beam_analyzer.on_new_image)
         self._camera_grabber.listener.signal_new_image_received.connect(self._sink.slot_new_image)
         self._camera_selector.signal_camera_selected.connect(self._beam_analyzer.slot_set_init_parameters)
+
+        self._logger = ParameterLogger()
+        self._beam_analyzer.beam_profiler.parameter_logger = self._logger
 
         self._settings_name = "settings.conf"
 
@@ -77,6 +81,12 @@ class MainObject(QObject):
             return True
         return False
 
+    def set_widget_for_parameter_logger(self, widget: QWidget) -> bool:
+        if hasattr(widget, "set_logger"):
+            widget.set_logger(self._logger)
+            return True
+        return False
+
     def closeEvent(self, event) -> None:
         self._camera_grabber.run_status_changed(False)
         self._save_settings()
@@ -93,3 +103,6 @@ class MainObject(QObject):
         settings = QSettings(self._settings_name, QSettings.Format.IniFormat)
         self._camera_selector.load_settings(settings)
         self._beam_analyzer.load_settings(settings)
+
+    def save_settings(self):
+        self._save_settings()

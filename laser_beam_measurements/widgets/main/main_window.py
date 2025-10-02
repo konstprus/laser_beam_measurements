@@ -11,8 +11,8 @@
 # pyside6-uic laser_beam_measurements/widgets/main/main_window.ui -o laser_beam_measurements/widgets/main/ui_main_window.py
 
 from PySide6.QtWidgets import QMainWindow, QWidget, QMdiSubWindow
-from PySide6.QtGui import QIcon
-from PySide6.QtCore import Signal, Slot, QSettings
+from PySide6.QtGui import QIcon, QAction
+from PySide6.QtCore import Signal, Slot, QSettings, QTimer
 
 from .ui_main_window import Ui_MainWindow
 
@@ -22,12 +22,14 @@ from laser_beam_measurements.widgets.camera_control.camera_property_controller_w
     CameraPropertyControllerWidget)
 from laser_beam_measurements.widgets.image_processing.beam_finder_widget import BeamFinderWidget
 from laser_beam_measurements.widgets.image_processing.beam_profiler_widget import BeamProfilerWidget
+from laser_beam_measurements.widgets.image_processing.parameter_logger_widget import ParameterLoggerWidget
 from laser_beam_measurements.main.main_object import MainObject
 from laser_beam_measurements.camera_control.camera_listener import CameraListener
 from laser_beam_measurements.camera_control.camera_listener_base import CameraState
 from laser_beam_measurements.utils.settings_bool_reader import read_boolean_value
 
 from laser_beam_measurements.icons import Icon
+from typing import Optional
 
 
 class Icons:
@@ -42,6 +44,7 @@ class Icons:
     beam_analyze = Icon("beam_analyze.svg")
     beam_profiler = Icon("beam_profiler.svg")
     main = Icon("main.svg")
+    clock = Icon("clock.svg")
 
 
 class MainWindow(QMainWindow):
@@ -57,15 +60,22 @@ class MainWindow(QMainWindow):
 
         self._main_object: MainObject = main_object
         self._icons = Icons()
-        self._camera_display: CameraDisplay | None = None
-        self._beam_finder_widget: BeamFinderWidget | None = None
-        self._beam_profiler_widget: BeamProfilerWidget | None = None
-        self._property_controller_widget: CameraPropertyControllerWidget | None = None
+        self._camera_display: Optional[CameraDisplay] = None
+        self._beam_finder_widget: Optional[BeamFinderWidget] = None
+        self._beam_profiler_widget: Optional[BeamProfilerWidget] = None
+        self._property_controller_widget: Optional[CameraPropertyControllerWidget] = None
+        self._parameter_logger_widget: Optional[ParameterLoggerWidget] = None
+
+        self._flag_save_on_time: bool = False
+        self._saving_timer = QTimer()
+        self._saving_timer_interval: int = 180 # in sec
 
         self._set_icons()
         self._connect_signals()
+        self._create_menu()
 
         self._load_settings()
+        self._init_timer()
 
     def _set_icons(self) -> None:
         self.ui.camera_section_label.setPixmap(self._icons.camera.pixmap(25, 25, QIcon.Mode.Normal, QIcon.State.On))
@@ -80,6 +90,7 @@ class MainWindow(QMainWindow):
         self.ui.show_beam_profiler.setIcon(self._icons.beam_profiler)
         self.ui.beam_analyzing_section_label.setPixmap(
             self._icons.beam_analyze.pixmap(25, 25, QIcon.Mode.Normal, QIcon.State.On))
+        self.ui.logger_buttton.setIcon(self._icons.clock)
         self.setWindowIcon(self._icons.main)
 
     def _connect_signals(self) -> None:
@@ -96,6 +107,7 @@ class MainWindow(QMainWindow):
         self.ui.show_beam_finder.clicked.connect(self.show_beam_finder_widget)
         self.ui.show_beam_profiler.clicked.connect(self.show_beam_profiler_widget)
         self.ui.show_settings_button.clicked.connect(self.show_property_controller_widget)
+        self.ui.logger_buttton.clicked.connect(self.show_parameter_logger_widget)
 
     @Slot(bool)
     def _slot_camera_state_changed(self, state: CameraState) -> None:
@@ -192,6 +204,18 @@ class MainWindow(QMainWindow):
             self._property_controller_widget.setWindowIcon(self._icons.settings)
         return self._create_sub_window(self._property_controller_widget, False)
 
+    @Slot()
+    def show_parameter_logger_widget(self) -> None:
+        sub = self._create_parameter_logger_widget_sub_window()
+        self._show_sub_window(sub)
+
+    def _create_parameter_logger_widget_sub_window(self) -> QMdiSubWindow:
+        if self._parameter_logger_widget is None:
+            self._parameter_logger_widget = ParameterLoggerWidget(self)
+            self._parameter_logger_widget.setWindowIcon(self._icons.clock)
+            self._main_object.set_widget_for_parameter_logger(self._parameter_logger_widget)
+        return self._create_sub_window(self._parameter_logger_widget, False)
+
     def _show_camera_select_dialog(self) -> None:
         camera_select_dialog = CameraSelectDialog(self)
         camera_select_dialog.set_selector(self._main_object.camera_selector)
@@ -221,6 +245,8 @@ class MainWindow(QMainWindow):
             sub_window.setHidden(True)
 
     def closeEvent(self, event) -> None:
+        if self._saving_timer.isActive():
+            self._saving_timer.stop()
         self._main_object.closeEvent(event)
         self.save_settings(self._main_object.settings_file)
         super().closeEvent(event)
@@ -252,11 +278,15 @@ class MainWindow(QMainWindow):
             size = self.size()
             settings.setValue("Width", size.width())
             settings.setValue("Height", size.height())
+        settings.setValue("SavOnTime", self._flag_save_on_time)
+        if self._flag_save_on_time:
+            settings.setValue("SaveTimerInterval", self._saving_timer_interval)
         settings.endGroup()
         self._save_widget_settings(self._camera_display, settings, "CameraDisplayWidget")
         self._save_widget_settings(self._beam_finder_widget, settings, "BeamFinderWidget")
         self._save_widget_settings(self._beam_profiler_widget, settings, "BeamProfilerWidget")
         self._save_widget_settings(self._property_controller_widget, settings, "PropertyControllerWidget")
+        self._save_widget_settings(self._parameter_logger_widget, settings, "ParameterLoggerWidget")
 
     def _load_setting_for_sub_window(self, sub_window: QMdiSubWindow, settings: QSettings) -> None:
         if settings.contains("IsHidden"):
@@ -293,6 +323,13 @@ class MainWindow(QMainWindow):
                         width = int(settings.value("Width"))
                         height = int(settings.value("Height"))
                         self.resize(width, height)
+                save_setting_on_time = read_boolean_value(settings, "SaveOnTime", True)
+                self._flag_save_on_time = save_setting_on_time
+                if self._flag_save_on_time:
+                    if settings.contains("SaveTimerInterval"):
+                        self._saving_timer_interval = int(settings.value("SaveTimerInterval"))
+                    else:
+                        self._saving_timer_interval = 180
                 settings.endGroup()
 
             if group == "CameraDisplayWidget":
@@ -318,3 +355,87 @@ class MainWindow(QMainWindow):
                 sub = self._create_property_controller_widget_sub_window()
                 self._load_setting_for_sub_window(sub, settings)
                 settings.endGroup()
+
+            if group == "ParameterLoggerWidget":
+                settings.beginGroup(group)
+                sub = self._create_parameter_logger_widget_sub_window()
+                self._load_setting_for_sub_window(sub, settings)
+                settings.endGroup()
+
+    def _create_menu(self):
+        bar = self.menuBar()
+
+        file = bar.addMenu("File")
+
+        save_setting_action = QAction("Save setting", self)
+        save_setting_action.setIcon(self._icons.save)
+        save_setting_action.triggered.connect(self._slot_save_settings)
+        file.addAction(save_setting_action)
+
+        exit_action = QAction("Exit", self)
+        exit_action.triggered.connect(self.close)
+        file.addAction(exit_action)
+
+        windows = bar.addMenu("Windows")
+        camera_windows = windows.addMenu("Camera Control")
+        camera_windows.setIcon(self._icons.camera)
+
+        camera_display_action = QAction("Camera Display", self)
+        camera_display_action.setIcon(self._icons.display)
+        camera_display_action.triggered.connect(self.show_camera_display)
+        camera_windows.addAction(camera_display_action)
+
+        property_controller_action = QAction("Property Controller", self)
+        property_controller_action.setIcon(self._icons.settings)
+        property_controller_action.triggered.connect(self.show_property_controller_widget)
+        camera_windows.addAction(property_controller_action)
+
+        image_processing = windows.addMenu("Image Processing")
+        image_processing.setIcon(self._icons.beam_analyze)
+
+        beam_finder_action = QAction("Camera Display", self)
+        beam_finder_action.setIcon(self._icons.beam_find)
+        beam_finder_action.triggered.connect(self.show_beam_finder_widget)
+        image_processing.addAction(beam_finder_action)
+
+        beam_profiler_action = QAction("Camera Display", self)
+        beam_profiler_action.setIcon(self._icons.beam_profiler)
+        beam_profiler_action.triggered.connect(self.show_beam_profiler_widget)
+        image_processing.addAction(beam_profiler_action)
+
+        parameter_logger_action = QAction("Parameters Logger", self)
+        parameter_logger_action.setIcon(self._icons.clock)
+        parameter_logger_action.triggered.connect(self.show_parameter_logger_widget)
+        image_processing.addAction(parameter_logger_action)
+
+        views = bar.addMenu("Views")
+
+        cascade_action = QAction("Cascade", self)
+        cascade_action.triggered.connect(self._slot_set_cascade)
+        views.addAction(cascade_action)
+
+        tiled_action = QAction("Tiled", self)
+        tiled_action.triggered.connect(self._slot_set_tiled)
+        views.addAction(tiled_action)
+
+    @Slot()
+    def _slot_set_cascade(self, q):
+        self.ui.mdiArea.cascadeSubWindows()
+
+    @Slot()
+    def _slot_set_tiled(self, q):
+        self.ui.mdiArea.tileSubWindows()
+
+    @Slot()
+    def _slot_save_settings(self):
+        self._main_object.save_settings()
+        self.save_settings(self._main_object.settings_file)
+
+    def _init_timer(self):
+        if not self._saving_timer:
+            if self._saving_timer.isActive():
+                self._saving_timer.stop()
+        else:
+            self._saving_timer.setInterval(self._saving_timer_interval*1000)
+            self._saving_timer.timeout.connect(self._slot_save_settings)
+            self._saving_timer.start()

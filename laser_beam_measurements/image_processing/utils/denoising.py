@@ -25,4 +25,6 @@ def threshold(image: numpy.ndarray, th_level: float = 0.0) -> numpy.ndarray:
 
 def find_noise_level_from_histogram(img):
     bins = numpy.bincount(img.ravel())
-    return numpy.nanargmax(bins)
+    if numpy.shape(bins) != (0,):
+        return numpy.nanargmax(bins)
+    return 0

@@ -73,17 +73,31 @@ class ImageProcessorBase(QObject):
 
     @Slot(numpy.ndarray)
     def on_new_image(self, image: numpy.ndarray) -> None:
-        if self._flag_enable:
-            self.signal_input_image.emit(image)
-            if self.process(image):
-                self.signal_processed_done.emit()
-                if self._processed_image is not None:
-                    self.signal_processed_image.emit(self._processed_image)
-                    if self._next_processor is not None:
-                        if self._flag_transmit_context:
-                            extra_context = self.collect_context_for_transmission()
-                            self._next_processor.set_extra_context(**extra_context)
-                        self._next_processor.on_new_image(self._processed_image)
+        if not self._flag_enable:
+            return
+        self.signal_input_image.emit(image)
+        if self.process(image):
+            self.signal_processed_done.emit()
+            if self._processed_image is None:
+                return
+            self.signal_processed_image.emit(self._processed_image)
+            if self._next_processor is None:
+                return
+            if self._flag_transmit_context:
+                extra_context = self.collect_context_for_transmission()
+                self._next_processor.set_extra_context(**extra_context)
+            self._next_processor.on_new_image(self._processed_image)
+        # if self._flag_enable:
+        #     self.signal_input_image.emit(image)
+        #     if self.process(image):
+        #         self.signal_processed_done.emit()
+        #         if self._processed_image is not None:
+        #             self.signal_processed_image.emit(self._processed_image)
+        #             if self._next_processor is not None:
+        #                 if self._flag_transmit_context:
+        #                     extra_context = self.collect_context_for_transmission()
+        #                     self._next_processor.set_extra_context(**extra_context)
+        #                 self._next_processor.on_new_image(self._processed_image)
 
     def set_extra_context(self, **kwargs) -> None:
         self._extra_context.update(kwargs)
