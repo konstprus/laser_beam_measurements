@@ -22,5 +22,6 @@ class VirtualCameraFactory(CameraFactoryBase):
                 "round",
                 "perpendicular",
                 "left",
-                "right"]
+                "right",
+                "line"]
         )

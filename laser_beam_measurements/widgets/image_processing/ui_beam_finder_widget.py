@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'beam_finder_widget.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.7.0
+## Created by: Qt User Interface Compiler version 6.8.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -15,9 +15,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDoubleSpinBox,
-    QGroupBox, QHBoxLayout, QLabel, QSizePolicy,
-    QSpacerItem, QSplitter, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QAbstractSpinBox, QApplication, QCheckBox, QComboBox,
+    QDoubleSpinBox, QGroupBox, QHBoxLayout, QLabel,
+    QSizePolicy, QSpacerItem, QSplitter, QVBoxLayout,
+    QWidget)
 
 from ..utils.custom_graphics_view import CustomGraphicsView
 
@@ -112,6 +113,8 @@ class Ui_Form(object):
         self.angle_value_spin_box.setDecimals(1)
         self.angle_value_spin_box.setMinimum(-45.000000000000000)
         self.angle_value_spin_box.setMaximum(45.000000000000000)
+        self.angle_value_spin_box.setSingleStep(0.100000000000000)
+        self.angle_value_spin_box.setStepType(QAbstractSpinBox.StepType.DefaultStepType)
 
         self.verticalLayout.addWidget(self.rotation_group_box)
 
