@@ -44,31 +44,30 @@ class BeamFinderWidget(ImageProcessorViewerBase):
         self.ui.roi_w.set_label_text('Width:')
         self.ui.roi_h.set_label_text('Height:')
         self.ui.roi_a.set_label_text('Angle:')
-        self.ui.roi_a.doubleSpinBox.setMaximum(45.0)
-        self.ui.roi_a.doubleSpinBox.setMinimum(-45.0)
-        self.ui.roi_w.doubleSpinBox.setMinimum(self.roi.MIN_AREA_SIZE)
-        self.ui.roi_h.doubleSpinBox.setMinimum(self.roi.MIN_AREA_SIZE)
-        self.ui.roi_x.doubleSpinBox.valueChanged.connect(self._on_roi_control_change)
-        self.ui.roi_y.doubleSpinBox.valueChanged.connect(self._on_roi_control_change)
-        self.ui.roi_w.doubleSpinBox.valueChanged.connect(self._on_roi_control_change)
-        self.ui.roi_h.doubleSpinBox.valueChanged.connect(self._on_roi_control_change)
-        self.ui.roi_a.doubleSpinBox.valueChanged.connect(self._on_roi_control_change)
+        self.ui.roi_a.double_spin_box.setMaximum(45.0)
+        self.ui.roi_a.double_spin_box.setMinimum(-45.0)
+        self.ui.roi_a.double_spin_box.setSingleStep(0.1)
+        self.ui.roi_w.double_spin_box.setMinimum(self.roi.MIN_AREA_SIZE)
+        self.ui.roi_h.double_spin_box.setMinimum(self.roi.MIN_AREA_SIZE)
+        self.ui.roi_x.double_spin_box.valueChanged.connect(self._on_roi_control_change)
+        self.ui.roi_y.double_spin_box.valueChanged.connect(self._on_roi_control_change)
+        self.ui.roi_w.double_spin_box.valueChanged.connect(self._on_roi_control_change)
+        self.ui.roi_h.double_spin_box.valueChanged.connect(self._on_roi_control_change)
+        self.ui.roi_a.double_spin_box.valueChanged.connect(self._on_roi_control_change)
 
 
     @Slot(float)
     def _on_roi_control_change(self, value: float) -> None:
         state = {
             BeamState.POS: QPointF(
-            # BeamState.POS: (
-                self.ui.roi_x.doubleSpinBox.value(),
-                self.ui.roi_y.doubleSpinBox.value()
+                self.ui.roi_x.double_spin_box.value(),
+                self.ui.roi_y.double_spin_box.value()
             ),
             BeamState.SIZE: QSizeF(
-            # BeamState.SIZE: (
-                self.ui.roi_w.doubleSpinBox.value(),
-                self.ui.roi_h.doubleSpinBox.value()
+                self.ui.roi_w.double_spin_box.value(),
+                self.ui.roi_h.double_spin_box.value()
             ),
-            BeamState.ANGLE: self.ui.roi_a.doubleSpinBox.value()
+            BeamState.ANGLE: self.ui.roi_a.double_spin_box.value()
         }
         self.signal_roi_control_changed.emit(state)
 
@@ -77,28 +76,25 @@ class BeamFinderWidget(ImageProcessorViewerBase):
         x, y = roi_state['pos'].toTuple()
         width, height = roi_state['size'].toTuple()
         with QSignalBlocker(self.ui.roi_x):
-            self.ui.roi_x.doubleSpinBox.setValue(x)
+            self.ui.roi_x.double_spin_box.setValue(x)
         with QSignalBlocker(self.ui.roi_y):
-            self.ui.roi_y.doubleSpinBox.setValue(y)
+            self.ui.roi_y.double_spin_box.setValue(y)
         with QSignalBlocker(self.ui.roi_w):
-            self.ui.roi_w.doubleSpinBox.setValue(width)
+            self.ui.roi_w.double_spin_box.setValue(width)
         with QSignalBlocker(self.ui.roi_h):
-            self.ui.roi_h.doubleSpinBox.setValue(height)
+            self.ui.roi_h.double_spin_box.setValue(height)
         with QSignalBlocker(self.ui.roi_a):
-            self.ui.roi_a.doubleSpinBox.setValue(roi_state['angle'])
+            self.ui.roi_a.double_spin_box.setValue(roi_state['angle'])
 
 
     def _connect_signals(self) -> None:
-        # self.ui.enable_check_box.toggled.connect(self._slot_enabled_changed)
         self.ui.controls_group_box.toggled.connect(self._slot_enabled_changed)
         self.ui.find_auto_check_box.toggled.connect(self._slot_set_find_auto)
         self.ui.roi_controls_group_box.toggled.connect(self._input_image_scene.set_roi_visible)
         self.ui.noise_group_box.toggled.connect(self._slot_set_delete_noise)
-        # self.ui.rotation_group_box.toggled.connect(self._slot_set_rotation_enable)
         self.ui.rotation_check_box.toggled.connect(self._slot_set_rotation_enable)
         self.ui.rotation_auto_check_box.toggled.connect(self._slot_set_manual_rotation)
         self.ui.noise_value_spin_box.valueChanged.connect(self._slot_set_noise_level)
-        # self.ui.angle_value_spin_box.valueChanged.connect(self._slot_set_angle_value)
         self.ui.colormap_combo_box.currentTextChanged.connect(self.slot_set_colormap_for_input)
 
     def _connect_processor_signal(self) -> None:
@@ -179,20 +175,17 @@ class BeamFinderWidget(ImageProcessorViewerBase):
     def _update_parameters(self):
         self.roi.setVisible(self._image_processor.enabled)
         self.ui.controls_group_box.setChecked(self._image_processor.enabled)
-        # self.ui.enable_check_box.setChecked(self._image_processor.enabled)
         self.ui.find_auto_check_box.setChecked(
             self._image_processor.get_parameter_value(BeamFinderParameters.FIND_AUTO))
         self.ui.noise_group_box.setChecked(
             self._image_processor.get_parameter_value(BeamFinderParameters.DELETE_NOISE_ENABLE))
         self.ui.noise_value_spin_box.setValue(
             self._image_processor.get_parameter_value(BeamFinderParameters.NOISE_LEVEL))
-        # self.ui.rotation_group_box.setChecked(
         self.ui.rotation_check_box.setChecked(
             self._image_processor.get_parameter_value(BeamFinderParameters.ROTATION_ENABLE))
         self.ui.rotation_auto_check_box.setChecked(
             not self._image_processor.get_parameter_value(BeamFinderParameters.MANUAL_ROTATION_ENABLE))
-        # self.ui.angle_value_spin_box.setValue(
-        self.ui.roi_a.doubleSpinBox.setValue(
+        self.ui.roi_a.double_spin_box.setValue(
             self._image_processor.get_parameter_value(BeamFinderParameters.ROTATION_ANGLE))
 
     def load_widget_settings(self, settings: QSettings) -> None:
