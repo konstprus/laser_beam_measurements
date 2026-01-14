@@ -38,7 +38,7 @@ class ParameterIntRangeChecker(ParameterBaseChecker):
         self._max: int = 1
 
     @property
-    def range(self) -> type[int, int]:
+    def range(self) -> tuple[int, int]:
         return self._min, self._max
 
     @range.setter
