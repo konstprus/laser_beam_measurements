@@ -69,7 +69,10 @@ class SliderSpinBox(QWidget):
             self.value_changed.emit(value)
 
     def setValue(self, value: float) -> None:
-        self._on_spin_box_value_changed(value)
+        self._spinBox.setValue(value)
+        # self._on_spin_box_value_changed(value)
+        # self._on_slider_value_changed(value)
+        
 
     def setMinimum(self, value) -> None:
         self._slider.setMinimum(value)
