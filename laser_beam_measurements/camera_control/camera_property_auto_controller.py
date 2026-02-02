@@ -169,7 +169,12 @@ class CameraPropertyAutoController(QObject):
 
     def _small_correct(self, check_result: ControllerStatus) -> bool:
         value = self._controller.get_property_value(self._property_name)
-        if abs(value - self._prop_range[0]) < self._step or abs(value - self._prop_range[1]) < self._step:
+        v1 = abs(value - self._prop_range[0])
+        v2 = abs(value - self._prop_range[1])
+        print(f'{v1 = }\t{v2 = }\t{self._step = }')
+        print(f'{abs(value - self._current_bounds[0])}\t{abs(value - self._current_bounds[1])}\t{self._step}')
+        # if abs(value - self._prop_range[0]) < self._step or abs(value - self._prop_range[1]) < self._step:
+        if abs(value - self._current_bounds[0]) < self._step or abs(value - self._current_bounds[1]) < self._step:
             return True
         if check_result == ControllerStatus.STATUS_OK:
             return True
@@ -182,12 +187,14 @@ class CameraPropertyAutoController(QObject):
 
     def _correct(self, check_result: ControllerStatus) -> bool:
         value = self._controller.get_property_value(self._property_name)
-        if self._current_bounds[1] - self._current_bounds[0] < self._number_of_steps_for_small_range*self._step:
-            result = self._small_correct(check_result)
-            if result:
-                return self._check_counter()
-            else:
-                return False
+        print(f'Current {self._property_name} = {value}')
+
+        # if self._current_bounds[1] - self._current_bounds[0] < self._number_of_steps_for_small_range*self._step:
+        #     result = self._small_correct(check_result)
+        #     if result:
+        #         return self._check_counter()
+        #     else:
+        #         return False
         if check_result == ControllerStatus.STATUS_OK:
             return self._check_counter()
         elif check_result == ControllerStatus.STATUS_LOW:
@@ -200,8 +207,12 @@ class CameraPropertyAutoController(QObject):
                 return self._check_counter()
             else:
                 self._current_bounds[1] = value
-        self._counter = 0
+        # self._counter = 0
+
+        if self._current_bounds[1] - self._current_bounds[0] <= 1:
+            return True
         self._controller.set_property_value(self._property_name, sum(self._current_bounds)/2)
+ 
         return False
 
     @Slot()

@@ -145,6 +145,7 @@ class CameraPropertyControllerWidget(QWidget):
             self.ui.gain_slider.setValue(value)
         elif name == "exposure":
             self.ui.exposure_slider.setValue(value)
+            self.ui.exposure_slider._spinBox.setValue(round(value))
 
     def _connect_signals(self) -> None:
         self.ui.exposure_slider.value_changed.connect(self._change_exposure_value)
