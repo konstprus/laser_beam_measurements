@@ -41,6 +41,9 @@ class SliderSpinBox(QWidget):
         self._outerLayout.addWidget(self._spinBox)
         self._outerLayout.addWidget(self._labelTitle)
 
+        self._min_value = 0.0
+        self._max_value = 1.0
+        self._step_value = 0.1
         self.setMinimum(self._slider.minimum())
         self.setMaximum(self._slider.maximum())
         self._spinBox.setSingleStep(self._slider.get_range()/100.0)
@@ -68,8 +71,24 @@ class SliderSpinBox(QWidget):
                 self._slider.setValue(value)
             self.value_changed.emit(value)
 
+    def _set_step(self, value: float) -> None:
+        if value < (self._max_value - self._min_value) / 2:
+            # step = (self._max_value - self._min_value) / 20
+            step = 1
+            if step == self._step_value:
+                return
+        else:
+            # step = (self._max_value - self._min_value) / 10
+            step = 5
+            if step == self._step_value:
+                return
+        self._step = step
+        self._slider.setSingleStep(step)
+        self._spinBox.setSingleStep(step)
+
     def setValue(self, value: float) -> None:
         self._spinBox.setValue(value)
+        self._set_step(value)
         # self._on_spin_box_value_changed(value)
         # self._on_slider_value_changed(value)
         
@@ -77,6 +96,7 @@ class SliderSpinBox(QWidget):
     def setMinimum(self, value) -> None:
         self._slider.setMinimum(value)
         self._spinBox.setMinimum(value)
+        self._min_value = value
         self._labelMinValue.setText(str(round(value, 2)))
         # self._spinBox.setSingleStep(self._slider.get_range()/10.0)
         self._update_single_step()
@@ -84,6 +104,7 @@ class SliderSpinBox(QWidget):
     def setMaximum(self, value):
         self._slider.setMaximum(value)
         self._spinBox.setMaximum(value)
+        self._max_value = value
         self._labelMaxValue.setText(str(round(value, 2)))
         # self._spinBox.setSingleStep(self._slider.get_range()/10.0)
         self._update_single_step()
