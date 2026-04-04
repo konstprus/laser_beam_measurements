@@ -16,7 +16,7 @@ from . import define
 class BeamPositionAndOrientationGroup(ParameterGroup):
 
     def __init__(self):
-        super().__init__(group_name=define.BEAM_OTHER_PARAMETERS_GROUP_NAME)
+        super().__init__(group_name=define.BEAM_POSITION_AND_ORIENTATION_GROUP_NAME)
         self.add_parameter(Parameter(name=define.BPO_GLOBAL))
         self.add_parameter(Parameter(name=define.BPO_LOCAL))
         self.add_parameter(Parameter(name=define.BPO_ANGLE))

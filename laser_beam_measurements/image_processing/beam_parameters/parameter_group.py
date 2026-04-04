@@ -59,10 +59,9 @@ class ParameterGroup(object):
     def copy_enabled(self) -> Self:
         return self.__copy__()
 
-
     def __iter__(self) -> Iterable:
         return self.Iterator(self)
 
     # @property
     # def stat(self) -> list[ParameterStat]:
-    #     return [p.stat for p = self._parameters[name] for name in self._append_order]
+    #     return [self._parameters[name].stat for name in self._append_order]

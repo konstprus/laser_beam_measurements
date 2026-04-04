@@ -15,9 +15,11 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QAbstractButton, QApplication, QDialogButtonBox, QGridLayout,
-    QHeaderView, QLabel, QSizePolicy, QTableView,
-    QWidget)
+from PySide6.QtWidgets import (QAbstractButton, QAbstractItemView, QApplication, QDialogButtonBox,
+    QGridLayout, QHeaderView, QLabel, QSizePolicy,
+    QTableWidgetItem, QWidget)
+
+from laser_beam_measurements.widgets.utils.parameters_select_table_widget import ParametersSelectTableWidget
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -33,18 +35,23 @@ class Ui_Form(object):
 
         self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
 
-        self.parameters_table_view = QTableView(Form)
-        self.parameters_table_view.setObjectName(u"parameters_table_view")
-
-        self.gridLayout.addWidget(self.parameters_table_view, 1, 0, 1, 1)
-
         self.buttonBox = QDialogButtonBox(Form)
         self.buttonBox.setObjectName(u"buttonBox")
         self.buttonBox.setOrientation(Qt.Vertical)
-        self.buttonBox.setStandardButtons(QDialogButtonBox.Apply|QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
+        self.buttonBox.setStandardButtons(QDialogButtonBox.Apply|QDialogButtonBox.Cancel|QDialogButtonBox.Ok|QDialogButtonBox.Reset)
         self.buttonBox.setCenterButtons(False)
 
         self.gridLayout.addWidget(self.buttonBox, 1, 1, 1, 1)
+
+        self.parameters_select_widget = ParametersSelectTableWidget(Form)
+        self.parameters_select_widget.setObjectName(u"parameters_select_widget")
+        self.parameters_select_widget.setEditTriggers(QAbstractItemView.AllEditTriggers)
+        self.parameters_select_widget.horizontalHeader().setMinimumSectionSize(40)
+        self.parameters_select_widget.horizontalHeader().setStretchLastSection(True)
+        self.parameters_select_widget.verticalHeader().setMinimumSectionSize(20)
+        self.parameters_select_widget.verticalHeader().setDefaultSectionSize(20)
+
+        self.gridLayout.addWidget(self.parameters_select_widget, 1, 0, 1, 1)
 
 
         self.retranslateUi(Form)

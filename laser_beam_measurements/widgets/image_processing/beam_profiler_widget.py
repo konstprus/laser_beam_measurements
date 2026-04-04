@@ -74,7 +74,8 @@ class BeamProfilerWidget(ImageProcessorViewerBase):
 
     @Slot()
     def _show_parameter_select_widget(self) -> None:
-        parameter_select_widget = BeamProfilerParameterSelectWidget(self)
+        bp_selector = self._image_processor.parameter_selector
+        parameter_select_widget = BeamProfilerParameterSelectWidget(bp_selector, parent=self)
         parameter_select_widget.exec_()
 
     def _configure_curves(self):
@@ -117,6 +118,7 @@ class BeamProfilerWidget(ImageProcessorViewerBase):
             self._image_processor.signal_gauss_approximation_updated.connect(self.show_gauss_approximation)
             # self._image_processor.signal_beam_parameters_updated.connect(self.show_beam_parameters)
             self._image_processor.signal_beam_parameters_updated_2.connect(self.ui.tableWidget.show_beam_parameters)
+            self._image_processor.parameter_selector.signal_selected.connect(self.ui.tableWidget.update_table)
             self._image_processor.signal_beam_center_updated.connect(self._output_image_scene.cross.slot_set_pos)
             self._output_image_scene.cross.signal_point_changed.connect(self._image_processor.slot_set_center)
 
@@ -127,6 +129,7 @@ class BeamProfilerWidget(ImageProcessorViewerBase):
             self._image_processor.signal_gauss_approximation_updated.disconnect(self.show_gauss_approximation)
             # self._image_processor.signal_beam_parameters_updated.disconnect(self.show_beam_parameters)
             self._image_processor.signal_beam_parameters_updated_2.disconnect(self.ui.tableWidget.show_beam_parameters)
+            self._image_processor.parameter_selector.signal_selected.disconnect(self.ui.tableWidget.update_table)
             self._image_processor.signal_beam_center_updated.disconnect(self._output_image_scene.cross.slot_set_pos)
             self._output_image_scene.cross.signal_point_changed.disconnect(self._image_processor.slot_set_center)
 

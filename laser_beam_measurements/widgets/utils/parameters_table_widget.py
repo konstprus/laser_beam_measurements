@@ -54,9 +54,11 @@ class ParametersTableWidget(QTableWidget):
     def update_table(self, beam_parameters: BeamParameters) -> None:
         self._items.clear()
         self.clear()
+        self.setRowCount(0)
         self._add_group(beam_parameters.position_and_orientation)
         self._add_group(beam_parameters.width)
         self._add_group(beam_parameters.other_parameters, False)
+        self.resizeColumnToContents(0)
 
     def _add_sub_titles(self) -> None:
         row = self.rowCount()
