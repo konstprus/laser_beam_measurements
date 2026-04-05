@@ -69,7 +69,7 @@ class Parameter(object):
         return f"Parameter '{self._name}': {self._value}"
 
     def __copy__(self) -> Self:
-        return Parameter(self._name, self._value, verbose_name=self.verbose_name)
+        return Parameter(self._name, value=self._value, verbose_name=self.verbose_name)
 
     def copy(self) -> Self:
         return self.__copy__()

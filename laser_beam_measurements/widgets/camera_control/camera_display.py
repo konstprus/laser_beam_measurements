@@ -23,8 +23,6 @@ from .ui_camera_display import Ui_Form
 
 __all__ = ['CameraDisplay']
 
-from ...image_processing.beam_parameters import BeamParametersStat
-
 
 class CameraDisplay(QWidget):
 
