@@ -16,7 +16,7 @@ from .beam_position_and_orientation_group import BeamPositionAndOrientationGroup
 from .beam_other_parameters_group import BeamOtherParametersGroup
 from .parameter_group import ParameterGroup
 from .item_model import ParameterGroupItemModel
-from typing import Optional
+from typing import Optional, Self
 
 BeamParametersStat = list[tuple[str, list[ParameterStat]]]
 
@@ -25,15 +25,21 @@ class BeamParameters(QObject):
 
     signal_stat_updated = Signal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, copied: Optional[Self] = None):
         super(BeamParameters, self).__init__(parent)
-        self._width_group = BeamWidthGroup()
-        self._position_and_orientation_group = BeamPositionAndOrientationGroup()
-        self._other_parameters_group = BeamOtherParametersGroup()
+        self._width_group = None
+        self._position_and_orientation_group = None
+        self._other_parameters_group = None
 
-        # self._width_model = ParameterGroupItemModel(self._width_group)
-        # self._position_model = ParameterGroupItemModel(self._position_and_orientation_group)
-        # self._other_model = ParameterGroupItemModel(self._other_parameters_group)
+        if copied:
+            self._width_group = copied._width_group.copy()
+            self._position_and_orientation_group = copied._position_and_orientation_group.copy()
+            self._other_parameters_group = copied._other_parameters_group.copy()
+        else:
+            self._width_group = BeamWidthGroup()
+            self._position_and_orientation_group = BeamPositionAndOrientationGroup()
+            self._other_parameters_group = BeamOtherParametersGroup()
+
 
     @property
     def width(self) -> BeamWidthGroup:
@@ -47,50 +53,37 @@ class BeamParameters(QObject):
     def other_parameters(self) -> BeamOtherParametersGroup:
         return self._other_parameters_group
 
-    # @property
-    # def width_model(self) -> ParameterGroupItemModel:
-    #     return self._width_model
-    #
-    # @property
-    # def position_model(self) -> ParameterGroupItemModel:
-    #     return self._position_model
-    #
-    # @property
-    # def other_model(self) -> ParameterGroupItemModel:
-    #     return self._other_model
-    #
-    # def model_changed(self):
-    #     self._width_model.dataChanged.emit(QModelIndex(), QModelIndex())
-    #     self._position_model.dataChanged.emit(QModelIndex(), QModelIndex())
-    #     self._other_model.dataChanged.emit(QModelIndex(), QModelIndex())
+    def __copy__(self) -> Self:
+        return BeamParameters(parent=self.parent(), copied=self)
 
-    # @property
-    # def stat(self) -> BeamParametersStat:
-    #     return [
-    #         (self._width_group.name, self._width_group.stat),
-    #         (self._position_and_orientation_group.name, self._position_and_orientation_group.stat),
-    #         (self._other_parameters_group.name, self._other_parameters_group.stat),
-    #     ]
+    def copy(self) -> Self:
+        return self.__copy__()
 
-    @Slot(list)
-    def update_stat(self, stat: BeamParametersStat) -> None:
-        for stat_name, stat_value in stat:
-            group: Optional[ParameterGroup] = None
-            match stat_name:
-                case self._width_group.name:
-                    group = self._width_group
-                case self._position_and_orientation_group.name:
-                    group = self._position_and_orientation_group
-                case self._other_parameters_group.name:
-                    group = self._other_parameters_group
-            if group is None:
-                continue
-            for parameter_stat in stat_value:
-                param = group.get_parameter(parameter_stat[0])
-                if param is None:
-                    continue
-                param.verbose_name = parameter_stat[1]
-                param.enabled = parameter_stat[2]
+    def __len__(self) -> int:
+        return (len(self._width_group) +
+                len(self._position_and_orientation_group) +
+                len(self._other_parameters_group))
+
+    # @Slot(list)
+    # def update_stat(self, stat: BeamParametersStat) -> None:
+    #     for stat_name, stat_value in stat:
+    #         group: Optional[ParameterGroup] = None
+    #         match stat_name:
+    #             case self._width_group.name:
+    #                 group = self._width_group
+    #             case self._position_and_orientation_group.name:
+    #                 group = self._position_and_orientation_group
+    #             case self._other_parameters_group.name:
+    #                 group = self._other_parameters_group
+    #         if group is None:
+    #             continue
+    #         for parameter_stat in stat_value:
+    #             param = group.get_parameter(parameter_stat[0])
+    #             if param is None:
+    #                 continue
+    #             param.verbose_name = parameter_stat[1]
+    #             param.enabled = parameter_stat[2]
+    #     self.signal_stat_updated.emit()
 
     def save_settings(self, settings: QSettings) -> None:
         self._save_group(settings, self._width_group)

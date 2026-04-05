@@ -14,6 +14,7 @@ from laser_beam_measurements.image_processing.beam_parameters.parameter_group im
 from laser_beam_measurements.image_processing.beam_parameters.parameter import ParameterStat
 from laser_beam_measurements.image_processing.beam_parameters.define import *
 
+
 class BeamParametersSelector(QObject):
 
     signal_show_bp_stat = Signal(BeamParametersStat)
@@ -26,9 +27,6 @@ class BeamParametersSelector(QObject):
     @property
     def bp(self) ->BeamParameters:
         return self._bp
-
-    def _show_current(self):
-        self.signal_show_bp_stat.emit(self._bp.stat)
 
     def _select_group(self, stat: list[ParameterStat], group: ParameterGroup):
         for name, verbose, enabled in stat:
@@ -48,4 +46,3 @@ class BeamParametersSelector(QObject):
             elif name == BEAM_OTHER_PARAMETERS_GROUP_NAME:
                 self._select_group(group_stat, self._bp.other_parameters)
         self.signal_selected.emit(self._bp)
-

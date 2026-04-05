@@ -35,7 +35,7 @@ class ParameterGroup(object):
         self._enabled_to_add: bool = True
 
         if copied is not None:
-            [self.add_parameter(copied._parameters[name].copy()) for name in copied._append_order if copied._parameters[name].enabled]
+            [self.add_parameter(copied._parameters[name].copy()) for name in copied._append_order]
             self.finish_to_add()
 
     def add_parameter(self, parameter: Parameter) -> None:
@@ -56,11 +56,17 @@ class ParameterGroup(object):
     def __copy__(self) -> Self:
         return ParameterGroup(group_name=self._name, copied=self)
 
-    def copy_enabled(self) -> Self:
+    def copy(self) -> Self:
         return self.__copy__()
 
     def __iter__(self) -> Iterable:
         return self.Iterator(self)
+
+    def __len__(self) -> int:
+        non_zero_parameters: int = 0
+        for param in self._parameters.values():
+            non_zero_parameters += len(param)
+        return non_zero_parameters
 
     # @property
     # def stat(self) -> list[ParameterStat]:

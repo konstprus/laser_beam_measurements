@@ -16,11 +16,13 @@ ParameterStat = tuple[str, str, bool]
 
 class Parameter(object):
 
-    def __init__(self, name: str, value: Optional[ParameterValue] = None) -> None:
+    def __init__(self, name: str, value: Optional[ParameterValue] = None, verbose_name: Optional[str] = None) -> None:
         self._name: str = name
         self._verbose_name: str = self._name
         self._enabled: bool = True
         self._value: Optional[ParameterValue] = value
+        if verbose_name is not None:
+            self._verbose_name: str = verbose_name
 
     @property
     def name(self) -> str:
@@ -67,11 +69,14 @@ class Parameter(object):
         return f"Parameter '{self._name}': {self._value}"
 
     def __copy__(self) -> Self:
-        return Parameter(self._name, self._value)
+        return Parameter(self._name, self._value, verbose_name=self.verbose_name)
 
     def copy(self) -> Self:
         return self.__copy__()
 
-    @property
-    def stat(self) -> ParameterStat:
-        return self._name, self._verbose_name, self._enabled
+    # @property
+    # def stat(self) -> ParameterStat:
+    #     return self._name, self._verbose_name, self._enabled
+
+    def __len__(self) -> int:
+        return 1 if self._enabled and self._value is not None else 0

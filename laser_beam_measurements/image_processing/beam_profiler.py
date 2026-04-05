@@ -14,7 +14,7 @@ import numpy
 from PySide6.QtCore import Signal, QSettings, Slot, QPointF, QMutexLocker
 from .image_processor_base import ImageProcessorBase
 from .beam_finder import BeamState
-from enum import StrEnum
+# from enum import StrEnum
 from .utils.denoising import find_noise_level_from_histogram, threshold
 from .utils import beam_width as bm
 from .utils.sub_image import get_cross_section
@@ -32,29 +32,26 @@ class BeamProfiler(ImageProcessorBase):
 
     signal_cross_section_updated = Signal(numpy.ndarray, numpy.ndarray, numpy.ndarray, numpy.ndarray)
     signal_gauss_approximation_updated = Signal(numpy.ndarray, numpy.ndarray, numpy.ndarray, numpy.ndarray)
-    signal_beam_parameters_updated = Signal(dict)
     signal_beam_center_updated = Signal(float, float)
-    signal_beam_parameters_updated_2 = Signal(BeamParameters)
+    signal_beam_parameters_updated = Signal(BeamParameters)
 
     def __init__(self, *args, **kwargs):
         super(BeamProfiler, self).__init__(*args, **kwargs)
 
         self._flag_cross_sections_auto: bool = True
-
-        self._bp : BeamParameters = BeamParameters()
+        self._bp : BeamParameters = BeamParameters(parent=self)
+        self._bp.moveToThread(self.thread())
         self._bp_selector = BeamParametersSelector(self._bp, parent=self)
+        self._bp_selector.moveToThread(self.thread())
         self._center: tuple[float, float] = (0.0, 0.0)
-        # self._beam_parameters: dict[str, dict[str, tuple[float, float] | float]] = dict()
         self._pixel_size: float = 1.0
         self._parameter_logger: Optional[ParameterLogger] = None
+
+        self._connect_signals()
 
     @property
     def parameter_logger(self) -> Optional[ParameterLogger]:
         return self._parameter_logger
-
-    @property
-    def parameter_selector(self) -> Optional[BeamParametersSelector]:
-        return self._bp_selector
 
     @parameter_logger.setter
     def parameter_logger(self, logger: ParameterLogger) -> None:
@@ -62,7 +59,19 @@ class BeamProfiler(ImageProcessorBase):
             self.signal_beam_parameters_updated.disconnect(self._parameter_logger.slot_set_data)
         self._parameter_logger = logger
         self._parameter_logger.setParent(self)
+        self._parameter_logger.moveToThread(self.thread())
         self.signal_beam_parameters_updated.connect(self._parameter_logger.slot_set_data)
+        self.update_available_parameters()
+
+    @property
+    def parameter_selector(self) -> Optional[BeamParametersSelector]:
+        return self._bp_selector
+
+    def _connect_signals(self) -> None:
+        self._bp_selector.signal_selected.connect(self._slot_stat_updated)
+
+    @Slot(BeamParameters)
+    def _slot_stat_updated(self, _):
         self.update_available_parameters()
 
     def update_available_parameters(self) -> None:
@@ -72,36 +81,22 @@ class BeamProfiler(ImageProcessorBase):
             return
         available_parameters = list()
         # Width methods
-        # width_group = self._bp.width
-        # if width_group.four_sigma().enabled:
-        #     available_parameters.append(f"{width_group.name}: {width_group.four_sigma().name}")
-        # if width_group.leveled_135().enabled:
-        #     available_parameters.append(f"{BEAM_WIDTH_METHODS}: {BeamWidthMethods.LEVELED_135}")
-        # if width_group.gauss_appr().enabled:
-        #     available_parameters.append(f"{BEAM_WIDTH_METHODS}: {BeamWidthMethods.GAUSS_APPR}")
-        # if width_group.power_86().enabled:
-        #     available_parameters.append(f"{BEAM_WIDTH_METHODS}: {BeamWidthMethods.POWER_86}")
-        #
-        # # Position and orientation
-        # po_group = self._bp.position_and_orientation
-        # # if self._calculation_flags[BeamPositionAndOrientation.GLOBAL]:
-        # if po_group.global_position().enabled:
-        #     available_parameters.append(f"{BEAM_POSITION_AND_ORIENTATION}: {BeamPositionAndOrientation.GLOBAL}")
-        # # if self._calculation_flags[BeamPositionAndOrientation.LOCAL]:
-        # if po_group.local_position().enabled:
-        #     available_parameters.append(f"{BEAM_POSITION_AND_ORIENTATION}: {BeamPositionAndOrientation.LOCAL}")
-        # # if self._calculation_flags[BeamPositionAndOrientation.ANGLE]:
-        # if po_group.angle().enabled:
-        #     available_parameters.append(f"{BEAM_POSITION_AND_ORIENTATION}: {BeamPositionAndOrientation.ANGLE}")
-        #
-        # # Other parameters
-        # op_group = self._bp.other_parameters
-        # # if self._calculation_flags[OtherParameters.POWER]:
-        # if op_group.power().enabled:
-        #     available_parameters.append(f"{OTHER_PARAMETERS}: {OtherParameters.POWER}")
-        # # if self._calculation_flags[OtherParameters.AREA]:
-        # if op_group.area().enabled:
-        #     available_parameters.append(f"{OTHER_PARAMETERS}: {OtherParameters.AREA}")
+        width_group = self._bp.width
+        for p in width_group:
+            if p.enabled:
+                available_parameters.append(f"{width_group.name}: {p.verbose_name}")
+
+        # Position and orientation
+        po_group = self._bp.position_and_orientation
+        for p in po_group:
+            if p.enabled:
+                available_parameters.append(f"{po_group.name}: {p.verbose_name}")
+
+        # Other parameters
+        op_group = self._bp.other_parameters
+        for p in op_group:
+            if p.enabled:
+                available_parameters.append(f"{op_group.name}: {p.verbose_name}")
 
         self._parameter_logger.slot_update_available_parameters(available_parameters)
 
@@ -185,10 +180,7 @@ class BeamProfiler(ImageProcessorBase):
             local_position.update((self._center[0]*ps, self._center[1]*ps))
 
         self._processed_image = denoised_image
-
-        # self._beam_parameters.clear()
-        self.signal_beam_parameters_updated_2.emit(self._bp)
-
+        self.signal_beam_parameters_updated.emit(self._bp)
         return True
 
     def save_settings(self, settings: QSettings) -> None:
@@ -200,6 +192,8 @@ class BeamProfiler(ImageProcessorBase):
         settings.beginGroup("BeamProfiler")
         self._bp.load_settings(settings)
         settings.endGroup()
+
+        self.update_available_parameters()
 
     def _set_init_parameters(self, parameters: dict) -> None:
         self._pixel_size = float(parameters.get("pixel_size", 1.0))

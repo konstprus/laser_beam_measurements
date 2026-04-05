@@ -26,6 +26,7 @@ class BeamProfilerParameterSelectWidget(QDialog):
         self._selector = selector
         self._connect_signals()
         self.ui.parameters_select_widget.fill_table(self._selector.bp)
+        self.setWindowTitle("Select Beam Parameters")
 
     def _disconnect_signals(self) -> None:
         self.ui.parameters_select_widget.signal_stat_updated.disconnect(self._selector.slot_select)
