@@ -12,7 +12,7 @@ from PySide6.QtCore import QObject, QThread, QCoreApplication, Signal, Slot, QMu
 from typing import Dict, Tuple, Union, Optional, Iterable, Sized, List
 from time import time
 from datetime import datetime
-
+from laser_beam_measurements.image_processing.beam_parameters import BeamParameters, ParameterGroup, Parameter
 
 __all__ = ["ParameterLogger"]
 
@@ -164,16 +164,30 @@ class LoggingDataStorage:
         return False
 
 
-def adapt_data(data: Dict[str, Dict[str, Union[Tuple[float, float], float]]]) -> Dict[str, Union[int, float]]:
-    if len(data) == 0:
-        return dict()
+# def adapt_data(data: Dict[str, Dict[str, Union[Tuple[float, float], float]]]) -> Dict[str, Union[int, float]]:
+#     if len(data) == 0:
+#         return dict()
+#     result = dict()
+#     for key, value in data.items():
+#         if isinstance(value, dict):
+#             for key2, value2 in value.items():
+#                 result.update({f"{key}: {key2}": value2})
+#         elif isinstance(value, Union[int, float]):
+#             result.update({key: value})
+#     return result
+
+def adapt_data(data: BeamParameters) -> Dict[str, Union[int, float]]:
     result = dict()
-    for key, value in data.items():
-        if isinstance(value, dict):
-            for key2, value2 in value.items():
-                result.update({f"{key}: {key2}": value2})
-        elif isinstance(value, Union[int, float]):
-            result.update({key: value})
+    result.update(_adapt_group(data.width))
+    result.update(_adapt_group(data.position_and_orientation))
+    result.update(_adapt_group(data.other_parameters))
+    return result
+
+def _adapt_group(group: ParameterGroup) -> Dict[str, Union[int, float]]:
+    result = dict()
+    for param in group:
+        if param.enabled:
+            result.update({f"{group.name}: {param.verbose_name}": param.value()})
     return result
 
 
@@ -192,7 +206,8 @@ class ParameterLogger(QObject):
         self._mutex = QMutex()
         self._available_parameters: list = list()
         self._selected_parameters: list = list()
-        self._current_data: Dict[str, Dict[str, Union[Tuple[float, float], float]]] = dict()
+        # self._current_data: Dict[str, Dict[str, Union[Tuple[float, float], float]]] = dict()
+        self._current_data: Optional[BeamParameters] = None
         self._logging_data: LoggingDataStorage = LoggingDataStorage()
         self._interval_calculator: IntervalCalculator = IntervalCalculator()
         self._timer_interval: int = 100
@@ -309,8 +324,12 @@ class ParameterLogger(QObject):
             self._show_parameters()
         super().timerEvent(*args, **kwargs)
 
-    @Slot(dict)
-    def slot_set_data(self, data: dict) -> None:
+    # @Slot(dict)
+    # def slot_set_data(self, data: dict) -> None:
+    #     self._currentl_data = data
+
+    @Slot(BeamParameters)
+    def slot_set_data(self, data: BeamParameters) -> None:
         self._current_data = data
 
     def _save_data(self) -> None:
