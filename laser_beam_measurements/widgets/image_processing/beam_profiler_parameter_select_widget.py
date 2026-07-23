@@ -15,9 +15,12 @@ from PySide6.QtWidgets import QDialog, QDialogButtonBox
 from PySide6.QtCore import Slot, Signal
 
 from laser_beam_measurements.image_processing.beam_parameters.beam_parameters_selector import BeamParametersSelector
+from ...image_processing.beam_parameters import BeamParameters
 
 
 class BeamProfilerParameterSelectWidget(QDialog):
+
+    signal_set_average_control = Signal(bool, int)
 
     def __init__(self, selector: BeamParametersSelector, parent=None):
         super(BeamProfilerParameterSelectWidget, self).__init__(parent)
@@ -26,14 +29,27 @@ class BeamProfilerParameterSelectWidget(QDialog):
         self._selector = selector
         self._connect_signals()
         self.ui.parameters_select_widget.fill_table(self._selector.bp)
+        self._fill_average_control(self._selector.bp)
         self.setWindowTitle("Select Beam Parameters")
 
     def _disconnect_signals(self) -> None:
         self.ui.parameters_select_widget.signal_stat_updated.disconnect(self._selector.slot_select)
+        self.signal_set_average_control.disconnect(self._selector.slot_set_average_control)
+
+    def _fill_average_control(self, bp: BeamParameters) -> None:
+        average_control = bp.average_control
+        self.ui.average_enable_cb.setChecked(average_control.enabled)
+        self.ui.average_number_sb.setValue(average_control.number)
+
+    def _update_average_control(self) -> None:
+        self.signal_set_average_control.emit(
+            self.ui.average_enable_cb.isChecked(),
+            self.ui.average_number_sb.value())
 
     @Slot()
     def accept(self) -> None:
         self.ui.parameters_select_widget.update_stat()
+        self._update_average_control()
         self._disconnect_signals()
         super().accept()
 
@@ -45,6 +61,7 @@ class BeamProfilerParameterSelectWidget(QDialog):
     @Slot()
     def apply(self):
         self.ui.parameters_select_widget.update_stat()
+        self._update_average_control()
 
     @Slot()
     def reset(self):
@@ -57,3 +74,4 @@ class BeamProfilerParameterSelectWidget(QDialog):
         self.ui.buttonBox.button(QDialogButtonBox.StandardButton.Apply).clicked.connect(self.apply)
         self.ui.buttonBox.button(QDialogButtonBox.StandardButton.Reset).clicked.connect(self.reset)
         self.ui.parameters_select_widget.signal_stat_updated.connect(self._selector.slot_select)
+        self.signal_set_average_control.connect(self._selector.slot_set_average_control)

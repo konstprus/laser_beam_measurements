@@ -46,3 +46,8 @@ class BeamParametersSelector(QObject):
             elif name == BEAM_OTHER_PARAMETERS_GROUP_NAME:
                 self._select_group(group_stat, self._bp.other_parameters)
         self.signal_selected.emit(self._bp)
+
+    @Slot(bool, int)
+    def slot_set_average_control(self, enable: bool, count: int) -> None:
+        self._bp.average_control.enabled = enable
+        self._bp.average_control.number = count

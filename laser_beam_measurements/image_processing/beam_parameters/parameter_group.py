@@ -8,7 +8,8 @@
 # Copyright 2026 Konstantin Prusakov <konstantin.prusakov@phystech.edu>
 #
 
-from .parameter import Parameter, ParameterStat
+from .parameter import Parameter
+from .average_control import AverageControl
 from typing import Optional, Self, Iterable
 
 class ParameterGroup(object):
@@ -68,6 +69,6 @@ class ParameterGroup(object):
             non_zero_parameters += len(param)
         return non_zero_parameters
 
-    # @property
-    # def stat(self) -> list[ParameterStat]:
-    #     return [self._parameters[name].stat for name in self._append_order]
+    def set_average_control(self, control: AverageControl) -> None:
+        for value in self._parameters.values():
+            value.set_average_control(control)
