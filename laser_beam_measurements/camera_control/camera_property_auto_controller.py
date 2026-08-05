@@ -101,6 +101,9 @@ class CameraPropertyAutoController(QObject):
         if not self._flag_active:
             self.signal_check_result.emit(ControllerStatus.STATUS_NONE)
 
+    def set_range(self, value_range: tuple[int, int]) -> None:
+        self._checker.range = value_range
+
     @Slot()
     def slot_control_change(self) -> None:
         if self._flag_control_on:
@@ -164,8 +167,8 @@ class CameraPropertyAutoController(QObject):
                 check_result = ControllerStatus.STATUS_BAD_HIGH
         return check_result
 
-    def set_range(self, min_value: int, max_value: int) -> None:
-        self._checker.range = (min_value, max_value)
+    # def set_range(self, min_value: int, max_value: int) -> None:
+    #     self._checker.range = (min_value, max_value)
 
     def _small_correct(self, check_result: ControllerStatus) -> bool:
         value = self._controller.get_property_value(self._property_name)

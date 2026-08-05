@@ -9,7 +9,9 @@
 #
 
 
-from .camera_base import CameraBase
+from .camera_base import CameraBase, CameraID
+from .pixel_format import PixelFormat
+from typing import Optional
 
 __all__ = ["CameraCreateException", "CameraFactoryBase"]
 
@@ -20,7 +22,7 @@ class CameraCreateException(Exception):
 
 class CameraFactoryBase(object):
 
-    camera_class: type(CameraBase) | None = None
+    camera_class: Optional[type[CameraBase]] = None
 
     def __init__(self, func=None, **kwargs):
         self._func = func
@@ -35,7 +37,10 @@ class CameraFactoryBase(object):
             return self._get_available_devices(*args, **kwargs)
         return []
 
-    def create(self, camera_id=None, *args, **kwargs):
+    def get_available_pixel_formats(self, camera_id: Optional[CameraID], *args, **kwargs) -> list[PixelFormat]:
+        pass
+
+    def create(self, camera_id=Optional[CameraID], *args, **kwargs):
         if self.camera_class:
             try:
                 if camera_id is not None:

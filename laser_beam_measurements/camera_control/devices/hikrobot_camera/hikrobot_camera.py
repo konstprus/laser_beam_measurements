@@ -12,6 +12,7 @@
 from laser_beam_measurements.camera_control.camera_base import CameraBase
 import numpy
 from ctypes import *
+from typing import Union, Optional
 
 from .mv_import import MvCameraControl_class as hik
 from .mv_import import PixelType_header as PixelType
@@ -27,6 +28,7 @@ class HikRobotCamera(CameraBase):
         self._cam: hik.MvCamera = mv_cam
         self._is_opened: bool = False
         self._st_out_frame: hik.MV_FRAME_OUT = hik.MV_FRAME_OUT()
+        self._pixel_type = kwargs.get("pixel_type", PixelType.PixelType_Gvsp_Mono8)
         super(HikRobotCamera, self).__init__(**kwargs)
 
     def _initialize(self) -> None:
@@ -38,7 +40,7 @@ class HikRobotCamera(CameraBase):
         self._properties['gain'] = HikRobotCameraProperty(self._cam, 'gain', "Gain")
         self._properties['exposure'] = HikRobotCameraProperty(self._cam, 'exposure', "ExposureTime")
 
-    def open(self, camera_id: str | int | None = None) -> None:
+    def open(self, camera_id: Optional[Union[str , int]] = None, *args, **kwargs) -> None:
         if self._cam.MV_CC_OpenDevice(hik.MV_ACCESS_Exclusive, 0) == 0:
             self._is_opened = True
             if self._device_info.nTLayerType == hik.MV_GIGE_DEVICE or self._device_info.nTLayerType == hik.MV_GENTL_GIGE_DEVICE:
@@ -46,6 +48,7 @@ class HikRobotCamera(CameraBase):
                 if int(n_packet_size) > 0:
                     self._cam.MV_CC_SetIntValue("GevSCPSPacketSize", n_packet_size)
 
+            self._cam.MV_CC_SetEnumValue("PixelFormat",  self._pixel_type)
             self._init_properties()
 
             self._cam.MV_CC_SetEnumValue("TriggerMode", hik.MV_TRIGGER_MODE_OFF)
@@ -73,7 +76,7 @@ class HikRobotCamera(CameraBase):
     def stop(self) -> None:
         self._cam.MV_CC_StopGrabbing()
 
-    def query_frame(self, *args, **kwargs) -> numpy.ndarray or None:
+    def query_frame(self, *args, **kwargs) -> Optional[numpy.ndarray]:
         ret = self._cam.MV_CC_GetImageBuffer(self._st_out_frame, 1000)
 
         if ret != 0:
@@ -88,6 +91,9 @@ class HikRobotCamera(CameraBase):
         img: numpy.ndarray | None = None
         if en_pixel_size == PixelType.PixelType_Gvsp_Mono8:
             img = numpy.frombuffer(buf_save_image, count=int(w * h), dtype=numpy.uint8, offset=0)
+            img = img.copy().reshape(h, w)
+        elif en_pixel_size == PixelType.PixelType_Gvsp_Mono12 or en_pixel_size == PixelType.PixelType_Gvsp_Mono10:
+            img = numpy.frombuffer(buf_save_image, count=int(w * h), dtype=numpy.uint16, offset=0)
             img = img.copy().reshape(h, w)
         self._cam.MV_CC_FreeImageBuffer(self._st_out_frame)
         return img

@@ -14,6 +14,7 @@ import inspect
 
 from .camera_factory_base import CameraFactoryBase, CameraCreateException
 from .camera_base import CameraBase
+from typing import Optional
 
 __all__ = ["CameraFactory"]
 
@@ -41,7 +42,7 @@ class CameraFactory(object):
                 except ImportError as ex:
                     pass
 
-    def _get_factory(self, module: object) -> CameraFactoryBase | None:
+    def _get_factory(self, module: object) -> Optional[CameraFactoryBase]:
         for name, obj in inspect.getmembers(module):
             if name.endswith(self._factory_obj_name_ending):
                 return obj()
@@ -68,17 +69,17 @@ class CameraFactory(object):
     def camera_types(self) -> list[str]:
         return list(self._camera_type_factory_mapping.keys())
 
-    def get_factory_by_camera_type(self, name: str) -> CameraFactoryBase | None:
+    def get_factory_by_camera_type(self, name: str) -> Optional[CameraFactoryBase]:
         if name in self._camera_type_factory_mapping.keys():
             return self.get_factory(self._camera_type_factory_mapping[name])
         return None
 
-    def get_factory(self, name: str) -> CameraFactoryBase | None:
+    def get_factory(self, name: str) -> Optional[CameraFactoryBase]:
         if name in self._factories.keys():
             return self._factories[name]
         return None
 
-    def create_camera(self, factory_name: str, camera_id: str | int, *args, **kwargs) -> CameraBase | None:
+    def create_camera(self, factory_name: str, camera_id: str | int, *args, **kwargs) -> Optional[CameraBase]:
         factory = self.get_factory(factory_name)
         if factory:
             try:

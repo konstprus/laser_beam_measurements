@@ -7,14 +7,17 @@
 #
 # Copyright 2024 Konstantin Prusakov <konstantin.prusakov@phystech.edu>
 #
-
+from typing import Optional, Union, Any
 
 from laser_beam_measurements.camera_control.camera_factory_base import CameraFactoryBase, CameraCreateException
 
 from .hikrobot_camera import HikRobotCamera
 
 from .mv_import import MvCameraControl_class as hik
+from .mv_import import PixelType_header as PixelType
 from ctypes import *
+
+from laser_beam_measurements.camera_control.pixel_format import PixelFormat, PixelFormatEnum, get_pixel_format
 
 
 class HikRobotCameraFactory(CameraFactoryBase):
@@ -23,6 +26,11 @@ class HikRobotCameraFactory(CameraFactoryBase):
     def __init__(self):
         super(HikRobotCameraFactory, self).__init__()
         self._name_info_mapping: dict[str, hik.MV_CC_DEVICE_INFO] = {}
+        self._pixel_format_mapping: dict[Any, Optional[PixelFormat]] = {
+            PixelType.PixelType_Gvsp_Mono12: get_pixel_format(PixelFormatEnum.MONO_12),
+            PixelType.PixelType_Gvsp_Mono8: get_pixel_format(PixelFormatEnum.MONO_8),
+            PixelType.PixelType_Gvsp_Mono10: get_pixel_format(PixelFormatEnum.MONO_10),
+        }
         # hik.MvCamera.MV_CC_Initialize()
 
     def _get_available_devices(self) -> list:
@@ -81,14 +89,45 @@ class HikRobotCameraFactory(CameraFactoryBase):
             #     pass
         return list(self._name_info_mapping.keys())
 
+    def get_available_pixel_formats(self, camera_id: Optional[str | int], *args, **kwargs) -> list[PixelFormat]:
+        if camera_id in self._name_info_mapping.keys():
+            cam = hik.MvCamera()
+            device_info = self._name_info_mapping.get(camera_id)
+            if cam.MV_CC_CreateHandle(device_info) != 0:
+                cam.MV_CC_DestroyHandle()
+                return []
+            if cam.MV_CC_OpenDevice(hik.MV_ACCESS_Exclusive, 0) != 0:
+                cam.MV_CC_DestroyHandle()
+                return []
+            enum_value = hik.MVCC_ENUMVALUE()
+            memset(byref(enum_value), 0, sizeof(hik.MVCC_ENUMVALUE))
+            ret = cam.MV_CC_GetEnumValue("PixelFormat", enum_value)
+            if ret != 0:
+                return []
+            pf_list = []
+            for i in range(enum_value.nSupportedNum):
+                pf_code = enum_value.nSupportValue[i]
+                if pf_code in self._pixel_format_mapping.keys():
+                    pf_list.append(self._pixel_format_mapping[pf_code])
+            cam.MV_CC_CloseDevice()
+            cam.MV_CC_DestroyHandle()
+            return pf_list
+        return []
+
     def create(self, camera_id=None, *args, **kwargs):
         if camera_id in self._name_info_mapping.keys():
             device_info = self._name_info_mapping.get(camera_id)
             cam = hik.MvCamera()
             if cam.MV_CC_CreateHandle(device_info) != 0:
                 raise CameraCreateException("Error occurred during creation HikRobotCamera")
-            # if cam.MV_CC_OpenDevice(hik.MV_ACCESS_Exclusive, 0) != 0:
-            #     raise CameraCreateException("Error occurred during creation HikRobotCamera")
+
             kwargs.update({"mv_cam": cam, "device_info": device_info})
+            pixel_format: str = kwargs.get("pixel_format", None)
+            if pixel_format is not None:
+                for key, value in self._pixel_format_mapping.items():
+                    if value.name == pixel_format:
+                        kwargs.update({"pixel_type": key})
+                        break
+
             return super(HikRobotCameraFactory, self).create(camera_id=camera_id, *args, **kwargs)
         raise CameraCreateException("camera_id is unknown")

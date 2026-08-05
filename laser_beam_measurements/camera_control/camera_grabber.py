@@ -16,8 +16,11 @@ from .camera_listener import CameraListener
 from .camera_base import CameraBase
 from .camera_property_controller import CameraPropertyController
 from .camera_property_auto_controller import CameraPropertyAutoController
+from .pixel_format import get_pixel_range
 
 __all__ = ["CameraGrabber"]
+
+from .pixel_format import PixelFormat
 
 
 class CameraGrabber(QObject):
@@ -55,6 +58,8 @@ class CameraGrabber(QObject):
         with QMutexLocker(self._mutex):
             self._camera = camera
             self._property_controller.set_camera(self._camera)
+            pixel_format = self._camera.pixel_format
+            self._property_auto_controller.set_range(get_pixel_range(pixel_format))
             if self._listener is not None:
                 self._listener.reset()
 

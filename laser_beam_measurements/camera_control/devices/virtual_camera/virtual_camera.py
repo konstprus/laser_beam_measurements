@@ -11,9 +11,11 @@
 import numpy
 from numpy.random import random, randint
 from time import time, sleep
+from typing import Optional, Union
 
 from laser_beam_measurements.camera_control.camera_base import CameraBase
 from laser_beam_measurements.camera_control.camera_property_base import CameraPropertyBase
+from laser_beam_measurements.camera_control.pixel_format import PixelFormatEnum, PixelFormat, get_pixel_format
 from .helper_functions import generate_gauss, generate_line
 
 __all__ = ['VirtualCamera', 'VirtualProperty']
@@ -24,7 +26,8 @@ class VirtualCamera(CameraBase):
 
     def __init__(self, **kwargs):
         # kwargs.update({'resolution': [1920, 1080]})
-        kwargs.update({'resolution': [4000, 3000]})
+        # kwargs.update({'resolution': [4000, 3000]})
+        kwargs.update({'resolution': [1366, 768]})
         super(VirtualCamera, self).__init__(**kwargs)
         self.fps = kwargs.get('fps', 30)
         self.x0 = randint(self._resolution[0] / 4, self._resolution[0] / 2)
@@ -32,7 +35,13 @@ class VirtualCamera(CameraBase):
         self.t_ms = 100.0
         self.flag_opened = False
         self.prev_frame_time = 0.0
-        self.exp_range = (1, 255)
+
+        # pixel_format: str = kwargs.get('pixel_format', PixelFormatEnum.MONO_12)
+        # self._pixel_format: PixelFormat = get_pixel_format(pixel_format)
+        # if self._pixel_format is None:
+        #     self._pixel_format = get_pixel_format(PixelFormatEnum.MONO_12)
+
+        self.exp_range = (1, self.pixel_format.max_pixel_value)
         self._max_fps_t = 60.0
         self.fps_range = (1.0, round(1.0/self._max_fps_t, 2))
         self.gain_range = (0.0, 4.0)
@@ -40,6 +49,7 @@ class VirtualCamera(CameraBase):
             'fps': VirtualProperty(self, 'fps', self.fps_range),
             'exposure': VirtualProperty(self, 'exposure', self.exp_range)
         }
+
         self._initialize1()
 
     def _initialize1(self) -> None:
@@ -51,15 +61,16 @@ class VirtualCamera(CameraBase):
             if self._max_fps_t > t1 - t0:
                 self._max_fps_t = t1 - t0
 
-    def _get_stimulated_image(self, x0, y0, is_sleep=True, static=False):
+    def _get_stimulated_image(self, x0, y0, is_sleep=True, static=False) -> numpy.ndarray:
         t0 = time()
         if is_sleep:
             if 1.0/self.fps > (t0 - self.prev_frame_time):
                 sleep(1.0/self.fps - t0 + self.prev_frame_time)
         x = numpy.arange(0, self._resolution[0])
         y = numpy.arange(0, self._resolution[1])
-        sigma = 300.0
-        power = 1000.0
+        max_pixel_value =  self._pixel_format.max_pixel_value
+        sigma = min(self._resolution[0], self._resolution[1])/5
+        power = max_pixel_value * 4
         xx, yy = numpy.meshgrid(x, y)
         if self._id == "zero":
             img = (self.t_ms * 0.01 * random([self._resolution[1],
@@ -74,16 +85,24 @@ class VirtualCamera(CameraBase):
             img += generate_gauss(yy, xx, y0 + sigma/1.5, x0 + sigma/2, sigma, power)
         elif self._id == "right":
             img += generate_gauss(yy, xx, y0 + sigma/1.5, x0 - sigma/2, sigma, power)
-        img = numpy.array((self.t_ms + 100.0) * img / numpy.max(img))
+        # img = numpy.array((self.t_ms + 100.0) * img / numpy.max(img))
+        img = numpy.array((self.t_ms + max_pixel_value*0.4) * img / numpy.max(img))
         if not static:
             img += (self.t_ms*0.01*random([self._resolution[1],
                                            self._resolution[0]]))
-        numpy.putmask(img, img > 255.0, 255.0)
-        img = numpy.array(img, dtype=numpy.uint8)
+        numpy.putmask(
+            img,
+            img > max_pixel_value,
+            max_pixel_value
+        )
+        dtype = numpy.uint8
+        if max_pixel_value > 255:
+            dtype = numpy.uint16
+        img = numpy.array(img, dtype=dtype)
         self.prev_frame_time = time()
         return img
 
-    def open(self, camera_id: str | int | None = None) -> None:
+    def open(self, camera_id: Optional[Union[str , int]] = None) -> None:
         if camera_id is not None:
             self._id = camera_id
         self.flag_opened = True

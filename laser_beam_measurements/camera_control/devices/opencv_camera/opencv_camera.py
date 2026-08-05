@@ -12,6 +12,7 @@
 from laser_beam_measurements.camera_control.camera_base import CameraBase
 # from camera_control.property_base import PropertyBase
 from .opencv_camera_property import OpenCVCameraProperty
+from typing import Optional
 
 import cv2
 
@@ -26,7 +27,7 @@ class OpenCVCamera(CameraBase):
         camera_id = kwargs.get("camera_id", 0)
         kwargs.update({"camera_id": camera_id})
         super(OpenCVCamera, self).__init__(**kwargs)
-        self._cap: [cv2.VideoCapture, None] = None
+        self._cap: Optional[cv2.VideoCapture] = None
 
     def _initialize(self) -> None:
         self._properties.clear()
@@ -55,7 +56,7 @@ class OpenCVCamera(CameraBase):
             self._cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 10000)
             w = self._cap.get(cv2.CAP_PROP_FRAME_WIDTH)
             h = self._cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-            self._resolution = [w, h]
+            self._resolution = (int(w), int(h))
             self._init_properties()
 
     def close(self):
