@@ -85,9 +85,10 @@ class CameraPropertyAutoController(QObject):
         self._flag_control_always: bool = False
         self._flag_bad_signal: bool = False
         self._property_name: str = "exposure"
-        self._checker.range = (190, 240)
+        self._checker.range = (220, 250)
         self._current_bounds: list = list()
-        self._step = 1e-1
+        self._step = 1
+        # self._step = 1e-1
         self._prop_range: tuple = (0.0, 1.0)
         self._counter: int = 0
         self._max_counter: int = 3
@@ -127,6 +128,7 @@ class CameraPropertyAutoController(QObject):
         self.set_control_always(not self._flag_control_always)
 
     def check_image(self, img: numpy.ndarray) -> None:
+        print(f'{self._current_bounds = }')
         if not self._flag_active:
             return
         check_result = ControllerStatus.STATUS_NONE
@@ -169,10 +171,6 @@ class CameraPropertyAutoController(QObject):
 
     def _small_correct(self, check_result: ControllerStatus) -> bool:
         value = self._controller.get_property_value(self._property_name)
-        v1 = abs(value - self._prop_range[0])
-        v2 = abs(value - self._prop_range[1])
-        print(f'{v1 = }\t{v2 = }\t{self._step = }')
-        print(f'{abs(value - self._current_bounds[0])}\t{abs(value - self._current_bounds[1])}\t{self._step}')
         # if abs(value - self._prop_range[0]) < self._step or abs(value - self._prop_range[1]) < self._step:
         if abs(value - self._current_bounds[0]) < self._step or abs(value - self._current_bounds[1]) < self._step:
             return True
@@ -187,14 +185,12 @@ class CameraPropertyAutoController(QObject):
 
     def _correct(self, check_result: ControllerStatus) -> bool:
         value = self._controller.get_property_value(self._property_name)
-        print(f'Current {self._property_name} = {value}')
-
-        # if self._current_bounds[1] - self._current_bounds[0] < self._number_of_steps_for_small_range*self._step:
-        #     result = self._small_correct(check_result)
-        #     if result:
-        #         return self._check_counter()
-        #     else:
-        #         return False
+        if self._current_bounds[1] - self._current_bounds[0] < self._number_of_steps_for_small_range*self._step:
+            result = self._small_correct(check_result)
+            if result:
+                return self._check_counter()
+            else:
+                return False
         if check_result == ControllerStatus.STATUS_OK:
             return self._check_counter()
         elif check_result == ControllerStatus.STATUS_LOW:
@@ -207,7 +203,7 @@ class CameraPropertyAutoController(QObject):
                 return self._check_counter()
             else:
                 self._current_bounds[1] = value
-        # self._counter = 0
+        self._counter = 0
 
         if self._current_bounds[1] - self._current_bounds[0] <= 1:
             return True
@@ -228,8 +224,10 @@ class CameraPropertyAutoController(QObject):
             return
         prop = self._controller.get_property(self._property_name)
         self._prop_range = tuple(prop.range)
-        self._current_bounds = list(prop.range)
-        self._step = float(prop.step)
+        if (not self._current_bounds):
+            self._current_bounds = list(prop.range)
+        if (not self._step):
+            self._step = float(prop.step)
         self._flag_bad_signal = False
         self._flag_control_on = True
 
