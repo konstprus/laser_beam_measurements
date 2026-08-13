@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'beam_profiler_widget.ui'
+## Form generated from reading UI file 'beam_profiler_widget_2.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.7.0
 ##
@@ -15,20 +15,24 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QGroupBox,
-    QHBoxLayout, QHeaderView, QSizePolicy, QSpacerItem,
-    QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QGridLayout,
+    QGroupBox, QHBoxLayout, QHeaderView, QPushButton,
+    QSizePolicy, QSpacerItem, QTableWidgetItem, QVBoxLayout,
+    QWidget)
 
-from ..utils.custom_graphics_view import CustomGraphicsView
+from laser_beam_measurements.widgets.utils.custom_graphics_view import CustomGraphicsView
+from laser_beam_measurements.widgets.utils.parameters_table_widget import ParametersTableWidget
 from pyqtgraph import PlotWidget
 
 class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(934, 616)
+        Form.resize(967, 787)
         self.horizontalLayout_2 = QHBoxLayout(Form)
+        self.horizontalLayout_2.setSpacing(1)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.horizontalLayout_2.setContentsMargins(2, 2, 2, 2)
         self.groupBox = QGroupBox(Form)
         self.groupBox.setObjectName(u"groupBox")
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
@@ -108,7 +112,22 @@ class Ui_Form(object):
 
         self.verticalLayout_3.addLayout(self.horizontalLayout)
 
-        self.tableWidget = QTableWidget(Form)
+        self.parametersGroupBox = QGroupBox(Form)
+        self.parametersGroupBox.setObjectName(u"parametersGroupBox")
+        sizePolicy3 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(0)
+        sizePolicy3.setHeightForWidth(self.parametersGroupBox.sizePolicy().hasHeightForWidth())
+        self.parametersGroupBox.setSizePolicy(sizePolicy3)
+        self.gridLayout = QGridLayout(self.parametersGroupBox)
+        self.gridLayout.setSpacing(1)
+        self.gridLayout.setObjectName(u"gridLayout")
+        self.gridLayout.setContentsMargins(2, 2, 2, 1)
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.gridLayout.addItem(self.horizontalSpacer, 0, 1, 1, 1)
+
+        self.tableWidget = ParametersTableWidget(self.parametersGroupBox)
         self.tableWidget.setObjectName(u"tableWidget")
         self.tableWidget.setShowGrid(True)
         self.tableWidget.horizontalHeader().setCascadingSectionResizes(False)
@@ -118,7 +137,15 @@ class Ui_Form(object):
         self.tableWidget.verticalHeader().setMinimumSectionSize(20)
         self.tableWidget.verticalHeader().setDefaultSectionSize(20)
 
-        self.verticalLayout_3.addWidget(self.tableWidget)
+        self.gridLayout.addWidget(self.tableWidget, 2, 0, 1, 2)
+
+        self.selectParametersPushButton = QPushButton(self.parametersGroupBox)
+        self.selectParametersPushButton.setObjectName(u"selectParametersPushButton")
+
+        self.gridLayout.addWidget(self.selectParametersPushButton, 0, 0, 1, 1)
+
+
+        self.verticalLayout_3.addWidget(self.parametersGroupBox)
 
 
         self.horizontalLayout_2.addLayout(self.verticalLayout_3)
@@ -136,5 +163,7 @@ class Ui_Form(object):
         self.colormap_groub_box.setTitle(QCoreApplication.translate("Form", u"Colormap", None))
         self.show_cross_check_box.setText(QCoreApplication.translate("Form", u"Show cross", None))
         self.auto_cross_check_box.setText(QCoreApplication.translate("Form", u"Auto cross", None))
+        self.parametersGroupBox.setTitle(QCoreApplication.translate("Form", u"Beam Parameters", None))
+        self.selectParametersPushButton.setText(QCoreApplication.translate("Form", u"Select", None))
     # retranslateUi
 

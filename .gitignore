@@ -163,3 +163,5 @@ settings.conf
 MvImport/
 /laser_beam_measurements/utils/colormaps/generatetablesfromcsv.py
 /laser_beam_measurements/utils/colormaps/CETperceptual_csv_0_255/
+
+.archive/
