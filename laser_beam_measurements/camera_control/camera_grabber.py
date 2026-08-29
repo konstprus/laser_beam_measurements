@@ -37,6 +37,8 @@ class CameraGrabber(QObject):
         self._property_controller: CameraPropertyController = CameraPropertyController(self)
         self._property_auto_controller: CameraPropertyAutoController = CameraPropertyAutoController(self)
         self._property_auto_controller.set_controller(self._property_controller)
+        self._frame_count: int = 0
+        self._frame_drop: int = 2
 
         if self._thread is None:
             self._thread = QThread()
@@ -172,6 +174,10 @@ class CameraGrabber(QObject):
             img = self._camera.query_frame()
             if img is not None:
                 self._listener.on_new_image(img)
-                self._property_auto_controller.check_image(img)
+                if self._frame_count > self._frame_drop:
+                    self._property_auto_controller.check_image(img)
+                    self._frame_count = 0
+                else:
+                    self._frame_count += 1
         except Exception as ex:
             self._listener.on_error(str(ex))
