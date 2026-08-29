@@ -180,7 +180,13 @@ class BeamProfiler(ImageProcessorBase):
             local_position.update((self._center[0]*ps, self._center[1]*ps))
 
         self._processed_image = denoised_image
-        self.signal_beam_parameters_updated.emit(self._bp)
+        if self._bp.average_control.enabled:
+            self._bp.average_control.increase_counter()
+            if self._bp.average_control.ready:
+                self.signal_beam_parameters_updated.emit(self._bp.copy())
+                self._bp.average_control.reset_counter()
+        else:
+            self.signal_beam_parameters_updated.emit(self._bp.copy())
         return True
 
     def save_settings(self, settings: QSettings) -> None:

@@ -15,6 +15,7 @@ from .parameter import ParameterStat, Parameter
 from .beam_position_and_orientation_group import BeamPositionAndOrientationGroup
 from .beam_other_parameters_group import BeamOtherParametersGroup
 from .parameter_group import ParameterGroup
+from .average_control import AverageControl
 from typing import Optional, Self
 
 BeamParametersStat = list[tuple[str, list[ParameterStat]]]
@@ -29,6 +30,7 @@ class BeamParameters(QObject):
         self._width_group = None
         self._position_and_orientation_group = None
         self._other_parameters_group = None
+        self._average_control: Optional[AverageControl] = None
 
         if copied:
             self._width_group = copied._width_group.copy()
@@ -38,6 +40,11 @@ class BeamParameters(QObject):
             self._width_group = BeamWidthGroup()
             self._position_and_orientation_group = BeamPositionAndOrientationGroup()
             self._other_parameters_group = BeamOtherParametersGroup()
+
+            self._average_control = AverageControl()
+            self._width_group.set_average_control(self._average_control)
+            self._position_and_orientation_group.set_average_control(self._average_control)
+            self._other_parameters_group.set_average_control(self._average_control)
 
 
     @property
@@ -62,6 +69,10 @@ class BeamParameters(QObject):
         return (len(self._width_group) +
                 len(self._position_and_orientation_group) +
                 len(self._other_parameters_group))
+
+    @property
+    def average_control(self) -> AverageControl:
+        return self._average_control
 
     # @Slot(list)
     # def update_stat(self, stat: BeamParametersStat) -> None:
@@ -89,6 +100,11 @@ class BeamParameters(QObject):
         self._save_group(settings, self._position_and_orientation_group)
         self._save_group(settings, self._other_parameters_group)
 
+        settings.beginGroup("AverageControl")
+        settings.setValue("Enabled", self._average_control.enabled)
+        settings.setValue("Count", self._average_control.number)
+        settings.endGroup()
+
     def _save_group(self, settings: QSettings, group: ParameterGroup) -> None:
         settings.beginGroup(group.name)
         for param in group:
@@ -103,8 +119,21 @@ class BeamParameters(QObject):
         self._load_group(settings, self._position_and_orientation_group)
         self._load_group(settings, self._other_parameters_group)
 
+        settings.beginGroup("AverageControl")
+        if settings.contains("Enabled"):
+            enabled = settings.value("Enabled")
+            if enabled == "true":
+                self._average_control.enabled = True
+            else:
+                self._average_control.enabled = False
+
+            if settings.contains("Count"):
+                self._average_control.number = int(settings.value("Count"))
+        settings.endGroup()
+
     def _load_group(self, settings: QSettings, group: ParameterGroup) -> None:
         settings.beginGroup(group.name)
+
         for param in group:
             settings.beginGroup(param.name)
             if settings.contains("Enabled"):
@@ -116,4 +145,5 @@ class BeamParameters(QObject):
             if settings.contains("VerboseName"):
                 param.verbose_name = settings.value("VerboseName")
             settings.endGroup()
+
         settings.endGroup()
